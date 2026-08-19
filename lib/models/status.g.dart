@@ -15,7 +15,7 @@ extension GetStatusCollection on Isar {
 
 const StatusSchema = CollectionSchema(
   name: r'Status',
-  id: -8158262482337811485,
+  id: 8,
   properties: {
     r'color': PropertySchema(
       id: 0,

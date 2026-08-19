@@ -17,6 +17,8 @@ dependencies:
   isar: ^3.1.0+1
   isar_flutter_libs: ^3.1.0+1
   path_provider: ^2.1.5
+  flutter_riverpod: ^2.4.9
+  riverpod: ^2.4.9 
   cupertino_icons: ^1.0.8
 
 dev_dependencies:

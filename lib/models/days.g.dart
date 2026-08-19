@@ -15,7 +15,7 @@ extension GetDaysCollection on Isar {
 
 const DaysSchema = CollectionSchema(
   name: r'Days',
-  id: 1846955126293866979,
+  id: 2,
   properties: {
     r'dayOfWeek': PropertySchema(
       id: 0,

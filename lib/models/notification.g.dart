@@ -15,7 +15,7 @@ extension GetNotificationCollection on Isar {
 
 const NotificationSchema = CollectionSchema(
   name: r'Notification',
-  id: -4128487677257470820,
+  id: 5,
   properties: {
     r'enabled': PropertySchema(
       id: 0,

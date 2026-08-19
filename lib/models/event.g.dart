@@ -15,7 +15,7 @@ extension GetEventCollection on Isar {
 
 const EventSchema = CollectionSchema(
   name: r'Event',
-  id: 2102939193127251002,
+  id: 3,
   properties: {
     r'idTasks': PropertySchema(
       id: 0,

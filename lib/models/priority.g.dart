@@ -15,7 +15,7 @@ extension GetPriorityCollection on Isar {
 
 const PrioritySchema = CollectionSchema(
   name: r'Priority',
-  id: -8157557930394735685,
+  id: 6,
   properties: {
     r'color': PropertySchema(
       id: 0,
