@@ -9,27 +9,31 @@ class AppScaffold extends ConsumerWidget {
     required this.child,
     this.showBottomNav = true,
     this.appBar,
-    this.floatingActionButton,
     this.resizeToAvoidBottomInset = true,
+    this.showFab = true,
+    this.onFabPressed,
   });
 
   final Widget child;
   final bool showBottomNav;
   final PreferredSizeWidget? appBar;
-  final Widget? floatingActionButton;
   final bool resizeToAvoidBottomInset;
+  final bool showFab;
+  final VoidCallback? onFabPressed;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final brightness = theme.brightness;
 
+    // Le FAB est maintenant intégré dans la bottom navigation bar
+    // On le désactive ici pour éviter le doublon
     return Scaffold(
       resizeToAvoidBottomInset: resizeToAvoidBottomInset,
       appBar: appBar,
       backgroundColor: theme.scaffoldBackgroundColor,
       body: child,
-      floatingActionButton: floatingActionButton,
+      floatingActionButton: null, // Désactivé car intégré dans la barre
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: showBottomNav 
           ? const ChronosBottomNavigationBar() 
           : null,

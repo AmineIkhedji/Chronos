@@ -76,6 +76,9 @@ final taskWithRelationsProvider = FutureProvider.family<Map<String, dynamic>?, i
 // ============ STATISTIQUES ============
 
 // Statistiques globales
+// lib/providers/task_providers.dart
+
+// Statistiques globales
 final statisticsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   final repo = ref.read(taskRepositoryProvider);
   final total = await repo.getTotalTasksCount();
@@ -83,12 +86,18 @@ final statisticsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   final remaining = await repo.getRemainingTasksCount();
   final lateTasks = await repo.getLateTasks();
   
+  // Correction : on force le cast en double et on gère la division par zéro
+  double successRate = 0.0;
+  if (total > 0) {
+    successRate = (completed / total) * 100;
+  }
+  
   return {
     'total': total,
     'completed': completed,
     'remaining': remaining,
     'late': lateTasks.length,
-    'successRate': total > 0 ? (completed / total) * 100 : 0,
+    'successRate': successRate, // C'est bien un double maintenant
   };
 });
 

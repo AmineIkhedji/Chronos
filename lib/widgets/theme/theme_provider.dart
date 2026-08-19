@@ -52,7 +52,6 @@ final loadThemeProvider = FutureProvider<void>((ref) async {
 ThemeData buildTheme(WidgetRef ref, {bool isDark = false}) {
   final primary = ref.watch(primaryColorProvider);
   final secondary = ref.watch(secondaryColorProvider);
-  final accent = ref.watch(accentColorProvider);
   final background = ref.watch(backgroundColorProvider);
   final surface = ref.watch(surfaceColorProvider);
   
