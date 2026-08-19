@@ -15,14 +15,11 @@ extension GetEventCollection on Isar {
 
 const EventSchema = CollectionSchema(
   name: r'Event',
-  id: 3,
+  id: 2102939193127251002,
   properties: {
-    r'idTasks': PropertySchema(
-      id: 0,
-      name: r'idTasks',
-      type: IsarType.long,
-    )
+    r'idTasks': PropertySchema(id: 0, name: r'idTasks', type: IsarType.long),
   },
+
   estimateSize: _eventEstimateSize,
   serialize: _eventSerialize,
   deserialize: _eventDeserialize,
@@ -31,10 +28,11 @@ const EventSchema = CollectionSchema(
   indexes: {},
   links: {},
   embeddedSchemas: {},
+
   getId: _eventGetId,
   getLinks: _eventGetLinks,
   attach: _eventAttach,
-  version: '3.1.0+1',
+  version: '3.3.2',
 );
 
 int _eventEstimateSize(
@@ -104,10 +102,9 @@ extension EventQueryWhereSort on QueryBuilder<Event, Event, QWhere> {
 extension EventQueryWhere on QueryBuilder<Event, Event, QWhereClause> {
   QueryBuilder<Event, Event, QAfterWhereClause> idEventEqualTo(Id idEvent) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IdWhereClause.between(
-        lower: idEvent,
-        upper: idEvent,
-      ));
+      return query.addWhereClause(
+        IdWhereClause.between(lower: idEvent, upper: idEvent),
+      );
     });
   }
 
@@ -133,8 +130,10 @@ extension EventQueryWhere on QueryBuilder<Event, Event, QWhereClause> {
     });
   }
 
-  QueryBuilder<Event, Event, QAfterWhereClause> idEventGreaterThan(Id idEvent,
-      {bool include = false}) {
+  QueryBuilder<Event, Event, QAfterWhereClause> idEventGreaterThan(
+    Id idEvent, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         IdWhereClause.greaterThan(lower: idEvent, includeLower: include),
@@ -142,8 +141,10 @@ extension EventQueryWhere on QueryBuilder<Event, Event, QWhereClause> {
     });
   }
 
-  QueryBuilder<Event, Event, QAfterWhereClause> idEventLessThan(Id idEvent,
-      {bool include = false}) {
+  QueryBuilder<Event, Event, QAfterWhereClause> idEventLessThan(
+    Id idEvent, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         IdWhereClause.lessThan(upper: idEvent, includeUpper: include),
@@ -158,12 +159,14 @@ extension EventQueryWhere on QueryBuilder<Event, Event, QWhereClause> {
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IdWhereClause.between(
-        lower: lowerIdEvent,
-        includeLower: includeLower,
-        upper: upperIdEvent,
-        includeUpper: includeUpper,
-      ));
+      return query.addWhereClause(
+        IdWhereClause.between(
+          lower: lowerIdEvent,
+          includeLower: includeLower,
+          upper: upperIdEvent,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 }
@@ -171,10 +174,9 @@ extension EventQueryWhere on QueryBuilder<Event, Event, QWhereClause> {
 extension EventQueryFilter on QueryBuilder<Event, Event, QFilterCondition> {
   QueryBuilder<Event, Event, QAfterFilterCondition> idEventEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'idEvent',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'idEvent', value: value),
+      );
     });
   }
 
@@ -183,11 +185,13 @@ extension EventQueryFilter on QueryBuilder<Event, Event, QFilterCondition> {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'idEvent',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'idEvent',
+          value: value,
+        ),
+      );
     });
   }
 
@@ -196,11 +200,13 @@ extension EventQueryFilter on QueryBuilder<Event, Event, QFilterCondition> {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'idEvent',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'idEvent',
+          value: value,
+        ),
+      );
     });
   }
 
@@ -211,22 +217,23 @@ extension EventQueryFilter on QueryBuilder<Event, Event, QFilterCondition> {
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'idEvent',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'idEvent',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 
   QueryBuilder<Event, Event, QAfterFilterCondition> idTasksEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'idTasks',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'idTasks', value: value),
+      );
     });
   }
 
@@ -235,11 +242,13 @@ extension EventQueryFilter on QueryBuilder<Event, Event, QFilterCondition> {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'idTasks',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'idTasks',
+          value: value,
+        ),
+      );
     });
   }
 
@@ -248,11 +257,13 @@ extension EventQueryFilter on QueryBuilder<Event, Event, QFilterCondition> {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'idTasks',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'idTasks',
+          value: value,
+        ),
+      );
     });
   }
 
@@ -263,13 +274,15 @@ extension EventQueryFilter on QueryBuilder<Event, Event, QFilterCondition> {
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'idTasks',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'idTasks',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 }

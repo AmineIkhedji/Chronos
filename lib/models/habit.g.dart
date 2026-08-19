@@ -15,14 +15,11 @@ extension GetHabitCollection on Isar {
 
 const HabitSchema = CollectionSchema(
   name: r'Habit',
-  id: 4,
+  id: 3896650575830519340,
   properties: {
-    r'idTasks': PropertySchema(
-      id: 0,
-      name: r'idTasks',
-      type: IsarType.long,
-    )
+    r'idTasks': PropertySchema(id: 0, name: r'idTasks', type: IsarType.long),
   },
+
   estimateSize: _habitEstimateSize,
   serialize: _habitSerialize,
   deserialize: _habitDeserialize,
@@ -31,10 +28,11 @@ const HabitSchema = CollectionSchema(
   indexes: {},
   links: {},
   embeddedSchemas: {},
+
   getId: _habitGetId,
   getLinks: _habitGetLinks,
   attach: _habitAttach,
-  version: '3.1.0+1',
+  version: '3.3.2',
 );
 
 int _habitEstimateSize(
@@ -104,10 +102,9 @@ extension HabitQueryWhereSort on QueryBuilder<Habit, Habit, QWhere> {
 extension HabitQueryWhere on QueryBuilder<Habit, Habit, QWhereClause> {
   QueryBuilder<Habit, Habit, QAfterWhereClause> idHabitEqualTo(Id idHabit) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IdWhereClause.between(
-        lower: idHabit,
-        upper: idHabit,
-      ));
+      return query.addWhereClause(
+        IdWhereClause.between(lower: idHabit, upper: idHabit),
+      );
     });
   }
 
@@ -133,8 +130,10 @@ extension HabitQueryWhere on QueryBuilder<Habit, Habit, QWhereClause> {
     });
   }
 
-  QueryBuilder<Habit, Habit, QAfterWhereClause> idHabitGreaterThan(Id idHabit,
-      {bool include = false}) {
+  QueryBuilder<Habit, Habit, QAfterWhereClause> idHabitGreaterThan(
+    Id idHabit, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         IdWhereClause.greaterThan(lower: idHabit, includeLower: include),
@@ -142,8 +141,10 @@ extension HabitQueryWhere on QueryBuilder<Habit, Habit, QWhereClause> {
     });
   }
 
-  QueryBuilder<Habit, Habit, QAfterWhereClause> idHabitLessThan(Id idHabit,
-      {bool include = false}) {
+  QueryBuilder<Habit, Habit, QAfterWhereClause> idHabitLessThan(
+    Id idHabit, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         IdWhereClause.lessThan(upper: idHabit, includeUpper: include),
@@ -158,12 +159,14 @@ extension HabitQueryWhere on QueryBuilder<Habit, Habit, QWhereClause> {
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IdWhereClause.between(
-        lower: lowerIdHabit,
-        includeLower: includeLower,
-        upper: upperIdHabit,
-        includeUpper: includeUpper,
-      ));
+      return query.addWhereClause(
+        IdWhereClause.between(
+          lower: lowerIdHabit,
+          includeLower: includeLower,
+          upper: upperIdHabit,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 }
@@ -171,10 +174,9 @@ extension HabitQueryWhere on QueryBuilder<Habit, Habit, QWhereClause> {
 extension HabitQueryFilter on QueryBuilder<Habit, Habit, QFilterCondition> {
   QueryBuilder<Habit, Habit, QAfterFilterCondition> idHabitEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'idHabit',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'idHabit', value: value),
+      );
     });
   }
 
@@ -183,11 +185,13 @@ extension HabitQueryFilter on QueryBuilder<Habit, Habit, QFilterCondition> {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'idHabit',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'idHabit',
+          value: value,
+        ),
+      );
     });
   }
 
@@ -196,11 +200,13 @@ extension HabitQueryFilter on QueryBuilder<Habit, Habit, QFilterCondition> {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'idHabit',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'idHabit',
+          value: value,
+        ),
+      );
     });
   }
 
@@ -211,22 +217,23 @@ extension HabitQueryFilter on QueryBuilder<Habit, Habit, QFilterCondition> {
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'idHabit',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'idHabit',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 
   QueryBuilder<Habit, Habit, QAfterFilterCondition> idTasksEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'idTasks',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'idTasks', value: value),
+      );
     });
   }
 
@@ -235,11 +242,13 @@ extension HabitQueryFilter on QueryBuilder<Habit, Habit, QFilterCondition> {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'idTasks',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'idTasks',
+          value: value,
+        ),
+      );
     });
   }
 
@@ -248,11 +257,13 @@ extension HabitQueryFilter on QueryBuilder<Habit, Habit, QFilterCondition> {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'idTasks',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'idTasks',
+          value: value,
+        ),
+      );
     });
   }
 
@@ -263,13 +274,15 @@ extension HabitQueryFilter on QueryBuilder<Habit, Habit, QFilterCondition> {
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'idTasks',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'idTasks',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 }

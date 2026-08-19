@@ -1,5 +1,5 @@
 // lib/repositories/priority_repository.dart
-import 'package:isar/isar.dart';
+import 'package:isar_community/isar.dart';
 import '../database/app_database.dart';
 import '../models/priority.dart';
 import '../models/task.dart';

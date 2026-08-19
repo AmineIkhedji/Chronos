@@ -1,5 +1,5 @@
 // lib/repositories/category_repository.dart
-import 'package:isar/isar.dart';
+import 'package:isar_community/isar.dart';
 import '../database/app_database.dart';
 import '../models/category.dart';
 import '../models/task.dart';

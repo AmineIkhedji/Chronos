@@ -1,24 +1,24 @@
 name: chronos
+
 description: "A new Flutter project."
 
-publish_to: 'none' 
-
+publish_to: 'none'
 
 version: 1.0.0+1
 
 environment:
   sdk: ^3.12.2
 
-
 dependencies:
   flutter:
     sdk: flutter
 
-  isar: ^3.1.0+1
-  isar_flutter_libs: ^3.1.0+1
+  isar_community: ^3.3.2
+  isar_community_flutter_libs: ^3.3.2
   path_provider: ^2.1.5
+
   flutter_riverpod: ^2.4.9
-  riverpod: ^2.4.9 
+
   cupertino_icons: ^1.0.8
 
 dev_dependencies:
@@ -26,11 +26,8 @@ dev_dependencies:
     sdk: flutter
 
   build_runner: ^2.4.13
-  isar_generator: ^3.1.0+1
-
+  isar_community_generator: ^3.3.2
   flutter_lints: ^6.0.0
 
 flutter:
-
   uses-material-design: true
-

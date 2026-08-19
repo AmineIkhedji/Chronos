@@ -15,24 +15,17 @@ extension GetNotificationCollection on Isar {
 
 const NotificationSchema = CollectionSchema(
   name: r'Notification',
-  id: 5,
+  id: -4128487677257470820,
   properties: {
-    r'enabled': PropertySchema(
-      id: 0,
-      name: r'enabled',
-      type: IsarType.bool,
-    ),
-    r'idTasks': PropertySchema(
-      id: 1,
-      name: r'idTasks',
-      type: IsarType.long,
-    ),
+    r'enabled': PropertySchema(id: 0, name: r'enabled', type: IsarType.bool),
+    r'idTasks': PropertySchema(id: 1, name: r'idTasks', type: IsarType.long),
     r'remindAt': PropertySchema(
       id: 2,
       name: r'remindAt',
       type: IsarType.dateTime,
-    )
+    ),
   },
+
   estimateSize: _notificationEstimateSize,
   serialize: _notificationSerialize,
   deserialize: _notificationDeserialize,
@@ -41,10 +34,11 @@ const NotificationSchema = CollectionSchema(
   indexes: {},
   links: {},
   embeddedSchemas: {},
+
   getId: _notificationGetId,
   getLinks: _notificationGetLinks,
   attach: _notificationAttach,
-  version: '3.1.0+1',
+  version: '3.3.2',
 );
 
 int _notificationEstimateSize(
@@ -108,7 +102,10 @@ List<IsarLinkBase<dynamic>> _notificationGetLinks(Notification object) {
 }
 
 void _notificationAttach(
-    IsarCollection<dynamic> col, Id id, Notification object) {
+  IsarCollection<dynamic> col,
+  Id id,
+  Notification object,
+) {
   object.idNotif = id;
 }
 
@@ -124,17 +121,18 @@ extension NotificationQueryWhereSort
 extension NotificationQueryWhere
     on QueryBuilder<Notification, Notification, QWhereClause> {
   QueryBuilder<Notification, Notification, QAfterWhereClause> idNotifEqualTo(
-      Id idNotif) {
+    Id idNotif,
+  ) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IdWhereClause.between(
-        lower: idNotif,
-        upper: idNotif,
-      ));
+      return query.addWhereClause(
+        IdWhereClause.between(lower: idNotif, upper: idNotif),
+      );
     });
   }
 
   QueryBuilder<Notification, Notification, QAfterWhereClause> idNotifNotEqualTo(
-      Id idNotif) {
+    Id idNotif,
+  ) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
         return query
@@ -157,7 +155,7 @@ extension NotificationQueryWhere
   }
 
   QueryBuilder<Notification, Notification, QAfterWhereClause>
-      idNotifGreaterThan(Id idNotif, {bool include = false}) {
+  idNotifGreaterThan(Id idNotif, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         IdWhereClause.greaterThan(lower: idNotif, includeLower: include),
@@ -166,8 +164,9 @@ extension NotificationQueryWhere
   }
 
   QueryBuilder<Notification, Notification, QAfterWhereClause> idNotifLessThan(
-      Id idNotif,
-      {bool include = false}) {
+    Id idNotif, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         IdWhereClause.lessThan(upper: idNotif, includeUpper: include),
@@ -182,12 +181,14 @@ extension NotificationQueryWhere
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IdWhereClause.between(
-        lower: lowerIdNotif,
-        includeLower: includeLower,
-        upper: upperIdNotif,
-        includeUpper: includeUpper,
-      ));
+      return query.addWhereClause(
+        IdWhereClause.between(
+          lower: lowerIdNotif,
+          includeLower: includeLower,
+          upper: upperIdNotif,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 }
@@ -195,180 +196,176 @@ extension NotificationQueryWhere
 extension NotificationQueryFilter
     on QueryBuilder<Notification, Notification, QFilterCondition> {
   QueryBuilder<Notification, Notification, QAfterFilterCondition>
-      enabledEqualTo(bool value) {
+  enabledEqualTo(bool value) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'enabled',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'enabled', value: value),
+      );
     });
   }
 
   QueryBuilder<Notification, Notification, QAfterFilterCondition>
-      idNotifEqualTo(Id value) {
+  idNotifEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'idNotif',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'idNotif', value: value),
+      );
     });
   }
 
   QueryBuilder<Notification, Notification, QAfterFilterCondition>
-      idNotifGreaterThan(
-    Id value, {
-    bool include = false,
-  }) {
+  idNotifGreaterThan(Id value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'idNotif',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'idNotif',
+          value: value,
+        ),
+      );
     });
   }
 
   QueryBuilder<Notification, Notification, QAfterFilterCondition>
-      idNotifLessThan(
-    Id value, {
-    bool include = false,
-  }) {
+  idNotifLessThan(Id value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'idNotif',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'idNotif',
+          value: value,
+        ),
+      );
     });
   }
 
   QueryBuilder<Notification, Notification, QAfterFilterCondition>
-      idNotifBetween(
+  idNotifBetween(
     Id lower,
     Id upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'idNotif',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'idNotif',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 
   QueryBuilder<Notification, Notification, QAfterFilterCondition>
-      idTasksEqualTo(int value) {
+  idTasksEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'idTasks',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'idTasks', value: value),
+      );
     });
   }
 
   QueryBuilder<Notification, Notification, QAfterFilterCondition>
-      idTasksGreaterThan(
-    int value, {
-    bool include = false,
-  }) {
+  idTasksGreaterThan(int value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'idTasks',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'idTasks',
+          value: value,
+        ),
+      );
     });
   }
 
   QueryBuilder<Notification, Notification, QAfterFilterCondition>
-      idTasksLessThan(
-    int value, {
-    bool include = false,
-  }) {
+  idTasksLessThan(int value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'idTasks',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'idTasks',
+          value: value,
+        ),
+      );
     });
   }
 
   QueryBuilder<Notification, Notification, QAfterFilterCondition>
-      idTasksBetween(
+  idTasksBetween(
     int lower,
     int upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'idTasks',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'idTasks',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 
   QueryBuilder<Notification, Notification, QAfterFilterCondition>
-      remindAtEqualTo(DateTime value) {
+  remindAtEqualTo(DateTime value) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'remindAt',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'remindAt', value: value),
+      );
     });
   }
 
   QueryBuilder<Notification, Notification, QAfterFilterCondition>
-      remindAtGreaterThan(
-    DateTime value, {
-    bool include = false,
-  }) {
+  remindAtGreaterThan(DateTime value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'remindAt',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'remindAt',
+          value: value,
+        ),
+      );
     });
   }
 
   QueryBuilder<Notification, Notification, QAfterFilterCondition>
-      remindAtLessThan(
-    DateTime value, {
-    bool include = false,
-  }) {
+  remindAtLessThan(DateTime value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'remindAt',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'remindAt',
+          value: value,
+        ),
+      );
     });
   }
 
   QueryBuilder<Notification, Notification, QAfterFilterCondition>
-      remindAtBetween(
+  remindAtBetween(
     DateTime lower,
     DateTime upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'remindAt',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'remindAt',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 }

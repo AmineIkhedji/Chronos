@@ -15,19 +15,16 @@ extension GetDaysCollection on Isar {
 
 const DaysSchema = CollectionSchema(
   name: r'Days',
-  id: 2,
+  id: 1846955126293866979,
   properties: {
     r'dayOfWeek': PropertySchema(
       id: 0,
       name: r'dayOfWeek',
       type: IsarType.long,
     ),
-    r'idHabit': PropertySchema(
-      id: 1,
-      name: r'idHabit',
-      type: IsarType.long,
-    )
+    r'idHabit': PropertySchema(id: 1, name: r'idHabit', type: IsarType.long),
   },
+
   estimateSize: _daysEstimateSize,
   serialize: _daysSerialize,
   deserialize: _daysDeserialize,
@@ -36,10 +33,11 @@ const DaysSchema = CollectionSchema(
   indexes: {},
   links: {},
   embeddedSchemas: {},
+
   getId: _daysGetId,
   getLinks: _daysGetLinks,
   attach: _daysAttach,
-  version: '3.1.0+1',
+  version: '3.3.2',
 );
 
 int _daysEstimateSize(
@@ -113,10 +111,9 @@ extension DaysQueryWhereSort on QueryBuilder<Days, Days, QWhere> {
 extension DaysQueryWhere on QueryBuilder<Days, Days, QWhereClause> {
   QueryBuilder<Days, Days, QAfterWhereClause> idDayEqualTo(Id idDay) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IdWhereClause.between(
-        lower: idDay,
-        upper: idDay,
-      ));
+      return query.addWhereClause(
+        IdWhereClause.between(lower: idDay, upper: idDay),
+      );
     });
   }
 
@@ -142,8 +139,10 @@ extension DaysQueryWhere on QueryBuilder<Days, Days, QWhereClause> {
     });
   }
 
-  QueryBuilder<Days, Days, QAfterWhereClause> idDayGreaterThan(Id idDay,
-      {bool include = false}) {
+  QueryBuilder<Days, Days, QAfterWhereClause> idDayGreaterThan(
+    Id idDay, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         IdWhereClause.greaterThan(lower: idDay, includeLower: include),
@@ -151,8 +150,10 @@ extension DaysQueryWhere on QueryBuilder<Days, Days, QWhereClause> {
     });
   }
 
-  QueryBuilder<Days, Days, QAfterWhereClause> idDayLessThan(Id idDay,
-      {bool include = false}) {
+  QueryBuilder<Days, Days, QAfterWhereClause> idDayLessThan(
+    Id idDay, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         IdWhereClause.lessThan(upper: idDay, includeUpper: include),
@@ -167,12 +168,14 @@ extension DaysQueryWhere on QueryBuilder<Days, Days, QWhereClause> {
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IdWhereClause.between(
-        lower: lowerIdDay,
-        includeLower: includeLower,
-        upper: upperIdDay,
-        includeUpper: includeUpper,
-      ));
+      return query.addWhereClause(
+        IdWhereClause.between(
+          lower: lowerIdDay,
+          includeLower: includeLower,
+          upper: upperIdDay,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 }
@@ -180,10 +183,9 @@ extension DaysQueryWhere on QueryBuilder<Days, Days, QWhereClause> {
 extension DaysQueryFilter on QueryBuilder<Days, Days, QFilterCondition> {
   QueryBuilder<Days, Days, QAfterFilterCondition> dayOfWeekEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'dayOfWeek',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'dayOfWeek', value: value),
+      );
     });
   }
 
@@ -192,11 +194,13 @@ extension DaysQueryFilter on QueryBuilder<Days, Days, QFilterCondition> {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'dayOfWeek',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'dayOfWeek',
+          value: value,
+        ),
+      );
     });
   }
 
@@ -205,11 +209,13 @@ extension DaysQueryFilter on QueryBuilder<Days, Days, QFilterCondition> {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'dayOfWeek',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'dayOfWeek',
+          value: value,
+        ),
+      );
     });
   }
 
@@ -220,22 +226,23 @@ extension DaysQueryFilter on QueryBuilder<Days, Days, QFilterCondition> {
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'dayOfWeek',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'dayOfWeek',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 
   QueryBuilder<Days, Days, QAfterFilterCondition> idDayEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'idDay',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'idDay', value: value),
+      );
     });
   }
 
@@ -244,11 +251,13 @@ extension DaysQueryFilter on QueryBuilder<Days, Days, QFilterCondition> {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'idDay',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'idDay',
+          value: value,
+        ),
+      );
     });
   }
 
@@ -257,11 +266,13 @@ extension DaysQueryFilter on QueryBuilder<Days, Days, QFilterCondition> {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'idDay',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'idDay',
+          value: value,
+        ),
+      );
     });
   }
 
@@ -272,22 +283,23 @@ extension DaysQueryFilter on QueryBuilder<Days, Days, QFilterCondition> {
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'idDay',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'idDay',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 
   QueryBuilder<Days, Days, QAfterFilterCondition> idHabitEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'idHabit',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'idHabit', value: value),
+      );
     });
   }
 
@@ -296,11 +308,13 @@ extension DaysQueryFilter on QueryBuilder<Days, Days, QFilterCondition> {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'idHabit',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'idHabit',
+          value: value,
+        ),
+      );
     });
   }
 
@@ -309,11 +323,13 @@ extension DaysQueryFilter on QueryBuilder<Days, Days, QFilterCondition> {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'idHabit',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'idHabit',
+          value: value,
+        ),
+      );
     });
   }
 
@@ -324,13 +340,15 @@ extension DaysQueryFilter on QueryBuilder<Days, Days, QFilterCondition> {
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'idHabit',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'idHabit',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 }

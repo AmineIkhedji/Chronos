@@ -15,19 +15,12 @@ extension GetStatusCollection on Isar {
 
 const StatusSchema = CollectionSchema(
   name: r'Status',
-  id: 8,
+  id: -8158262482337811485,
   properties: {
-    r'color': PropertySchema(
-      id: 0,
-      name: r'color',
-      type: IsarType.long,
-    ),
-    r'name': PropertySchema(
-      id: 1,
-      name: r'name',
-      type: IsarType.string,
-    )
+    r'color': PropertySchema(id: 0, name: r'color', type: IsarType.long),
+    r'name': PropertySchema(id: 1, name: r'name', type: IsarType.string),
   },
+
   estimateSize: _statusEstimateSize,
   serialize: _statusSerialize,
   deserialize: _statusDeserialize,
@@ -36,10 +29,11 @@ const StatusSchema = CollectionSchema(
   indexes: {},
   links: {},
   embeddedSchemas: {},
+
   getId: _statusGetId,
   getLinks: _statusGetLinks,
   attach: _statusAttach,
-  version: '3.1.0+1',
+  version: '3.3.2',
 );
 
 int _statusEstimateSize(
@@ -114,15 +108,15 @@ extension StatusQueryWhereSort on QueryBuilder<Status, Status, QWhere> {
 extension StatusQueryWhere on QueryBuilder<Status, Status, QWhereClause> {
   QueryBuilder<Status, Status, QAfterWhereClause> idStatusEqualTo(Id idStatus) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IdWhereClause.between(
-        lower: idStatus,
-        upper: idStatus,
-      ));
+      return query.addWhereClause(
+        IdWhereClause.between(lower: idStatus, upper: idStatus),
+      );
     });
   }
 
   QueryBuilder<Status, Status, QAfterWhereClause> idStatusNotEqualTo(
-      Id idStatus) {
+    Id idStatus,
+  ) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
         return query
@@ -145,8 +139,9 @@ extension StatusQueryWhere on QueryBuilder<Status, Status, QWhereClause> {
   }
 
   QueryBuilder<Status, Status, QAfterWhereClause> idStatusGreaterThan(
-      Id idStatus,
-      {bool include = false}) {
+    Id idStatus, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         IdWhereClause.greaterThan(lower: idStatus, includeLower: include),
@@ -154,8 +149,10 @@ extension StatusQueryWhere on QueryBuilder<Status, Status, QWhereClause> {
     });
   }
 
-  QueryBuilder<Status, Status, QAfterWhereClause> idStatusLessThan(Id idStatus,
-      {bool include = false}) {
+  QueryBuilder<Status, Status, QAfterWhereClause> idStatusLessThan(
+    Id idStatus, {
+    bool include = false,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         IdWhereClause.lessThan(upper: idStatus, includeUpper: include),
@@ -170,12 +167,14 @@ extension StatusQueryWhere on QueryBuilder<Status, Status, QWhereClause> {
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IdWhereClause.between(
-        lower: lowerIdStatus,
-        includeLower: includeLower,
-        upper: upperIdStatus,
-        includeUpper: includeUpper,
-      ));
+      return query.addWhereClause(
+        IdWhereClause.between(
+          lower: lowerIdStatus,
+          includeLower: includeLower,
+          upper: upperIdStatus,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 }
@@ -183,10 +182,9 @@ extension StatusQueryWhere on QueryBuilder<Status, Status, QWhereClause> {
 extension StatusQueryFilter on QueryBuilder<Status, Status, QFilterCondition> {
   QueryBuilder<Status, Status, QAfterFilterCondition> colorEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'color',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'color', value: value),
+      );
     });
   }
 
@@ -195,11 +193,13 @@ extension StatusQueryFilter on QueryBuilder<Status, Status, QFilterCondition> {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'color',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'color',
+          value: value,
+        ),
+      );
     });
   }
 
@@ -208,11 +208,13 @@ extension StatusQueryFilter on QueryBuilder<Status, Status, QFilterCondition> {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'color',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'color',
+          value: value,
+        ),
+      );
     });
   }
 
@@ -223,23 +225,25 @@ extension StatusQueryFilter on QueryBuilder<Status, Status, QFilterCondition> {
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'color',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'color',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 
   QueryBuilder<Status, Status, QAfterFilterCondition> idStatusEqualTo(
-      Id value) {
+    Id value,
+  ) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'idStatus',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'idStatus', value: value),
+      );
     });
   }
 
@@ -248,11 +252,13 @@ extension StatusQueryFilter on QueryBuilder<Status, Status, QFilterCondition> {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'idStatus',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'idStatus',
+          value: value,
+        ),
+      );
     });
   }
 
@@ -261,11 +267,13 @@ extension StatusQueryFilter on QueryBuilder<Status, Status, QFilterCondition> {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'idStatus',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'idStatus',
+          value: value,
+        ),
+      );
     });
   }
 
@@ -276,13 +284,15 @@ extension StatusQueryFilter on QueryBuilder<Status, Status, QFilterCondition> {
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'idStatus',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'idStatus',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 
@@ -291,11 +301,13 @@ extension StatusQueryFilter on QueryBuilder<Status, Status, QFilterCondition> {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'name',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'name',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
@@ -305,12 +317,14 @@ extension StatusQueryFilter on QueryBuilder<Status, Status, QFilterCondition> {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'name',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'name',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
@@ -320,12 +334,14 @@ extension StatusQueryFilter on QueryBuilder<Status, Status, QFilterCondition> {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'name',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'name',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
@@ -337,14 +353,16 @@ extension StatusQueryFilter on QueryBuilder<Status, Status, QFilterCondition> {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'name',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'name',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
@@ -353,11 +371,13 @@ extension StatusQueryFilter on QueryBuilder<Status, Status, QFilterCondition> {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'name',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'name',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
@@ -366,52 +386,59 @@ extension StatusQueryFilter on QueryBuilder<Status, Status, QFilterCondition> {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'name',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'name',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
-  QueryBuilder<Status, Status, QAfterFilterCondition> nameContains(String value,
-      {bool caseSensitive = true}) {
+  QueryBuilder<Status, Status, QAfterFilterCondition> nameContains(
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'name',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'name',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<Status, Status, QAfterFilterCondition> nameMatches(
-      String pattern,
-      {bool caseSensitive = true}) {
+    String pattern, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'name',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'name',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<Status, Status, QAfterFilterCondition> nameIsEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'name',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'name', value: ''),
+      );
     });
   }
 
   QueryBuilder<Status, Status, QAfterFilterCondition> nameIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'name',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'name', value: ''),
+      );
     });
   }
 }
@@ -491,8 +518,9 @@ extension StatusQueryWhereDistinct on QueryBuilder<Status, Status, QDistinct> {
     });
   }
 
-  QueryBuilder<Status, Status, QDistinct> distinctByName(
-      {bool caseSensitive = true}) {
+  QueryBuilder<Status, Status, QDistinct> distinctByName({
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'name', caseSensitive: caseSensitive);
     });
