@@ -5,6 +5,7 @@ import '../widgets/common/custom_app_bar.dart';
 import '../widgets/theme/theme_provider.dart';
 import '../widgets/theme/theme_colors.dart';
 import '../repositories/settings_repository.dart';
+import 'customization_screen.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -14,6 +15,24 @@ class SettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+  int _firstDayOfWeek = DateTime.monday;
+  bool _notificationsEnabled = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    final settings = await SettingsRepository().getSettings();
+    if (!mounted || settings == null) return;
+    setState(() {
+      _firstDayOfWeek = settings.firstDayWeek;
+      _notificationsEnabled = settings.notificationsEnabled;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -54,10 +73,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       final repo = SettingsRepository();
                       await repo.setDarkMode(value);
                       ref.read(darkModeProvider.notifier).state = value;
-                      ref.invalidate(loadThemeProvider);
-                      setState(() {}); // Force le rebuild
                     },
-                    activeColor: primaryColor,
+                    activeThumbColor: primaryColor,
                   ),
                 ),
                 const Divider(height: 1, color: Colors.transparent),
@@ -104,16 +121,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'Lundi',
+                        _dayName(_firstDayOfWeek),
                         style: TextStyle(color: textSecondary, fontSize: 14),
                       ),
                       const SizedBox(width: 8),
                       const Icon(Icons.chevron_right_rounded, size: 20),
                     ],
                   ),
-                  onTap: () {
-                    // TODO: Ouvrir un dialogue pour choisir le jour
-                  },
+                  onTap: _showFirstDayPicker,
                 ),
               ],
             ),
@@ -131,11 +146,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   leadingIcon: Icons.notifications_rounded,
                   title: 'Rappels activés',
                   trailing: Switch(
-                    value: true,
-                    onChanged: (value) {
-                      // TODO: Implémenter la logique des notifications
+                    value: _notificationsEnabled,
+                    onChanged: (value) async {
+                      await SettingsRepository().setNotificationsEnabled(value);
+                      if (mounted) setState(() => _notificationsEnabled = value);
                     },
-                    activeColor: primaryColor,
+                    activeThumbColor: primaryColor,
                   ),
                 ),
               ],
@@ -155,9 +171,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   leadingIcon: Icons.category_rounded,
                   title: 'Catégories',
                   leadingIconColor: const Color(0xFF4F7CFF),
-                  onTap: () {
-                    // TODO: Naviguer vers la page Catégories
-                  },
+                  onTap: () => _openCustomization(CustomizationKind.categories),
                 ),
                 const Divider(height: 1, color: Colors.transparent),
                 // Priorités
@@ -165,9 +179,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   leadingIcon: Icons.flag_rounded,
                   title: 'Priorités',
                   leadingIconColor: const Color(0xFFEF4444),
-                  onTap: () {
-                    // TODO: Naviguer vers la page Priorités
-                  },
+                  onTap: () => _openCustomization(CustomizationKind.priorities),
                 ),
                 const Divider(height: 1, color: Colors.transparent),
                 // Statuts
@@ -175,9 +187,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   leadingIcon: Icons.check_circle_rounded,
                   title: 'Statuts',
                   leadingIconColor: const Color(0xFF22C55E),
-                  onTap: () {
-                    // TODO: Naviguer vers la page Statuts
-                  },
+                  onTap: () => _openCustomization(CustomizationKind.statuses),
                 ),
               ],
             ),
@@ -186,6 +196,51 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  String _dayName(int day) {
+    const names = {
+      DateTime.monday: 'Lundi',
+      DateTime.tuesday: 'Mardi',
+      DateTime.wednesday: 'Mercredi',
+      DateTime.thursday: 'Jeudi',
+      DateTime.friday: 'Vendredi',
+      DateTime.saturday: 'Samedi',
+      DateTime.sunday: 'Dimanche',
+    };
+    return names[day] ?? 'Lundi';
+  }
+
+  Future<void> _showFirstDayPicker() async {
+    final selectedDay = await showDialog<int>(
+      context: context,
+      builder: (dialogContext) => SimpleDialog(
+        title: const Text('Premier jour de la semaine'),
+        children: List.generate(7, (index) {
+          final day = index + 1;
+          return SimpleDialogOption(
+            onPressed: () => Navigator.pop(dialogContext, day),
+            child: Row(
+              children: [
+                Expanded(child: Text(_dayName(day))),
+                if (day == _firstDayOfWeek)
+                  Icon(Icons.check, color: Theme.of(context).primaryColor),
+              ],
+            ),
+          );
+        }),
+      ),
+    );
+    if (selectedDay == null) return;
+    await SettingsRepository().setFirstDayOfWeek(selectedDay);
+    if (mounted) setState(() => _firstDayOfWeek = selectedDay);
+  }
+
+  void _openCustomization(CustomizationKind kind) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => CustomizationScreen(kind: kind)),
     );
   }
 
@@ -340,10 +395,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       await repo.setPrimaryColor(entry.value);
                       
                       ref.read(userColorProvider.notifier).state = entry.key;
-                      ref.invalidate(loadThemeProvider);
-                      setState(() {});
                       
-                      Navigator.pop(dialogContext);
+                      if (dialogContext.mounted) Navigator.pop(dialogContext);
                     },
                     borderRadius: BorderRadius.circular(16),
                     child: Container(

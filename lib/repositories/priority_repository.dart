@@ -54,7 +54,8 @@ class PriorityRepository {
       for (var data in defaultPriorities) {
         final priority = Priority()
           ..name = data['name'] as String
-          ..color = data['color'] as int;
+          ..color = data['color'] as int
+          ..icon = 'flag';
         await AppDatabase.isar.prioritys.put(priority);
       }
     });

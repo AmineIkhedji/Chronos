@@ -61,7 +61,8 @@ class StatusRepository {
       for (var data in defaultStatus) {
         final status = Status()
           ..name = data['name'] as String
-          ..color = data['color'] as int;
+          ..color = data['color'] as int
+          ..icon = 'check_circle';
         await AppDatabase.isar.status.put(status);
       }
     });

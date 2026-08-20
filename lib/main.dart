@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'database/app_database.dart';
+import 'services/initialization_service.dart';
 import 'widgets/theme/theme_provider.dart';
 import 'widgets/app_scaffold.dart';
 import 'widgets/bottom_navigation_bar.dart';
@@ -18,6 +19,7 @@ void main() async {
   
   if (!kIsWeb) {
     await AppDatabase.init();
+    await InitializationService.initializeDefaultData();
   }
   
   await initializeDateFormatting('fr_FR', null);

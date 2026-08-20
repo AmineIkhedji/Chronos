@@ -8,4 +8,5 @@ class Priority {
   
   late String name;
   late int color;
+  late String icon;
 }

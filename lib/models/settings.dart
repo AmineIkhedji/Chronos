@@ -6,12 +6,12 @@ part 'settings.g.dart';
 class Settings {
   Id idSettings = Isar.autoIncrement;
   
-  late bool darkMode;
-  late int firstDayWeek;
-  late bool notificationsEnabled;
-  late int primaryColor;
-  late int secondaryColor;
-  late int accentColor;
-  late int backgroundColor;
-  late int surfaceColor;
+  bool darkMode = false;
+  int firstDayWeek = 1;
+  bool notificationsEnabled = true;
+  int primaryColor = 0xFF4F7CFF;
+  int secondaryColor = 0xFF03DAC6;
+  int accentColor = 0xFFFF6D00;
+  int backgroundColor = 0xFFFFFFFF;
+  int surfaceColor = 0xFFF5F5F5;
 }

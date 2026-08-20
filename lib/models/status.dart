@@ -8,4 +8,5 @@ class Status {
   
   late String name;
   late int color;
+  late String icon;
 }

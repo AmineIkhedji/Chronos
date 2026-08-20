@@ -22,6 +22,23 @@ class SettingsRepository {
     });
   }
 
+  Future<Settings> _getOrCreateSettings() async {
+    final existing = await getSettings();
+    if (existing != null) return existing;
+
+    final settings = Settings()
+      ..darkMode = false
+      ..firstDayWeek = 1
+      ..notificationsEnabled = true
+      ..primaryColor = 0xFF4F7CFF
+      ..secondaryColor = 0xFF03DAC6
+      ..accentColor = 0xFFFF6D00
+      ..backgroundColor = 0xFFFFFFFF
+      ..surfaceColor = 0xFFF5F5F5;
+    await saveSettings(settings);
+    return settings;
+  }
+
   // ============ MODE SOMBRE/CLAIR ============
   
   Future<void> toggleDarkMode() async {
@@ -33,7 +50,7 @@ class SettingsRepository {
   }
 
   Future<void> setDarkMode(bool value) async {
-    final settings = await getSettings() ?? Settings();
+    final settings = await _getOrCreateSettings();
     settings.darkMode = value;
     await saveSettings(settings);
   }
@@ -41,7 +58,7 @@ class SettingsRepository {
   // ============ PREMIER JOUR DE LA SEMAINE ============
   
   Future<void> setFirstDayOfWeek(int day) async {
-    final settings = await getSettings() ?? Settings();
+    final settings = await _getOrCreateSettings();
     settings.firstDayWeek = day;
     await saveSettings(settings);
   }
@@ -57,7 +74,7 @@ class SettingsRepository {
   }
 
   Future<void> setNotificationsEnabled(bool value) async {
-    final settings = await getSettings() ?? Settings();
+    final settings = await _getOrCreateSettings();
     settings.notificationsEnabled = value;
     await saveSettings(settings);
   }
@@ -65,31 +82,31 @@ class SettingsRepository {
   // ============ GESTION DES COULEURS ============
   
   Future<void> setPrimaryColor(int color) async {
-    final settings = await getSettings() ?? Settings();
+    final settings = await _getOrCreateSettings();
     settings.primaryColor = color;
     await saveSettings(settings);
   }
 
   Future<void> setSecondaryColor(int color) async {
-    final settings = await getSettings() ?? Settings();
+    final settings = await _getOrCreateSettings();
     settings.secondaryColor = color;
     await saveSettings(settings);
   }
 
   Future<void> setAccentColor(int color) async {
-    final settings = await getSettings() ?? Settings();
+    final settings = await _getOrCreateSettings();
     settings.accentColor = color;
     await saveSettings(settings);
   }
 
   Future<void> setBackgroundColor(int color) async {
-    final settings = await getSettings() ?? Settings();
+    final settings = await _getOrCreateSettings();
     settings.backgroundColor = color;
     await saveSettings(settings);
   }
 
   Future<void> setSurfaceColor(int color) async {
-    final settings = await getSettings() ?? Settings();
+    final settings = await _getOrCreateSettings();
     settings.surfaceColor = color;
     await saveSettings(settings);
   }
