@@ -1,10 +1,11 @@
-// lib/views/settings_screen.dart (VERSION FIDÈLE À LA MAQUETTE)
+// lib/views/settings_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/common/custom_app_bar.dart';
 import '../widgets/theme/theme_provider.dart';
 import '../widgets/theme/theme_colors.dart';
 import '../repositories/settings_repository.dart';
+import '../services/notification_service.dart';
 import 'customization_screen.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -17,6 +18,7 @@ class SettingsScreen extends ConsumerStatefulWidget {
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   int _firstDayOfWeek = DateTime.monday;
   bool _notificationsEnabled = true;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -25,12 +27,50 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   Future<void> _loadSettings() async {
-    final settings = await SettingsRepository().getSettings();
-    if (!mounted || settings == null) return;
-    setState(() {
-      _firstDayOfWeek = settings.firstDayWeek;
-      _notificationsEnabled = settings.notificationsEnabled;
-    });
+    setState(() => _isLoading = true);
+    try {
+      final settings = await SettingsRepository().getSettings();
+      if (!mounted) return;
+      
+      setState(() {
+        _firstDayOfWeek = settings?.firstDayWeek ?? DateTime.monday;
+        _notificationsEnabled = settings?.notificationsEnabled ?? true;
+      });
+    } catch (e) {
+      print('Erreur lors du chargement des paramètres: $e');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _updateNotificationsEnabled(bool value) async {
+    try {
+      await SettingsRepository().setNotificationsEnabled(value);
+      // Gérer l'activation/désactivation des notifications système
+      await NotificationService().handleNotificationsEnabledChange(value);
+      
+      if (mounted) {
+        setState(() => _notificationsEnabled = value);
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(value 
+              ? '✅ Notifications activées' 
+              : '🔕 Notifications désactivées'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('❌ Erreur lors de la mise à jour'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -45,10 +85,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final textColor = theme.colorScheme.onSurface;
     final textSecondary = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
 
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: theme.scaffoldBackgroundColor,
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      // Header "plain" fidèle à la maquette : pas de bandeau coloré,
-      // texte gras aligné à gauche sur le fond de la page.
       appBar: CustomAppBar(
         title: 'Paramètres',
         showBackButton: false,
@@ -78,9 +123,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   trailing: Switch(
                     value: isDark,
                     onChanged: (value) async {
-                      final repo = SettingsRepository();
-                      await repo.setDarkMode(value);
-                      ref.read(darkModeProvider.notifier).state = value;
+                      try {
+                        final repo = SettingsRepository();
+                        await repo.setDarkMode(value);
+                        ref.read(darkModeProvider.notifier).state = value;
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('❌ Erreur lors du changement de mode'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
                     },
                     activeThumbColor: primaryColor,
                   ),
@@ -150,13 +204,23 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   title: 'Rappels activés',
                   trailing: Switch(
                     value: _notificationsEnabled,
-                    onChanged: (value) async {
-                      await SettingsRepository().setNotificationsEnabled(value);
-                      if (mounted) setState(() => _notificationsEnabled = value);
-                    },
+                    onChanged: _updateNotificationsEnabled,
                     activeThumbColor: primaryColor,
                   ),
                 ),
+                if (!_notificationsEnabled) ...[
+                  Divider(height: 1, color: borderColor.withOpacity(0.5)),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(
+                      'Les rappels sont désactivés. Vous ne recevrez plus de notifications.',
+                      style: TextStyle(
+                        color: textSecondary,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
 
@@ -169,7 +233,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               color: cardColor,
               borderColor: borderColor,
               children: [
-                // Catégories : icône "tag", fond bleu, icône verte (fidèle à la maquette)
+                // Catégories
                 _buildListTile(
                   leadingIcon: Icons.sell_rounded,
                   title: 'Catégories',
@@ -202,6 +266,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       ),
     );
   }
+
+  // ============ NAVIGATION ============
 
   void _openCustomization(CustomizationKind kind) {
     Navigator.push(
@@ -257,8 +323,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final isDark = ref.watch(darkModeProvider);
     final textSecondary = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
 
-    // Icône "neutre" par défaut (gris) pour les réglages génériques.
-    // Seuls les items de Personnalisation passent une couleur explicite.
+    // Icône "neutre" par défaut
     final neutralIconBg = isDark ? const Color(0xFF334155) : const Color(0xFFF1F5F9);
     final neutralIconColor = isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569);
 
@@ -320,9 +385,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   // ============ TOGGLE PREMIER JOUR DE LA SEMAINE ============
-  // NB : la maquette ne propose que 2 options (Lundi / Dimanche), alors que
-  // le modèle Settings.firstDayWeek accepte les 7 jours. Si la valeur en
-  // base n'est ni lundi ni dimanche, aucun bouton n'apparaît sélectionné.
 
   Widget _buildWeekdayToggle({
     required Color primaryColor,
@@ -368,8 +430,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     return GestureDetector(
       onTap: () async {
         if (_firstDayOfWeek == day) return;
-        await SettingsRepository().setFirstDayOfWeek(day);
-        if (mounted) setState(() => _firstDayOfWeek = day);
+        try {
+          await SettingsRepository().setFirstDayOfWeek(day);
+          if (mounted) setState(() => _firstDayOfWeek = day);
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('❌ Erreur lors du changement de jour'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
@@ -437,12 +510,23 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
                   return InkWell(
                     onTap: () async {
-                      final repo = SettingsRepository();
-                      await repo.setPrimaryColor(entry.value);
+                      try {
+                        final repo = SettingsRepository();
+                        await repo.setPrimaryColor(entry.value);
 
-                      ref.read(userColorProvider.notifier).state = entry.key;
+                        ref.read(userColorProvider.notifier).state = entry.key;
 
-                      if (dialogContext.mounted) Navigator.pop(dialogContext);
+                        if (dialogContext.mounted) Navigator.pop(dialogContext);
+                      } catch (e) {
+                        if (dialogContext.mounted) {
+                          ScaffoldMessenger.of(dialogContext).showSnackBar(
+                            const SnackBar(
+                              content: Text('❌ Erreur lors du changement de couleur'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      }
                     },
                     borderRadius: BorderRadius.circular(16),
                     child: Container(

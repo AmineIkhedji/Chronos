@@ -5,6 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'theme/theme_colors.dart';
 import 'theme/theme_provider.dart';
 
+// ============ IMPORTS DES FORMULAIRES ============
+import '../views/task_form.dart';
+import '../views/habit_form.dart';
+
 // ============ ÉNUMÉRATION DES ONGLETS ============
 
 enum AppTab {
@@ -62,10 +66,6 @@ class ChronosBottomNavigationBar extends ConsumerWidget {
         Color(ThemeColors.userColors[userColor] ?? ThemeColors.defaultPrimary);
 
     // ============ GLASSMORPHISM ============
-    // Fond translucide (pas opaque) : c'est ce qui, combiné au
-    // BackdropFilter ci-dessous, crée l'effet "verre flouté".
-    // Les valeurs de base viennent toujours du thème (surface color),
-    // donc dark/light mode reste respecté automatiquement.
     final glassColor = isDark
         ? const Color(0xFF1E293B).withOpacity(0.55)
         : const Color(0xFFFFFFFF).withOpacity(0.65);
@@ -121,11 +121,11 @@ class ChronosBottomNavigationBar extends ConsumerWidget {
                     inactiveColor: inactiveColor,
                   ),
 
-                  // BOUTON CENTRAL FLOTTANT (+) — conservé flottant/surélevé
+                  // BOUTON CENTRAL FLOTTANT (+)
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
-                        _showCreateTaskDialog(context, ref);
+                        _showCreateOptionsDialog(context, ref);
                       },
                       child: Container(
                         height: 64,
@@ -228,21 +228,47 @@ class ChronosBottomNavigationBar extends ConsumerWidget {
     );
   }
 
-  void _showCreateTaskDialog(BuildContext context, WidgetRef ref) {
-    // À implémenter avec votre formulaire de création de tâche
+  // ============ DIALOGUE DE CRÉATION ============
+
+  void _showCreateOptionsDialog(BuildContext context, WidgetRef ref) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Nouvelle tâche'),
-        content: const Text('Formulaire de création de tâche'),
+        title: const Text('Créer un élément'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.task_alt_rounded),
+              title: const Text('Nouvelle tâche'),
+              subtitle: const Text('Créez une tâche avec rappel'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const TaskForm()),
+                );
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.bolt_rounded),
+              title: const Text('Nouvelle habitude'),
+              subtitle: const Text('Créez une habitude récurrente'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const HabitForm()),
+                );
+              },
+            ),
+          ],
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Annuler'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Créer'),
           ),
         ],
       ),

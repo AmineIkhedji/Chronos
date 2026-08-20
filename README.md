@@ -67,3 +67,24 @@ taskRepository.getTasksByCategory(2)  // Filtre par catégorie
 taskRepository.getLateTasks()         // Tâches en retard
 
 dart run build_runner watch --delete-conflicting-outputs   -> Génère automatiquement les fichiers .g.dart à chaque modification (à laisser tourner)
+
+dart run build_runner build --delete-conflicting-outputs -> Alternative pour le faire une fois et a chaque changement
+
+
+## Liste package
+| Package                       | Utilisation dans Chronos                                     |
+| ----------------------------- | ------------------------------------------------------------ |
+| `isar_community`              | Base de données locale                                       |
+| `isar_community_flutter_libs` | Bibliothèques natives Isar                                   |
+| `path_provider`               | Accéder aux dossiers de stockage de l'app                    |
+| `shared_preferences`          | Petits paramètres persistants                                |
+| `intl`                        | Dates, heures, formats de calendrier                         |
+| `timezone`                    | Gestion correcte des fuseaux horaires pour les notifications |
+| `flutter_riverpod`            | Gestion de l'état de l'application                           |
+| `flutter_local_notifications` | Notifications locales pour tâches/habitudes/événements       |
+| `permission_handler`          | Gestion des permissions Android/iOS                          |
+| `uuid`                        | Génération d'identifiants uniques                            |
+| `cupertino_icons`             | Icônes style iOS                                             |
+| `build_runner`                | Génération de code                                           |
+| `isar_community_generator`    | Génération du code Isar                                      |
+| `flutter_lints`               | Vérification/qualité du code                                 |

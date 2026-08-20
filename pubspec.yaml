@@ -13,21 +13,40 @@ dependencies:
   flutter:
     sdk: flutter
 
+  # Database
   isar_community: ^3.3.2
   isar_community_flutter_libs: ^3.3.2
-  path_provider: ^2.1.5
-  intl: ^0.20.2
 
+  # Storage & paths
+  path_provider: ^2.1.5
+  shared_preferences: ^2.3.2
+
+  # Date & time
+  intl: ^0.20.2
+  timezone: ^0.9.4
+
+  # State management
   flutter_riverpod: ^2.4.9
 
+  # Notifications & permissions
+  flutter_local_notifications: ^17.2.0
+  permission_handler: ^11.3.1
+
+  # Utilities
+  uuid: ^4.5.1
+
+  # iOS-style icons
   cupertino_icons: ^1.0.8
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
+  # Code generation
   build_runner: ^2.4.13
   isar_community_generator: ^3.3.2
+
+  # Linting
   flutter_lints: ^6.0.0
 
 flutter:

@@ -1,4 +1,4 @@
-// lib/main.dart (CORRIGÉ AVEC L'IMPORT MANQUANT)
+// lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,10 +6,11 @@ import 'package:intl/date_symbol_data_local.dart';
 
 import 'database/app_database.dart';
 import 'services/initialization_service.dart';
+import 'services/notification_service.dart';
 import 'widgets/theme/theme_provider.dart';
 import 'widgets/app_scaffold.dart';
 import 'widgets/bottom_navigation_bar.dart';
-import 'widgets/common/custom_app_bar.dart'; // <--- AJOUT IMPORTANT ICI
+import 'widgets/common/custom_app_bar.dart';
 import 'widgets/common/loading_indicator.dart';
 import 'views/home_screen.dart';
 import 'views/settings_screen.dart';
@@ -18,10 +19,24 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   if (!kIsWeb) {
+    // Initialiser la base de données
     await AppDatabase.init();
+    
+    // Initialiser les données par défaut
     await InitializationService.initializeDefaultData();
+    
+    // Initialiser le service de notifications
+    final notificationService = NotificationService();
+    await notificationService.initialize();
+    await notificationService.requestPermissions();
+    
+    // Nettoyer les notifications passées
+    await notificationService.cleanupOldNotifications();
+    // Réplanifier les notifications actives
+    await notificationService.rescheduleAllActiveNotifications();
   }
   
+  // Initialiser le formatage des dates pour le français
   await initializeDateFormatting('fr_FR', null);
   
   runApp(const ProviderScope(child: ChronosApp()));
@@ -38,6 +53,7 @@ class _ChronosAppState extends ConsumerState<ChronosApp> {
   @override
   void initState() {
     super.initState();
+    // Charger le thème après le premier frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(loadThemeProvider);
     });
@@ -47,11 +63,12 @@ class _ChronosAppState extends ConsumerState<ChronosApp> {
   Widget build(BuildContext context) {
     final isLoading = ref.watch(loadThemeProvider).isLoading;
 
+    // Afficher un écran de chargement pendant le chargement du thème
     if (isLoading) {
       return MaterialApp(
         debugShowCheckedModeBanner: false,
         home: const Scaffold(
-          body: LoadingIndicator(message: 'Chargement...'),
+          body: LoadingIndicator(message: 'Chargement des paramètres...'),
         ),
       );
     }
@@ -110,12 +127,10 @@ class HomePage extends ConsumerWidget {
         break;
     }
 
-    // ✅ UN SEUL AppScaffold, avec AppBar SEULEMENT si nécessaire
-    // HomeScreen et SettingsScreen gèrent eux-mêmes leur header
+    // AppBar seulement pour les pages qui n'ont pas leur propre header
     final showAppBar = selectedTab != AppTab.home && selectedTab != AppTab.settings;
 
     return AppScaffold(
-      // ✅ Pas de AppBar pour Home et Settings (ils ont leur propre header)
       appBar: showAppBar 
         ? CustomAppBar(
             title: title,
