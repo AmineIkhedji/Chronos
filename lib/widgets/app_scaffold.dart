@@ -11,6 +11,7 @@ class AppScaffold extends ConsumerWidget {
     this.appBar,
     this.resizeToAvoidBottomInset = true,
     this.backgroundColor,
+    this.padding,
   });
 
   final Widget child;
@@ -18,6 +19,7 @@ class AppScaffold extends ConsumerWidget {
   final PreferredSizeWidget? appBar;
   final bool resizeToAvoidBottomInset;
   final Color? backgroundColor;
+  final EdgeInsetsGeometry? padding;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -26,15 +28,13 @@ class AppScaffold extends ConsumerWidget {
     return Scaffold(
       resizeToAvoidBottomInset: resizeToAvoidBottomInset,
       appBar: appBar,
-      // ✅ LA CORRECTION ICI : On utilise la couleur du thème actuel
       backgroundColor: backgroundColor ?? theme.scaffoldBackgroundColor,
-      
-      // ✅ SafeArea toujours actif (gère la barre de statut proprement)
       body: SafeArea(
-        child: child,
+        child: Padding(
+          padding: padding ?? const EdgeInsets.all(0),
+          child: child,
+        ),
       ),
-      floatingActionButton: null, // FAB géré dans la bottom nav
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: showBottomNav 
           ? const ChronosBottomNavigationBar() 
           : null,

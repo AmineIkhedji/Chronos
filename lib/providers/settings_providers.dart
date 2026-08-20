@@ -3,8 +3,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/settings.dart';
 import 'repository_providers.dart';
+import '../widgets/theme/theme_provider.dart';
 
-// Paramètres actuels
+// ============ LECTURE (GET) ============
+
+// Paramètres actuels depuis la base de données
 final settingsProvider = FutureProvider<Settings?>((ref) async {
   if (kIsWeb) return null;
 
@@ -12,34 +15,26 @@ final settingsProvider = FutureProvider<Settings?>((ref) async {
   return await repo.getSettings();
 });
 
-// Mode sombre
-final darkModeProvider = FutureProvider<bool>((ref) async {
-  final settings = await ref.watch(settingsProvider.future);
-  return settings?.darkMode ?? false;
-});
+// ============ ÉCRITURE (POST/PUT) ============
 
-// Couleur principale
-final primaryColorProvider = FutureProvider<int>((ref) async {
-  final settings = await ref.watch(settingsProvider.future);
-  return settings?.primaryColor ?? 0xFF6200EE;
-});
-
-// ============ ÉCRITURE ============
-
-// Basculer le mode sombre
+// Basculer le mode sombre (écriture en base + rafraîchissement UI)
 final toggleDarkModeProvider = FutureProvider<void>((ref) async {
   final repo = ref.read(settingsRepositoryProvider);
   await repo.toggleDarkMode();
+  
+  // Rafraîchir les données brutes
   ref.invalidate(settingsProvider);
-  ref.invalidate(darkModeProvider);
+  // Rafraîchir l'UI du thème (provoque un rebuild de toute l'app)
+  ref.invalidate(loadThemeProvider);
 });
 
 // Changer la couleur principale
 final setPrimaryColorProvider = FutureProvider.family<void, int>((ref, color) async {
   final repo = ref.read(settingsRepositoryProvider);
   await repo.setPrimaryColor(color);
+  
   ref.invalidate(settingsProvider);
-  ref.invalidate(primaryColorProvider);
+  ref.invalidate(loadThemeProvider);
 });
 
 // Changer le premier jour de la semaine

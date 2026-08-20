@@ -1,6 +1,8 @@
 // lib/widgets/bottom_navigation_bar.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'theme/theme_colors.dart';
+import 'theme/theme_provider.dart';
 
 // ============ ÉNUMÉRATION DES ONGLETS ============
 
@@ -45,11 +47,6 @@ final selectedTabProvider = StateProvider<AppTab>((ref) {
   return AppTab.home;
 });
 
-// Provider pour le contrôle du FAB (bouton +)
-final fabVisibleProvider = StateProvider<bool>((ref) {
-  return true;
-});
-
 // ============ WIDGET PRINCIPAL ============
 
 class ChronosBottomNavigationBar extends ConsumerWidget {
@@ -58,23 +55,35 @@ class ChronosBottomNavigationBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedTab = ref.watch(selectedTabProvider);
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    final isDark = ref.watch(darkModeProvider);
+    final userColor = ref.watch(userColorProvider);
+    final primaryColor = Color(ThemeColors.userColors[userColor] ?? ThemeColors.defaultPrimary);
 
-    // Couleurs personnalisées depuis le thème
-    final primaryColor = theme.primaryColor;
-    final inactiveColor = isDark ? Colors.grey[600] : Colors.grey[400];
+    // Couleurs
+    final backgroundColor = isDark 
+        ? const Color(0xFF1E293B) 
+        : const Color(0xFFFFFFFF);
+    
+    final inactiveColor = isDark 
+        ? const Color(0xFF64748B) 
+        : const Color(0xFF94A3B8);
 
     return Container(
       decoration: BoxDecoration(
-        color: theme.cardColor,
+        color: backgroundColor,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
             blurRadius: 10,
-            offset: const Offset(0, -5),
+            offset: const Offset(0, -2),
           ),
         ],
+        border: Border(
+          top: BorderSide(
+            color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+            width: 1,
+          ),
+        ),
       ),
       child: SafeArea(
         child: Padding(
@@ -106,7 +115,6 @@ class ChronosBottomNavigationBar extends ConsumerWidget {
               Expanded(
                 child: GestureDetector(
                   onTap: () {
-                    // Action pour créer une tâche
                     _showCreateTaskDialog(context, ref);
                   },
                   child: Container(
@@ -169,7 +177,7 @@ class ChronosBottomNavigationBar extends ConsumerWidget {
     required AppTab tab,
     required AppTab selectedTab,
     required Color primaryColor,
-    required Color? inactiveColor,
+    required Color inactiveColor,
   }) {
     final isSelected = tab == selectedTab;
     final color = isSelected ? primaryColor : inactiveColor;
@@ -204,13 +212,13 @@ class ChronosBottomNavigationBar extends ConsumerWidget {
     );
   }
 
-  // Dialogue pour créer une tâche (à remplacer par votre vraie logique)
   void _showCreateTaskDialog(BuildContext context, WidgetRef ref) {
+    // À implémenter avec votre formulaire de création de tâche
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Nouvelle tâche'),
-        content: const Text('Formulaire de création de tâche à implémenter'),
+        content: const Text('Formulaire de création de tâche'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),

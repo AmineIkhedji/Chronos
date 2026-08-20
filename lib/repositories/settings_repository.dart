@@ -62,7 +62,7 @@ class SettingsRepository {
     await saveSettings(settings);
   }
 
-  // ============ 🆕 GESTION DES COULEURS ============
+  // ============ GESTION DES COULEURS ============
   
   Future<void> setPrimaryColor(int color) async {
     final settings = await getSettings() ?? Settings();
@@ -99,7 +99,7 @@ class SettingsRepository {
   Future<void> resetColors() async {
     final settings = await getSettings();
     if (settings != null) {
-      settings.primaryColor = 0xFF6200EE;      // Purple
+      settings.primaryColor = 0xFF4F7CFF;      // Blue
       settings.secondaryColor = 0xFF03DAC6;    // Teal
       settings.accentColor = 0xFFFF6D00;       // Orange
       settings.backgroundColor = 0xFFFFFFFF;   // White
@@ -118,67 +118,12 @@ class SettingsRepository {
       ..darkMode = false
       ..firstDayWeek = 1  // Lundi
       ..notificationsEnabled = true
-      // 🆕 Couleurs par défaut (Mode clair)
-      ..primaryColor = 0xFF6200EE      // Purple
+      ..primaryColor = 0xFF4F7CFF      // Blue
       ..secondaryColor = 0xFF03DAC6    // Teal
       ..accentColor = 0xFFFF6D00       // Orange
       ..backgroundColor = 0xFFFFFFFF   // White
       ..surfaceColor = 0xFFF5F5F5;     // Light Gray
     
     await saveSettings(settings);
-  }
-
-  // ============ 🆕 COULEURS POUR MODE SOMBRE ============
-  
-  /// Retourne les couleurs par défaut pour le mode sombre
-  static Map<String, int> getDarkModeColors() {
-    return {
-      'primaryColor': 0xFFBB86FC,
-      'secondaryColor': 0xFF03DAC6,
-      'accentColor': 0xFFFF6D00,
-      'backgroundColor': 0xFF121212,
-      'surfaceColor': 0xFF1E1E1E,
-    };
-  }
-
-  /// Retourne les couleurs par défaut pour le mode clair
-  static Map<String, int> getLightModeColors() {
-    return {
-      'primaryColor': 0xFF6200EE,
-      'secondaryColor': 0xFF03DAC6,
-      'accentColor': 0xFFFF6D00,
-      'backgroundColor': 0xFFFFFFFF,
-      'surfaceColor': 0xFFF5F5F5,
-    };
-  }
-
-  /// Applique les couleurs du mode sombre
-  Future<void> applyDarkModeColors() async {
-    final settings = await getSettings();
-    if (settings != null) {
-      final colors = SettingsRepository.getDarkModeColors();
-      settings.primaryColor = colors['primaryColor']!;
-      settings.secondaryColor = colors['secondaryColor']!;
-      settings.accentColor = colors['accentColor']!;
-      settings.backgroundColor = colors['backgroundColor']!;
-      settings.surfaceColor = colors['surfaceColor']!;
-      settings.darkMode = true;
-      await saveSettings(settings);
-    }
-  }
-
-  /// Applique les couleurs du mode clair
-  Future<void> applyLightModeColors() async {
-    final settings = await getSettings();
-    if (settings != null) {
-      final colors = SettingsRepository.getLightModeColors();
-      settings.primaryColor = colors['primaryColor']!;
-      settings.secondaryColor = colors['secondaryColor']!;
-      settings.accentColor = colors['accentColor']!;
-      settings.backgroundColor = colors['backgroundColor']!;
-      settings.surfaceColor = colors['surfaceColor']!;
-      settings.darkMode = false;
-      await saveSettings(settings);
-    }
   }
 }

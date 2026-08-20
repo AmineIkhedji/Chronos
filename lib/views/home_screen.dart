@@ -1,15 +1,15 @@
-// lib/views/home_screen.dart
+// lib/views/home_screen.dart (CORRIGÉ)
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
-import '../widgets/app_scaffold.dart';
 import '../widgets/home/home_header.dart';
 import '../widgets/home/mini_calendar.dart';
 import '../widgets/home/task_list.dart';
 import '../widgets/home/habit_list.dart';
 import '../providers/task_providers.dart';
 import '../providers/habit_providers.dart';
+import '../widgets/theme/theme_provider.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -41,37 +41,39 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final todayTasksAsync = ref.watch(todayTasksProvider);
     final todayHabitsAsync = ref.watch(todayHabitsProvider);
+    final theme = Theme.of(context);
+    final isDark = ref.watch(darkModeProvider);
 
-    final backgroundColor = const Color(0xFF0F172A);
+    final textColor = theme.colorScheme.onBackground;
+    final textColorSecondary = isDark 
+        ? const Color(0xFF94A3B8) 
+        : const Color(0xFF64748B);
 
-    return AppScaffold(
-      appBar: null,
-      backgroundColor: backgroundColor,
-      // ✅ On retire removeTopPadding, le SafeArea de AppScaffold fera son travail
-      
-      child: Container(
-        width: double.infinity, // On garde juste la largeur
-        color: backgroundColor,
+    // ✅ PLUS DE AppScaffold ici
+    return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
+      body: Container(
+        width: double.infinity,
+        color: theme.scaffoldBackgroundColor,
         child: SingleChildScrollView(
-          // ✅ Espacement contrôlé avec un padding simple (20px en haut)
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 80),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 1. SALUTATION ET DATE
+              // 1. SALUTATION ET DATE (Remplace l'AppBar)
               Text(
                 '${_getGreeting()}, Amine ${_getEmoji()}',
-                style: const TextStyle(
-                  color: Colors.white70,
+                style: TextStyle(
+                  color: textColorSecondary,
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: 4),
-              const Text(
+              Text(
                 "Aujourd'hui",
                 style: TextStyle(
-                  color: Colors.white,
+                  color: textColor,
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
                 ),
@@ -79,8 +81,8 @@ class HomeScreen extends ConsumerWidget {
               const SizedBox(height: 2),
               Text(
                 _getFormattedDate(),
-                style: const TextStyle(
-                  color: Colors.white54,
+                style: TextStyle(
+                  color: textColorSecondary,
                   fontSize: 14,
                 ),
               ),

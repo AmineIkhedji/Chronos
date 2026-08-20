@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/task_providers.dart';
+import '../theme/theme_colors.dart';
+import '../theme/theme_provider.dart';
 
 class MiniCalendar extends ConsumerWidget {
   const MiniCalendar({super.key});
@@ -11,15 +13,19 @@ class MiniCalendar extends ConsumerWidget {
     final now = DateTime.now();
     final firstDayOfWeek = now.subtract(Duration(days: now.weekday - 1));
     final tasksAsync = ref.watch(todayTasksProvider);
+    final theme = Theme.of(context);
+    final isDark = ref.watch(darkModeProvider);
+    final userColor = ref.watch(userColorProvider);
+    final primaryColor = Color(ThemeColors.userColors[userColor] ?? ThemeColors.defaultPrimary);
+
+    final textColor = theme.colorScheme.onBackground;
+    final textColorSecondary = isDark 
+        ? const Color(0xFF94A3B8) 
+        : const Color(0xFF64748B);
 
     return tasksAsync.when(
       data: (tasks) {
-        // Simulation des données pour la semaine (car on a que les tâches du jour)
-        // Normalement, il faudrait un provider pour la semaine entière.
-        // Ici, on utilise les tâches d'aujourd'hui pour l'exemple.
-        final tasksByDay = <int, List<int>>{}; // Map : Jour (1=Lundi) -> Liste d'ID de statuts
-
-        // On ajoute les tâches d'aujourd'hui
+        final tasksByDay = <int, List<int>>{};
         tasksByDay[now.weekday] = tasks.map((t) => t.idStatus).toList();
 
         return Row(
@@ -34,7 +40,7 @@ class MiniCalendar extends ConsumerWidget {
                 Text(
                   _getDayLetter(day.weekday),
                   style: TextStyle(
-                    color: isToday ? Colors.white : Colors.white54,
+                    color: isToday ? textColor : textColorSecondary,
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
@@ -44,28 +50,31 @@ class MiniCalendar extends ConsumerWidget {
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: isToday ? const Color(0xFF5B8DEF) : Colors.transparent,
+                    color: isToday ? primaryColor : Colors.transparent,
                     shape: BoxShape.circle,
                   ),
                   alignment: Alignment.center,
                   child: Text(
                     '${day.day}',
                     style: TextStyle(
-                      color: isToday ? Colors.white : Colors.white70,
+                      color: isToday ? Colors.white : textColor,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
                 const SizedBox(height: 4),
-                // Points pour les tâches du jour
                 _buildStatusDots(dayStatuses),
               ],
             );
           }),
         );
       },
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (_, __) => const Center(child: Text('Erreur calendrier')),
+      loading: () => Center(
+        child: CircularProgressIndicator(color: theme.primaryColor),
+      ),
+      error: (_, __) => Center(
+        child: Text('Erreur calendrier', style: TextStyle(color: textColorSecondary)),
+      ),
     );
   }
 
@@ -77,12 +86,11 @@ class MiniCalendar extends ConsumerWidget {
   Widget _buildStatusDots(List<int> statuses) {
     if (statuses.isEmpty) return const SizedBox(height: 6);
 
-    // On limite à 2 points max pour l'affichage
     final dots = statuses.take(2).map((statusId) {
       Color color;
-      if (statusId == 3) color = Colors.green; // Terminé
-      else if (statusId == 2) color = Colors.orange; // En cours
-      else color = Colors.blue; // À faire
+      if (statusId == 3) color = Colors.green;
+      else if (statusId == 2) color = Colors.orange;
+      else color = Colors.blue;
 
       return Container(
         width: 4,

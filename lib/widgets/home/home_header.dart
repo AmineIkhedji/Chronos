@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/task_providers.dart';
+import '../theme/theme_colors.dart';
+import '../theme/theme_provider.dart';
 
 class HomeHeader extends ConsumerWidget {
   const HomeHeader({super.key});
@@ -9,11 +11,13 @@ class HomeHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final statsAsync = ref.watch(statisticsProvider);
+    final theme = Theme.of(context);
+    final userColor = ref.watch(userColorProvider);
+    final primaryColor = Color(ThemeColors.userColors[userColor] ?? ThemeColors.defaultPrimary);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Cartes Stats
         statsAsync.when(
           data: (stats) {
             final total = stats['total'] as int? ?? 0;
@@ -28,7 +32,7 @@ class HomeHeader extends ConsumerWidget {
                   child: _buildStatCard(
                     title: '$remaining',
                     subtitle: 'Tâches aujourd\'hui',
-                    color: const Color(0xFF5B8DEF), // Bleu
+                    color: primaryColor.withOpacity(0.8),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -37,14 +41,18 @@ class HomeHeader extends ConsumerWidget {
                   child: _buildStatCard(
                     title: '${successRate.toStringAsFixed(0)}%',
                     subtitle: 'Réussite semaine',
-                    color: const Color(0xFF9B59B6), // Violet
+                    color: primaryColor.withOpacity(0.6),
                   ),
                 ),
               ],
             );
           },
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, _) => const Center(child: Text('Erreur stats')),
+          loading: () => Center(
+            child: CircularProgressIndicator(color: theme.primaryColor),
+          ),
+          error: (_, __) => Center(
+            child: Text('Erreur stats', style: TextStyle(color: theme.colorScheme.onBackground.withOpacity(0.6))),
+          ),
         ),
       ],
     );

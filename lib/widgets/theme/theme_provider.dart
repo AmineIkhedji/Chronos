@@ -4,147 +4,162 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../repositories/settings_repository.dart';
 import 'theme_colors.dart';
 
-// ============ STATE PROVIDER (pour le thème) ============
+// ============ STATE PROVIDERS (Source unique pour l'UI) ============
 
-final themeModeProvider = StateProvider<ThemeMode>((ref) {
-  return ThemeMode.system; // Par défaut : suit le système
+// Mode sombre ou clair (état UI)
+final darkModeProvider = StateProvider<bool>((ref) {
+  return false; // Par défaut : mode clair
 });
 
-final primaryColorProvider = StateProvider<Color>((ref) {
-  return const Color(ThemeColors.defaultPrimary);
-});
-
-final secondaryColorProvider = StateProvider<Color>((ref) {
-  return const Color(ThemeColors.defaultSecondary);
-});
-
-final accentColorProvider = StateProvider<Color>((ref) {
-  return const Color(ThemeColors.defaultAccent);
-});
-
-final backgroundColorProvider = StateProvider<Color>((ref) {
-  return const Color(ThemeColors.defaultBackground);
-});
-
-final surfaceColorProvider = StateProvider<Color>((ref) {
-  return const Color(ThemeColors.defaultSurface);
+// Couleur principale choisie par l'utilisateur (état UI)
+final userColorProvider = StateProvider<String>((ref) {
+  return 'blue'; // Par défaut : bleu
 });
 
 // ============ SERVICE POUR CHARGER LES PARAMÈTRES ============
 
+// Ce provider charge les données depuis la base et met à jour les providers UI
 final loadThemeProvider = FutureProvider<void>((ref) async {
   final repo = SettingsRepository();
   final settings = await repo.getSettings();
   
   if (settings != null) {
-    ref.read(primaryColorProvider.notifier).state = Color(settings.primaryColor);
-    ref.read(secondaryColorProvider.notifier).state = Color(settings.secondaryColor);
-    ref.read(accentColorProvider.notifier).state = Color(settings.accentColor);
-    ref.read(backgroundColorProvider.notifier).state = Color(settings.backgroundColor);
-    ref.read(surfaceColorProvider.notifier).state = Color(settings.surfaceColor);
-    ref.read(themeModeProvider.notifier).state = 
-        settings.darkMode ? ThemeMode.dark : ThemeMode.light;
+    // Déterminer quelle couleur est utilisée
+    String selectedColor = 'blue';
+    for (final entry in ThemeColors.userColors.entries) {
+      if (entry.value == settings.primaryColor) {
+        selectedColor = entry.key;
+        break;
+      }
+    }
+    
+    ref.read(userColorProvider.notifier).state = selectedColor;
+    ref.read(darkModeProvider.notifier).state = settings.darkMode;
   }
 });
 
 // ============ FONCTION POUR CRÉER LE THÈME ============
 
-ThemeData buildTheme(WidgetRef ref, {bool isDark = false}) {
-  final primary = ref.watch(primaryColorProvider);
-  final secondary = ref.watch(secondaryColorProvider);
-  final background = ref.watch(backgroundColorProvider);
-  final surface = ref.watch(surfaceColorProvider);
+ThemeData buildTheme(WidgetRef ref) {
+  final isDark = ref.watch(darkModeProvider);
+  final colorKey = ref.watch(userColorProvider);
+  final primaryColor = Color(ThemeColors.userColors[colorKey] ?? ThemeColors.defaultPrimary);
   
-  final brightness = isDark ? Brightness.dark : Brightness.light;
-  final textColor = isDark ? Colors.white : Colors.black;
-  final textColorSecondary = isDark ? Colors.grey[400] : Colors.grey[600];
+  final backgroundColor = isDark 
+      ? const Color(ThemeColors.darkBackground) 
+      : const Color(ThemeColors.lightBackground);
+  
+  final textColor = isDark 
+      ? const Color(ThemeColors.darkText) 
+      : const Color(ThemeColors.lightText);
+  
+  final textColorSecondary = isDark 
+      ? const Color(0xFF94A3B8) 
+      : const Color(0xFF64748B);
+  
+  final surfaceColor = isDark 
+      ? const Color(0xFF1E293B) 
+      : const Color(0xFFFFFFFF);
+  
+  final borderColor = isDark 
+      ? const Color(0xFF334155) 
+      : const Color(0xFFE2E8F0);
   
   return ThemeData(
-    brightness: brightness,
-    primaryColor: primary,
-    scaffoldBackgroundColor: background,
-    cardColor: surface,
-    dividerColor: isDark ? Colors.grey[800] : Colors.grey[300],
+    brightness: isDark ? Brightness.dark : Brightness.light,
+    primaryColor: primaryColor,
+    scaffoldBackgroundColor: backgroundColor,
+    cardColor: surfaceColor,
+    dividerColor: borderColor,
     
     // ============ COLOR SCHEME ============
     colorScheme: ColorScheme(
-      brightness: brightness,
-      primary: primary,
-      secondary: secondary,
-      surface: surface,
-      background: background,
-      error: Colors.red,
-      onPrimary: textColor,
-      onSecondary: textColor,
+      brightness: isDark ? Brightness.dark : Brightness.light,
+      primary: primaryColor,
+      secondary: primaryColor,
+      surface: surfaceColor,
+      background: backgroundColor,
+      error: const Color(0xFFEF4444),
+      onPrimary: Colors.white,
+      onSecondary: Colors.white,
       onSurface: textColor,
       onBackground: textColor,
       onError: Colors.white,
+      tertiary: primaryColor.withOpacity(0.8),
     ),
     
     // ============ APP BAR ============
     appBarTheme: AppBarTheme(
-      backgroundColor: primary,
-      foregroundColor: Colors.white,
+      backgroundColor: backgroundColor,
+      foregroundColor: textColor,
       elevation: 0,
       centerTitle: true,
-      titleTextStyle: const TextStyle(
-        color: Colors.white,
+      titleTextStyle: TextStyle(
+        color: textColor,
         fontSize: 20,
         fontWeight: FontWeight.w600,
       ),
-      iconTheme: const IconThemeData(color: Colors.white),
+      iconTheme: IconThemeData(color: textColor),
     ),
     
     // ============ BOUTONS ============
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: primary,
+        backgroundColor: primaryColor,
         foregroundColor: Colors.white,
         minimumSize: const Size(double.infinity, 48),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
+        elevation: 0,
       ),
     ),
     
     floatingActionButtonTheme: FloatingActionButtonThemeData(
-      backgroundColor: primary,
+      backgroundColor: primaryColor,
       foregroundColor: Colors.white,
+      elevation: 4,
     ),
     
     // ============ INPUT ============
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: isDark ? Colors.grey[800] : Colors.grey[100],
+      fillColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide.none,
+        borderSide: BorderSide(color: borderColor),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: borderColor),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: primary, width: 2),
+        borderSide: BorderSide(color: primaryColor, width: 2),
       ),
       labelStyle: TextStyle(color: textColorSecondary),
-      floatingLabelStyle: TextStyle(color: primary),
+      floatingLabelStyle: TextStyle(color: primaryColor),
+      hintStyle: TextStyle(color: textColorSecondary),
     ),
     
     // ============ CARD ============
     cardTheme: CardThemeData(
-      color: surface,
-      elevation: 2,
+      color: surfaceColor,
+      elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: borderColor.withOpacity(0.5)),
       ),
     ),
     
     // ============ TEXTES ============
     textTheme: TextTheme(
-      headlineLarge: TextStyle(
+      displayLarge: TextStyle(
         color: textColor,
         fontSize: 32,
         fontWeight: FontWeight.bold,
       ),
-      headlineMedium: TextStyle(
+      displayMedium: TextStyle(
         color: textColor,
         fontSize: 24,
         fontWeight: FontWeight.bold,
@@ -176,7 +191,7 @@ ThemeData buildTheme(WidgetRef ref, {bool isDark = false}) {
     
     // ============ CHIP ============
     chipTheme: ChipThemeData(
-      backgroundColor: isDark ? Colors.grey[800] : Colors.grey[200],
+      backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
       labelStyle: TextStyle(color: textColor),
       side: BorderSide.none,
       shape: RoundedRectangleBorder(
@@ -188,23 +203,37 @@ ThemeData buildTheme(WidgetRef ref, {bool isDark = false}) {
     switchTheme: SwitchThemeData(
       thumbColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
-          return primary;
+          return primaryColor;
         }
-        return null;
+        return isDark ? const Color(0xFF475569) : const Color(0xFFCBD5E1);
       }),
       trackColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
-          return primary.withOpacity(0.5);
+          return primaryColor.withOpacity(0.5);
         }
-        return null;
+        return isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0);
       }),
     ),
     
     // ============ DIVIDER ============
     dividerTheme: DividerThemeData(
-      color: isDark ? Colors.grey[800] : Colors.grey[300],
+      color: borderColor,
       thickness: 1,
       space: 0,
+    ),
+    
+    // ============ ICON ============
+    iconTheme: IconThemeData(
+      color: textColor,
+      size: 24,
+    ),
+    
+    // ============ BOTTOM NAVIGATION ============
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
+      backgroundColor: surfaceColor,
+      selectedItemColor: primaryColor,
+      unselectedItemColor: textColorSecondary,
+      elevation: 8,
     ),
   );
 }

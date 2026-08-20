@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:chronos/models/task.dart';
+import '../theme/theme_provider.dart';
 
 class TaskList extends ConsumerWidget {
   final AsyncValue<List<Task>> tasksAsync;
@@ -11,16 +12,27 @@ class TaskList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final isDark = ref.watch(darkModeProvider);
+    final textColor = theme.colorScheme.onBackground;
+    final textColorSecondary = isDark 
+        ? const Color(0xFF94A3B8) 
+        : const Color(0xFF64748B);
+    final cardColor = theme.cardColor;
+    final borderColor = isDark 
+        ? const Color(0xFF334155) 
+        : const Color(0xFFE2E8F0);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
+            Text(
               'Tâches du jour',
               style: TextStyle(
-                color: Colors.white,
+                color: textColor,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
               ),
@@ -28,12 +40,11 @@ class TaskList extends ConsumerWidget {
             GestureDetector(
               onTap: () {
                 // Naviguer vers le calendrier
-                // ref.read(selectedTabProvider.notifier).state = AppTab.calendar;
               },
-              child: const Text(
+              child: Text(
                 'Voir tout',
                 style: TextStyle(
-                  color: Color(0xFF5B8DEF),
+                  color: theme.primaryColor,
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),
@@ -46,50 +57,55 @@ class TaskList extends ConsumerWidget {
         tasksAsync.when(
           data: (tasks) {
             if (tasks.isEmpty) {
-              return const Padding(
-                padding: EdgeInsets.symmetric(vertical: 20),
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
                 child: Text(
                   'Aucune tâche pour aujourd\'hui 🎉',
-                  style: TextStyle(color: Colors.white54),
+                  style: TextStyle(color: textColorSecondary),
                 ),
               );
             }
 
             return Container(
               decoration: BoxDecoration(
-                color: const Color(0xFF1E293B),
+                color: cardColor,
                 borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: borderColor.withOpacity(0.5)),
               ),
               padding: const EdgeInsets.all(4),
               child: ListView.separated(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: tasks.length,
-                separatorBuilder: (_, __) => const Divider(
-                  color: Colors.white10,
+                separatorBuilder: (_, __) => Divider(
+                  color: borderColor,
                   height: 1,
                   thickness: 1,
                 ),
                 itemBuilder: (context, index) {
                   final task = tasks[index];
-                  return _buildTaskItem(task);
+                  return _buildTaskItem(task, theme, textColorSecondary);
                 },
               ),
             );
           },
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, __) => const Center(child: Text('Erreur tâches')),
+          loading: () => Center(
+            child: CircularProgressIndicator(color: theme.primaryColor),
+          ),
+          error: (_, __) => Center(
+            child: Text('Erreur tâches', style: TextStyle(color: textColorSecondary)),
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildTaskItem(Task task) {
-    // Couleur de priorité (simulée selon l'ID)
+  Widget _buildTaskItem(Task task, ThemeData theme, Color textColorSecondary) {
+    // Couleur de priorité
     Color priorityColor;
-    if (task.idPriority == 3) priorityColor = Colors.red; // Haute
-    else if (task.idPriority == 2) priorityColor = Colors.orange; // Moyenne
-    else priorityColor = Colors.blue; // Basse
+    if (task.idPriority == 3) priorityColor = const Color(0xFFEF4444); // Haute
+    else if (task.idPriority == 2) priorityColor = const Color(0xFFF59E0B); // Moyenne
+    else priorityColor = const Color(0xFF4F7CFF); // Basse
 
     // Formatage de l'heure
     final timeFormat = DateFormat('HH:mm');
@@ -107,7 +123,7 @@ class TaskList extends ConsumerWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: task.idStatus == 3 ? Colors.green : Colors.white24,
+                color: task.idStatus == 3 ? Colors.green : theme.colorScheme.onSurface.withOpacity(0.3),
                 width: 2,
               ),
               color: task.idStatus == 3 ? Colors.green : Colors.transparent,
@@ -125,8 +141,8 @@ class TaskList extends ConsumerWidget {
               children: [
                 Text(
                   task.title,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: theme.colorScheme.onSurface,
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
                   ),
@@ -145,8 +161,8 @@ class TaskList extends ConsumerWidget {
                     const SizedBox(width: 8),
                     Text(
                       '$start - $end',
-                      style: const TextStyle(
-                        color: Colors.white54,
+                      style: TextStyle(
+                        color: textColorSecondary,
                         fontSize: 13,
                       ),
                     ),
