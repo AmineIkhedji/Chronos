@@ -6,17 +6,33 @@ import 'repository_providers.dart';
 
 // ============ LECTURE (GET) ============
 
-// Toutes les tâches
+// Toutes les tâches (triées par date décroissante puis heure de début)
 final allTasksProvider = FutureProvider<List<Task>>((ref) async {
   final repo = ref.read(taskRepositoryProvider);
-  return await repo.getAllTasks();
+  final tasks = await repo.getAllTasks();
+  tasks.sort((a, b) {
+    final dateCompare = b.date.compareTo(a.date);
+    if (dateCompare != 0) return dateCompare;
+    return a.startTime.compareTo(b.startTime);
+  });
+  return tasks;
 });
 
-// Tâches d'aujourd'hui
+// Tâches d'aujourd'hui (non terminées par heure de début, puis terminées)
 final todayTasksProvider = FutureProvider<List<Task>>((ref) async {
   final repo = ref.read(taskRepositoryProvider);
-  return await repo.getTodayTasks();
+  final tasks = await repo.getTodayTasks();
+  return sortTodayTasks(tasks);
 });
+
+/// Tri : tâches actives par heure de début croissante, terminées à la fin.
+List<Task> sortTodayTasks(List<Task> tasks) {
+  final incomplete = tasks.where((t) => !t.isCompleted).toList()
+    ..sort((a, b) => a.startTime.compareTo(b.startTime));
+  final completed = tasks.where((t) => t.isCompleted).toList()
+    ..sort((a, b) => a.startTime.compareTo(b.startTime));
+  return [...incomplete, ...completed];
+}
 
 // Tâches pour une date spécifique (paramétré)
 final tasksByDateProvider = FutureProvider.family<List<Task>, DateTime>((ref, date) async {
@@ -175,3 +191,24 @@ final addNotificationToTaskProvider = FutureProvider.family<void, Notification>(
   await notifRepo.saveNotification(notification);
   ref.invalidate(notificationsForTaskProvider(notification.idTasks));
 });
+
+// ============ ACTIONS ============
+
+typedef ToggleTaskCompletion = Future<void> Function(Task task);
+
+final toggleTaskCompletionProvider = Provider<ToggleTaskCompletion>((ref) {
+  return (Task task) async {
+    final repo = ref.read(taskRepositoryProvider);
+    task.idStatus = task.isCompleted ? 1 : 3;
+    await repo.updateTask(task);
+    ref.invalidate(allTasksProvider);
+    ref.invalidate(todayTasksProvider);
+    ref.invalidate(statisticsProvider);
+  };
+});
+
+void invalidateTaskProviders(WidgetRef ref) {
+  ref.invalidate(allTasksProvider);
+  ref.invalidate(todayTasksProvider);
+  ref.invalidate(statisticsProvider);
+}

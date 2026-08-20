@@ -8,6 +8,8 @@ import 'theme/theme_provider.dart';
 // ============ IMPORTS DES FORMULAIRES ============
 import '../views/task_form.dart';
 import '../views/habit_form.dart';
+import '../providers/task_providers.dart';
+import '../providers/habit_providers.dart';
 
 // ============ ÉNUMÉRATION DES ONGLETS ============
 
@@ -247,7 +249,9 @@ class ChronosBottomNavigationBar extends ConsumerWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const TaskForm()),
-                );
+                ).then((_) {
+                  invalidateTaskProviders(ref);
+                });
               },
             ),
             const Divider(),
@@ -260,7 +264,11 @@ class ChronosBottomNavigationBar extends ConsumerWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const HabitForm()),
-                );
+                ).then((_) {
+                  ref.invalidate(todayHabitsProvider);
+                  ref.invalidate(allHabitsWithTasksProvider);
+                  invalidateTaskProviders(ref);
+                });
               },
             ),
           ],

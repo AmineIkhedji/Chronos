@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:chronos/models/habit.dart';
 import 'package:chronos/models/task.dart';
+import '../../views/habits_management_screen.dart';
+import '../../providers/habit_providers.dart';
+import 'habit_chip.dart';
 import '../theme/theme_provider.dart';
 
 class HabitList extends ConsumerWidget {
@@ -10,17 +13,28 @@ class HabitList extends ConsumerWidget {
 
   const HabitList({super.key, required this.habitsAsync});
 
+  Future<void> _openHabitsManagement(BuildContext context, WidgetRef ref) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const HabitsManagementScreen(),
+      ),
+    );
+    ref.invalidate(todayHabitsProvider);
+    ref.invalidate(allHabitsWithTasksProvider);
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isDark = ref.watch(darkModeProvider);
     final textColor = theme.colorScheme.onBackground;
-    final textColorSecondary = isDark 
-        ? const Color(0xFF94A3B8) 
+    final textColorSecondary = isDark
+        ? const Color(0xFF94A3B8)
         : const Color(0xFF64748B);
     final cardColor = theme.cardColor;
-    final borderColor = isDark 
-        ? const Color(0xFF334155) 
+    final borderColor = isDark
+        ? const Color(0xFF334155)
         : const Color(0xFFE2E8F0);
 
     return Column(
@@ -29,18 +43,18 @@ class HabitList extends ConsumerWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Habitudes',
-              style: TextStyle(
-                color: textColor,
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
+            Flexible(
+              child: Text(
+                'Habitudes',
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
-            GestureDetector(
-              onTap: () {
-                // Naviguer vers la page des habitudes
-              },
+            TextButton(
+              onPressed: () => _openHabitsManagement(context, ref),
               child: Text(
                 'Gérer',
                 style: TextStyle(
@@ -53,7 +67,6 @@ class HabitList extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: 12),
-
         habitsAsync.when(
           data: (habits) {
             if (habits.isEmpty) {
@@ -66,56 +79,41 @@ class HabitList extends ConsumerWidget {
               );
             }
 
-            return SizedBox(
-              height: 48,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: habits.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 12),
-                itemBuilder: (context, index) {
-                  final habitData = habits[index];
-                  final task = habitData.values.first;
-                  return _buildHabitChip(task, cardColor, borderColor);
-                },
-              ),
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                return SizedBox(
+                  height: 48,
+                  width: constraints.maxWidth,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: habits.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 12),
+                    itemBuilder: (context, index) {
+                      final habitData = habits[index];
+                      final task = habitData.values.first;
+                      return HabitChip(
+                        task: task,
+                        cardColor: cardColor,
+                        borderColor: borderColor,
+                        onTap: () => _openHabitsManagement(context, ref),
+                      );
+                    },
+                  ),
+                );
+              },
             );
           },
           loading: () => Center(
             child: CircularProgressIndicator(color: theme.primaryColor),
           ),
           error: (_, __) => Center(
-            child: Text('Erreur habitudes', style: TextStyle(color: textColorSecondary)),
+            child: Text(
+              'Erreur habitudes',
+              style: TextStyle(color: textColorSecondary),
+            ),
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildHabitChip(Task task, Color cardColor, Color borderColor) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: borderColor.withOpacity(0.5)),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.bolt_rounded,
-            size: 16,
-            color: Colors.white70,
-          ),
-          const SizedBox(width: 8),
-          Text(
-            task.title,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

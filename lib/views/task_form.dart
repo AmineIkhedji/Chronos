@@ -6,11 +6,12 @@ import '../models/task.dart';
 import '../models/category.dart';
 import '../models/priority.dart';
 import '../models/status.dart';
-import '../repositories/task_repository.dart';
 import '../repositories/category_repository.dart';
 import '../repositories/priority_repository.dart';
 import '../repositories/status_repository.dart';
 import '../services/notification_service.dart';
+import '../providers/repository_providers.dart';
+import '../providers/task_providers.dart';
 
 class TaskForm extends ConsumerStatefulWidget {
   final Task? task;
@@ -438,8 +439,8 @@ class _TaskFormState extends ConsumerState<TaskForm> {
       return;
     }
 
-    // Vérifier que la tâche est dans le futur
-    if (task.startTime.isBefore(DateTime.now())) {
+    // Vérifier que la tâche est dans le futur (uniquement à la création)
+    if (widget.task == null && task.startTime.isBefore(DateTime.now())) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -452,8 +453,10 @@ class _TaskFormState extends ConsumerState<TaskForm> {
     }
 
     try {
-      final repo = TaskRepository();
+      final repo = ref.read(taskRepositoryProvider);
       await repo.saveTask(task);
+
+      invalidateTaskProviders(ref);
 
       // Planifier le rappel si activé
       if (_enableReminder) {
@@ -484,8 +487,10 @@ class _TaskFormState extends ConsumerState<TaskForm> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Tâche créée avec succès'),
+          SnackBar(
+            content: Text(widget.task == null
+                ? '✅ Tâche créée avec succès'
+                : '✅ Tâche modifiée avec succès'),
             backgroundColor: Colors.green,
           ),
         );

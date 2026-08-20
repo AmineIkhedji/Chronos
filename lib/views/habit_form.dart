@@ -1,12 +1,11 @@
 // lib/views/habit_form.dart (à créer)
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import '../models/habit.dart';
 import '../models/task.dart';
-import '../models/days.dart';
-import '../repositories/habit_repository.dart';
-import '../repositories/task_repository.dart';
+import '../providers/repository_providers.dart';
+import '../providers/habit_providers.dart';
+import '../providers/task_providers.dart';
 import '../services/notification_service.dart';
 
 class HabitForm extends ConsumerStatefulWidget {
@@ -38,19 +37,22 @@ class _HabitFormState extends ConsumerState<HabitForm> {
   }
 
   Future<void> _loadHabitData(Habit habit) async {
-    final repo = HabitRepository();
-    final days = await repo.getDaysForHabit(habit.idHabit);
-    
-    final task = await TaskRepository().getTaskById(habit.idTasks);
+    final habitRepo = ref.read(habitRepositoryProvider);
+    final taskRepo = ref.read(taskRepositoryProvider);
+    final days = await habitRepo.getDaysForHabit(habit.idHabit);
+
+    final task = await taskRepo.getTaskById(habit.idTasks);
     if (task != null) {
       _titleController.text = task.title;
       _descriptionController.text = task.description;
       _color = task.color;
     }
 
-    setState(() {
-      _selectedDays = Set.from(days);
-    });
+    if (mounted) {
+      setState(() {
+        _selectedDays = Set.from(days);
+      });
+    }
   }
 
   @override
@@ -222,42 +224,79 @@ class _HabitFormState extends ConsumerState<HabitForm> {
       return;
     }
 
-    // Créer la tâche associée
-    final task = Task()
-      ..title = _titleController.text.trim()
-      ..description = _descriptionController.text.trim()
-      ..date = DateTime.now()
-      ..startTime = DateTime.now()
-      ..endTime = DateTime.now().add(const Duration(hours: 1))
-      ..color = _color
-      ..idCategory = 1 // Catégorie par défaut
-      ..idPriority = 2 // Priorité moyenne
-      ..idStatus = 2; // En cours
+    final taskRepo = ref.read(taskRepositoryProvider);
+    final habitRepo = ref.read(habitRepositoryProvider);
 
-    await TaskRepository().saveTask(task);
+    try {
+      late Task task;
+      late Habit habit;
 
-    // Créer l'habitude
-    final habit = widget.habit ?? Habit();
-    habit.idTasks = task.idTasks;
+      if (widget.habit != null) {
+        habit = widget.habit!;
+        final existingTask = await taskRepo.getTaskById(habit.idTasks);
+        if (existingTask == null) {
+          throw Exception('Tâche associée introuvable');
+        }
+        task = existingTask
+          ..title = _titleController.text.trim()
+          ..description = _descriptionController.text.trim()
+          ..color = _color;
+        await taskRepo.updateTask(task);
+      } else {
+        task = Task()
+          ..title = _titleController.text.trim()
+          ..description = _descriptionController.text.trim()
+          ..date = DateTime.now()
+          ..startTime = DateTime.now()
+          ..endTime = DateTime.now().add(const Duration(hours: 1))
+          ..color = _color
+          ..idCategory = 1
+          ..idPriority = 2
+          ..idStatus = 2;
+        await taskRepo.saveTask(task);
 
-    await HabitRepository().saveHabit(habit);
+        habit = Habit()..idTasks = task.idTasks;
+        await habitRepo.saveHabit(habit);
+      }
 
-    // Ajouter les jours
-    await HabitRepository().addDaysToHabit(habit.idHabit, _selectedDays.toList());
+      await habitRepo.addDaysToHabit(habit.idHabit, _selectedDays.toList());
 
-    // Planifier les rappels si activé
-    if (_enableReminder) {
-      final notificationService = NotificationService();
-      await notificationService.scheduleHabitWithSettings(
-        habit: habit,
-        task: task,
-        daysOfWeek: _selectedDays.toList(),
-        reminderTime: _reminderTime,
-      );
-    }
+      if (_enableReminder) {
+        final notificationService = NotificationService();
+        await notificationService.scheduleHabitWithSettings(
+          habit: habit,
+          task: task,
+          daysOfWeek: _selectedDays.toList(),
+          reminderTime: _reminderTime,
+        );
+      }
 
-    if (mounted) {
-      Navigator.pop(context);
+      ref.invalidate(allHabitsProvider);
+      ref.invalidate(todayHabitsProvider);
+      ref.invalidate(allHabitsWithTasksProvider);
+      ref.invalidate(habitDaysProvider(habit.idHabit));
+      invalidateTaskProviders(ref);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(widget.habit == null
+                ? '✅ Habitude créée avec succès'
+                : '✅ Habitude modifiée avec succès'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('❌ Erreur: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 }
