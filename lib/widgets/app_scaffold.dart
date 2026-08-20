@@ -10,29 +10,30 @@ class AppScaffold extends ConsumerWidget {
     this.showBottomNav = true,
     this.appBar,
     this.resizeToAvoidBottomInset = true,
-    this.showFab = true,
-    this.onFabPressed,
+    this.backgroundColor,
   });
 
   final Widget child;
   final bool showBottomNav;
   final PreferredSizeWidget? appBar;
   final bool resizeToAvoidBottomInset;
-  final bool showFab;
-  final VoidCallback? onFabPressed;
+  final Color? backgroundColor;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
 
-    // Le FAB est maintenant intégré dans la bottom navigation bar
-    // On le désactive ici pour éviter le doublon
     return Scaffold(
       resizeToAvoidBottomInset: resizeToAvoidBottomInset,
       appBar: appBar,
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: child,
-      floatingActionButton: null, // Désactivé car intégré dans la barre
+      // ✅ LA CORRECTION ICI : On utilise la couleur du thème actuel
+      backgroundColor: backgroundColor ?? theme.scaffoldBackgroundColor,
+      
+      // ✅ SafeArea toujours actif (gère la barre de statut proprement)
+      body: SafeArea(
+        child: child,
+      ),
+      floatingActionButton: null, // FAB géré dans la bottom nav
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: showBottomNav 
           ? const ChronosBottomNavigationBar() 
