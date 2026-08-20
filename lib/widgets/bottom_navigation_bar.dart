@@ -1,4 +1,5 @@
 // lib/widgets/bottom_navigation_bar.dart
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'theme/theme_colors.dart';
@@ -57,114 +58,129 @@ class ChronosBottomNavigationBar extends ConsumerWidget {
     final selectedTab = ref.watch(selectedTabProvider);
     final isDark = ref.watch(darkModeProvider);
     final userColor = ref.watch(userColorProvider);
-    final primaryColor = Color(ThemeColors.userColors[userColor] ?? ThemeColors.defaultPrimary);
+    final primaryColor =
+        Color(ThemeColors.userColors[userColor] ?? ThemeColors.defaultPrimary);
 
-    // Couleurs
-    final backgroundColor = isDark 
-        ? const Color(0xFF1E293B) 
-        : const Color(0xFFFFFFFF);
-    
-    final inactiveColor = isDark 
-        ? const Color(0xFF64748B) 
-        : const Color(0xFF94A3B8);
+    // ============ GLASSMORPHISM ============
+    // Fond translucide (pas opaque) : c'est ce qui, combiné au
+    // BackdropFilter ci-dessous, crée l'effet "verre flouté".
+    // Les valeurs de base viennent toujours du thème (surface color),
+    // donc dark/light mode reste respecté automatiquement.
+    final glassColor = isDark
+        ? const Color(0xFF1E293B).withOpacity(0.55)
+        : const Color(0xFFFFFFFF).withOpacity(0.65);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
-        border: Border(
-          top: BorderSide(
-            color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
-            width: 1,
-          ),
-        ),
-      ),
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              // Onglet 1 - Accueil
-              _buildNavItem(
-                context: context,
-                ref: ref,
-                tab: AppTab.home,
-                selectedTab: selectedTab,
-                primaryColor: primaryColor,
-                inactiveColor: inactiveColor,
+    final glassBorderColor = isDark
+        ? Colors.white.withOpacity(0.08)
+        : Colors.white.withOpacity(0.5);
+
+    final inactiveColor =
+        isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8);
+
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        child: Container(
+          decoration: BoxDecoration(
+            color: glassColor,
+            border: Border(
+              top: BorderSide(color: glassBorderColor, width: 1),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(isDark ? 0.25 : 0.08),
+                blurRadius: 20,
+                offset: const Offset(0, -4),
               ),
-              
-              // Onglet 2 - Calendrier
-              _buildNavItem(
-                context: context,
-                ref: ref,
-                tab: AppTab.calendar,
-                selectedTab: selectedTab,
-                primaryColor: primaryColor,
-                inactiveColor: inactiveColor,
-              ),
-              
-              // BOUTON CENTRAL FLOTTANT (+)
-              Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    _showCreateTaskDialog(context, ref);
-                  },
-                  child: Container(
-                    height: 64,
-                    width: 64,
-                    alignment: Alignment.center,
-                    child: Container(
-                      height: 56,
-                      width: 56,
-                      decoration: BoxDecoration(
-                        color: primaryColor,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: primaryColor.withOpacity(0.3),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
+            ],
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  // Onglet 1 - Accueil
+                  _buildNavItem(
+                    context: context,
+                    ref: ref,
+                    tab: AppTab.home,
+                    selectedTab: selectedTab,
+                    primaryColor: primaryColor,
+                    inactiveColor: inactiveColor,
+                  ),
+
+                  // Onglet 2 - Calendrier
+                  _buildNavItem(
+                    context: context,
+                    ref: ref,
+                    tab: AppTab.calendar,
+                    selectedTab: selectedTab,
+                    primaryColor: primaryColor,
+                    inactiveColor: inactiveColor,
+                  ),
+
+                  // BOUTON CENTRAL FLOTTANT (+) — conservé flottant/surélevé
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        _showCreateTaskDialog(context, ref);
+                      },
+                      child: Container(
+                        height: 64,
+                        width: 64,
+                        alignment: Alignment.center,
+                        child: Container(
+                          height: 56,
+                          width: 56,
+                          decoration: BoxDecoration(
+                            color: primaryColor,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.35),
+                              width: 1.5,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: primaryColor.withOpacity(0.4),
+                                blurRadius: 16,
+                                offset: const Offset(0, 6),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.add_rounded,
-                        color: Colors.white,
-                        size: 32,
+                          child: const Icon(
+                            Icons.add_rounded,
+                            color: Colors.white,
+                            size: 32,
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
+
+                  // Onglet 3 - Stats
+                  _buildNavItem(
+                    context: context,
+                    ref: ref,
+                    tab: AppTab.stats,
+                    selectedTab: selectedTab,
+                    primaryColor: primaryColor,
+                    inactiveColor: inactiveColor,
+                  ),
+
+                  // Onglet 4 - Réglages
+                  _buildNavItem(
+                    context: context,
+                    ref: ref,
+                    tab: AppTab.settings,
+                    selectedTab: selectedTab,
+                    primaryColor: primaryColor,
+                    inactiveColor: inactiveColor,
+                  ),
+                ],
               ),
-              
-              // Onglet 3 - Stats
-              _buildNavItem(
-                context: context,
-                ref: ref,
-                tab: AppTab.stats,
-                selectedTab: selectedTab,
-                primaryColor: primaryColor,
-                inactiveColor: inactiveColor,
-              ),
-              
-              // Onglet 4 - Réglages
-              _buildNavItem(
-                context: context,
-                ref: ref,
-                tab: AppTab.settings,
-                selectedTab: selectedTab,
-                primaryColor: primaryColor,
-                inactiveColor: inactiveColor,
-              ),
-            ],
+            ),
           ),
         ),
       ),

@@ -1,4 +1,4 @@
-// lib/views/settings_screen.dart (VERSION CORRIGÉE ET FONCTIONNELLE)
+// lib/views/settings_screen.dart (VERSION FIDÈLE À LA MAQUETTE)
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/common/custom_app_bar.dart';
@@ -47,9 +47,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
+      // Header "plain" fidèle à la maquette : pas de bandeau coloré,
+      // texte gras aligné à gauche sur le fond de la page.
       appBar: CustomAppBar(
         title: 'Paramètres',
         showBackButton: false,
+        centerTitle: false,
+        backgroundColor: theme.scaffoldBackgroundColor,
+        foregroundColor: textColor,
+        elevation: 0,
+        titleFontSize: 30,
+        toolbarHeight: 84,
+        titleSpacing: 20,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -63,7 +72,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               color: cardColor,
               borderColor: borderColor,
               children: [
-                // ✅ Switch Mode sombre CORRIGÉ
                 _buildListTile(
                   leadingIcon: Icons.dark_mode_rounded,
                   title: 'Mode sombre',
@@ -77,8 +85,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     activeThumbColor: primaryColor,
                   ),
                 ),
-                const Divider(height: 1, color: Colors.transparent),
-                // ✅ Couleur principale CORRIGÉE
+                Divider(height: 1, color: borderColor.withOpacity(0.5)),
                 _buildListTile(
                   leadingIcon: Icons.color_lens_rounded,
                   title: 'Couleur principale',
@@ -116,19 +123,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 _buildListTile(
                   leadingIcon: Icons.calendar_today_rounded,
                   title: 'Premier jour de la semaine',
-                  subtitle: 'Choisissez le jour de début du calendrier',
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        _dayName(_firstDayOfWeek),
-                        style: TextStyle(color: textSecondary, fontSize: 14),
-                      ),
-                      const SizedBox(width: 8),
-                      const Icon(Icons.chevron_right_rounded, size: 20),
-                    ],
+                ),
+                Divider(height: 1, color: borderColor.withOpacity(0.5)),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: _buildWeekdayToggle(
+                    primaryColor: primaryColor,
+                    borderColor: borderColor,
+                    inactiveTextColor: textSecondary,
                   ),
-                  onTap: _showFirstDayPicker,
                 ),
               ],
             ),
@@ -166,14 +169,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               color: cardColor,
               borderColor: borderColor,
               children: [
-                // Catégories
+                // Catégories : icône "tag", fond bleu, icône verte (fidèle à la maquette)
                 _buildListTile(
-                  leadingIcon: Icons.category_rounded,
+                  leadingIcon: Icons.sell_rounded,
                   title: 'Catégories',
-                  leadingIconColor: const Color(0xFF4F7CFF),
+                  leadingIconColor: const Color(0xFF22C55E),
+                  iconBgColor: const Color(0xFF6366F1).withOpacity(0.15),
                   onTap: () => _openCustomization(CustomizationKind.categories),
                 ),
-                const Divider(height: 1, color: Colors.transparent),
+                Divider(height: 1, color: borderColor.withOpacity(0.5)),
                 // Priorités
                 _buildListTile(
                   leadingIcon: Icons.flag_rounded,
@@ -181,7 +185,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   leadingIconColor: const Color(0xFFEF4444),
                   onTap: () => _openCustomization(CustomizationKind.priorities),
                 ),
-                const Divider(height: 1, color: Colors.transparent),
+                Divider(height: 1, color: borderColor.withOpacity(0.5)),
                 // Statuts
                 _buildListTile(
                   leadingIcon: Icons.check_circle_rounded,
@@ -191,50 +195,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 80),
           ],
         ),
       ),
     );
-  }
-
-  String _dayName(int day) {
-    const names = {
-      DateTime.monday: 'Lundi',
-      DateTime.tuesday: 'Mardi',
-      DateTime.wednesday: 'Mercredi',
-      DateTime.thursday: 'Jeudi',
-      DateTime.friday: 'Vendredi',
-      DateTime.saturday: 'Samedi',
-      DateTime.sunday: 'Dimanche',
-    };
-    return names[day] ?? 'Lundi';
-  }
-
-  Future<void> _showFirstDayPicker() async {
-    final selectedDay = await showDialog<int>(
-      context: context,
-      builder: (dialogContext) => SimpleDialog(
-        title: const Text('Premier jour de la semaine'),
-        children: List.generate(7, (index) {
-          final day = index + 1;
-          return SimpleDialogOption(
-            onPressed: () => Navigator.pop(dialogContext, day),
-            child: Row(
-              children: [
-                Expanded(child: Text(_dayName(day))),
-                if (day == _firstDayOfWeek)
-                  Icon(Icons.check, color: Theme.of(context).primaryColor),
-              ],
-            ),
-          );
-        }),
-      ),
-    );
-    if (selectedDay == null) return;
-    await SettingsRepository().setFirstDayOfWeek(selectedDay);
-    if (mounted) setState(() => _firstDayOfWeek = selectedDay);
   }
 
   void _openCustomization(CustomizationKind kind) {
@@ -253,9 +219,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         title,
         style: TextStyle(
           color: color,
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 0.5,
+          fontSize: 20,
+          fontWeight: FontWeight.w800,
         ),
       ),
     );
@@ -286,10 +251,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     Widget? trailing,
     VoidCallback? onTap,
     Color? leadingIconColor,
+    Color? iconBgColor,
   }) {
     final theme = Theme.of(context);
     final isDark = ref.watch(darkModeProvider);
     final textSecondary = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
+
+    // Icône "neutre" par défaut (gris) pour les réglages génériques.
+    // Seuls les items de Personnalisation passent une couleur explicite.
+    final neutralIconBg = isDark ? const Color(0xFF334155) : const Color(0xFFF1F5F9);
+    final neutralIconColor = isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569);
+
+    final effectiveIconColor = leadingIconColor ?? neutralIconColor;
+    final effectiveBgColor = iconBgColor ??
+        (leadingIconColor != null ? leadingIconColor.withOpacity(0.15) : neutralIconBg);
 
     return InkWell(
       onTap: onTap,
@@ -302,12 +277,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: (leadingIconColor ?? theme.primaryColor).withOpacity(0.15),
+                color: effectiveBgColor,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
                 leadingIcon,
-                color: leadingIconColor ?? theme.primaryColor,
+                color: effectiveIconColor,
                 size: 20,
               ),
             ),
@@ -344,7 +319,79 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
-  // ============ DIALOGUE DE SÉLECTION DE COULEUR CORRIGÉ ============
+  // ============ TOGGLE PREMIER JOUR DE LA SEMAINE ============
+  // NB : la maquette ne propose que 2 options (Lundi / Dimanche), alors que
+  // le modèle Settings.firstDayWeek accepte les 7 jours. Si la valeur en
+  // base n'est ni lundi ni dimanche, aucun bouton n'apparaît sélectionné.
+
+  Widget _buildWeekdayToggle({
+    required Color primaryColor,
+    required Color borderColor,
+    required Color inactiveTextColor,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: borderColor),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: _buildDayToggleOption(
+              label: 'Lundi',
+              day: DateTime.monday,
+              primaryColor: primaryColor,
+              inactiveTextColor: inactiveTextColor,
+            ),
+          ),
+          Expanded(
+            child: _buildDayToggleOption(
+              label: 'Dimanche',
+              day: DateTime.sunday,
+              primaryColor: primaryColor,
+              inactiveTextColor: inactiveTextColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDayToggleOption({
+    required String label,
+    required int day,
+    required Color primaryColor,
+    required Color inactiveTextColor,
+  }) {
+    final isSelected = _firstDayOfWeek == day;
+    return GestureDetector(
+      onTap: () async {
+        if (_firstDayOfWeek == day) return;
+        await SettingsRepository().setFirstDayOfWeek(day);
+        if (mounted) setState(() => _firstDayOfWeek = day);
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: isSelected ? primaryColor : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : inactiveTextColor,
+            fontWeight: FontWeight.w700,
+            fontSize: 15,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ============ DIALOGUE DE SÉLECTION DE COULEUR ============
 
   void _showColorPickerDialog(BuildContext context, Color currentColor) {
     final theme = Theme.of(context);
@@ -381,21 +428,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              
               Wrap(
                 spacing: 12,
                 runSpacing: 12,
                 children: ThemeColors.userColors.entries.map((entry) {
                   final color = Color(entry.value);
                   final isSelected = color == currentColor;
-                  
+
                   return InkWell(
                     onTap: () async {
                       final repo = SettingsRepository();
                       await repo.setPrimaryColor(entry.value);
-                      
+
                       ref.read(userColorProvider.notifier).state = entry.key;
-                      
+
                       if (dialogContext.mounted) Navigator.pop(dialogContext);
                     },
                     borderRadius: BorderRadius.circular(16),
@@ -405,21 +451,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       decoration: BoxDecoration(
                         color: color,
                         borderRadius: BorderRadius.circular(16),
-                        border: isSelected 
+                        border: isSelected
                             ? Border.all(color: Colors.white, width: 3)
                             : null,
-                        boxShadow: isSelected 
+                        boxShadow: isSelected
                             ? [BoxShadow(color: color.withOpacity(0.4), blurRadius: 8)]
                             : null,
                       ),
-                      child: isSelected 
+                      child: isSelected
                           ? const Icon(Icons.check_rounded, color: Colors.white, size: 32)
                           : null,
                     ),
                   );
                 }).toList(),
               ),
-              
               const SizedBox(height: 20),
               Align(
                 alignment: Alignment.centerRight,
