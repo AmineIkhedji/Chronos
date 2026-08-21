@@ -16,19 +16,21 @@ class NotificationService {
   factory NotificationService() => _instance;
   NotificationService._internal();
 
-  final FlutterLocalNotificationsPlugin _notifications = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _notifications =
+      FlutterLocalNotificationsPlugin();
   final SettingsRepository _settingsRepo = SettingsRepository();
   final NotificationRepository _notifRepo = NotificationRepository();
 
   static const String _channelId = 'chronos_notifications';
   static const String _channelName = 'Rappels Chronos';
-  static const String _channelDescription = 'Notifications pour vos tâches et habitudes';
+  static const String _channelDescription =
+      'Notifications pour vos tâches et habitudes';
 
   bool _isInitialized = false;
   int _lastNotificationId = 0;
 
   // ============ GESTION DES IDS 32 BITS ============
-  
+
   int _generateSafeId() {
     // Générer un ID dans la plage 32 bits signée [-2^31, 2^31 - 1]
     _lastNotificationId++;
@@ -44,7 +46,7 @@ class NotificationService {
     if (notifications.isEmpty) {
       return 1;
     }
-    
+
     // Trouver le plus grand ID
     int maxId = 0;
     for (final notif in notifications) {
@@ -52,7 +54,7 @@ class NotificationService {
         maxId = notif.idNotif;
       }
     }
-    
+
     return maxId + 1 <= 2147483647 ? maxId + 1 : 1;
   }
 
@@ -63,7 +65,9 @@ class NotificationService {
 
     tz.initializeTimeZones();
 
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings = AndroidInitializationSettings(
+      '@mipmap/ic_launcher',
+    );
     const darwinSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
@@ -89,7 +93,10 @@ class NotificationService {
   }
 
   Future<void> _createNotificationChannel() async {
-    final androidPlugin = _notifications.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+    final androidPlugin = _notifications
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
     if (androidPlugin != null) {
       await androidPlugin.createNotificationChannel(
         const AndroidNotificationChannel(
@@ -122,24 +129,24 @@ class NotificationService {
 
     if (defaultTargetPlatform == TargetPlatform.android) {
       final androidPlugin = _notifications
-          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >();
       if (androidPlugin == null) return false;
 
       final notificationsGranted =
-        await androidPlugin.requestNotificationsPermission() ?? false;
+          await androidPlugin.requestNotificationsPermission() ?? false;
       final exactAlarmsGranted =
-        await androidPlugin.requestExactAlarmsPermission() ?? false;
+          await androidPlugin.requestExactAlarmsPermission() ?? false;
       return notificationsGranted && exactAlarmsGranted;
     }
 
     if (defaultTargetPlatform == TargetPlatform.iOS) {
       final status = await _notifications
-          .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()
-          ?.requestPermissions(
-            alert: true,
-            badge: true,
-            sound: true,
-          );
+          .resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin
+          >()
+          ?.requestPermissions(alert: true, badge: true, sound: true);
       return status ?? false;
     }
 
@@ -154,9 +161,9 @@ class NotificationService {
   // ============ PLANIFICATION ============
 
   Future<void> scheduleTaskReminder(
-    int taskId, 
-    String title, 
-    String description, 
+    int taskId,
+    String title,
+    String description,
     DateTime remindAt,
   ) async {
     if (!await areNotificationsEnabled()) {
@@ -171,15 +178,23 @@ class NotificationService {
     }
 
     try {
+      final existingNotifications = await _notifRepo.getNotificationsForTask(
+        taskId,
+      );
+      for (final existingNotification in existingNotifications) {
+        await cancelNotification(existingNotification.idNotif);
+      }
+      await _notifRepo.deleteNotificationsForTask(taskId);
+
       // Générer un ID valide 32 bits
       final id = await _getNextAvailableId();
-      
+
       final notification = notif_model.Notification()
         ..idNotif = id
         ..idTasks = taskId
         ..remindAt = remindAt
         ..enabled = true;
-      
+
       await _notifRepo.saveNotification(notification);
 
       await _scheduleNotification(
@@ -190,15 +205,17 @@ class NotificationService {
         payload: 'task|$taskId',
       );
 
-      print('✅ Rappel planifié pour la tâche "$title" à ${remindAt.toLocal()} (ID: $id)');
+      print(
+        '✅ Rappel planifié pour la tâche "$title" à ${remindAt.toLocal()} (ID: $id)',
+      );
     } catch (e) {
       print('❌ Erreur lors de la planification du rappel : $e');
     }
   }
 
   Future<void> scheduleHabitReminder(
-    int habitId, 
-    String title, 
+    int habitId,
+    String title,
     DateTime scheduledTime,
   ) async {
     if (!await areNotificationsEnabled()) {
@@ -213,13 +230,13 @@ class NotificationService {
 
     try {
       final id = await _getNextAvailableId();
-      
+
       final notification = notif_model.Notification()
         ..idNotif = id
         ..idTasks = habitId
         ..remindAt = scheduledTime
         ..enabled = true;
-      
+
       await _notifRepo.saveNotification(notification);
 
       await _scheduleNotification(
@@ -230,7 +247,9 @@ class NotificationService {
         payload: 'habit|$habitId',
       );
 
-      print('✅ Rappel d\'habitude planifié pour "$title" à ${scheduledTime.toLocal()} (ID: $id)');
+      print(
+        '✅ Rappel d\'habitude planifié pour "$title" à ${scheduledTime.toLocal()} (ID: $id)',
+      );
     } catch (e) {
       print('❌ Erreur lors de la planification du rappel d\'habitude : $e');
     }
@@ -280,7 +299,8 @@ class NotificationService {
       body,
       tzTime,
       details,
-      uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       payload: payload,
     );
@@ -293,9 +313,11 @@ class NotificationService {
 
   // ============ MÉTHODES UTILES ============
 
-  Future<void> cancelNotification(int id) async {
+  Future<void> cancelNotification(int id, {bool logCancellation = true}) async {
     await _notifications.cancel(id);
-    print('🔔 Notification annulée (ID: $id)');
+    if (logCancellation) {
+      print('🔔 Notification annulée (ID: $id)');
+    }
   }
 
   Future<void> cancelAllNotifications() async {
@@ -310,18 +332,22 @@ class NotificationService {
     }
 
     final notifications = await _notifRepo.getEnabledNotifications();
-    
+    final rescheduledTaskIds = <int>{};
+
     for (final notif in notifications) {
       if (notif.remindAt.isBefore(DateTime.now())) {
         // Supprimer les notifications passées
         await _notifRepo.deleteNotification(notif.idNotif);
-        await cancelNotification(notif.idNotif);
+        await cancelNotification(notif.idNotif, logCancellation: false);
         continue;
       }
 
       // Vérifier si c'est une tâche ou une habitude
       final task = await AppDatabase.isar.tasks.get(notif.idTasks);
       if (task != null) {
+        if (!rescheduledTaskIds.add(notif.idTasks)) {
+          continue;
+        }
         // C'est une tâche
         await scheduleTaskReminder(
           notif.idTasks,
@@ -358,11 +384,11 @@ class NotificationService {
   Future<void> cleanupOldNotifications() async {
     final now = DateTime.now();
     final notifications = await _notifRepo.getAllNotifications();
-    
+
     for (final notif in notifications) {
       if (notif.remindAt.isBefore(now) || !notif.enabled) {
         await _notifRepo.deleteNotification(notif.idNotif);
-        await cancelNotification(notif.idNotif);
+        await cancelNotification(notif.idNotif, logCancellation: false);
       }
     }
     print('🧹 Nettoyage des notifications terminé');
@@ -398,11 +424,7 @@ class NotificationService {
         reminderTime.minute,
       );
 
-      await scheduleHabitReminder(
-        habit.idHabit,
-        task.title,
-        scheduledTime,
-      );
+      await scheduleHabitReminder(habit.idHabit, task.title, scheduledTime);
     }
   }
 

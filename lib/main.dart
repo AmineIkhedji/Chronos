@@ -1,4 +1,6 @@
 // lib/main.dart
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,27 +17,30 @@ import 'widgets/common/loading_indicator.dart';
 import 'views/home_screen.dart';
 import 'views/settings_screen.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  
-  if (!kIsWeb) {
-    // Initialiser la base de données
-    await AppDatabase.init();
-    
-    // Initialiser les données par défaut
-    await InitializationService.initializeDefaultData();
-    
-    // Initialiser le service de notifications
+Future<void> _initializeBackgroundServices() async {
+  try {
     final notificationService = NotificationService();
     await notificationService.initialize();
     await notificationService.requestPermissions();
-    
-    // Nettoyer les notifications passées
     await notificationService.cleanupOldNotifications();
-    // Réplanifier les notifications actives
     await notificationService.rescheduleAllActiveNotifications();
+  } catch (error, stackTrace) {
+    debugPrint('Initialisation des notifications échouée: $error');
+    debugPrintStack(stackTrace: stackTrace);
   }
-  
+}
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  if (!kIsWeb) {
+    // Initialiser la base de données
+    await AppDatabase.init();
+
+    // Initialiser les données par défaut
+    await InitializationService.initializeDefaultData();
+  }
+
   // Initialiser le formatage des dates pour le français
   await initializeDateFormatting('fr_FR', null);
   
@@ -56,6 +61,9 @@ class _ChronosAppState extends ConsumerState<ChronosApp> {
     // Charger le thème après le premier frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(loadThemeProvider);
+      if (!kIsWeb) {
+        unawaited(_initializeBackgroundServices());
+      }
     });
   }
 
