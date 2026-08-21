@@ -1,3 +1,4 @@
+// lib/widgets/home/habit_chip.dart
 import 'package:flutter/material.dart';
 import 'package:chronos/models/habit.dart';
 
@@ -18,6 +19,7 @@ class HabitChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isCompleted = habit.color == Colors.green.value; // Vérification simplifiée
 
     return GestureDetector(
       onTap: onTap,
@@ -33,7 +35,7 @@ class HabitChip extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              Icons.bolt_rounded,
+              isCompleted ? Icons.check_circle_rounded : Icons.bolt_rounded,
               size: 16,
               color: Color(habit.color),
             ),

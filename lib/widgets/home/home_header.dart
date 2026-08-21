@@ -20,8 +20,6 @@ class HomeHeader extends ConsumerWidget {
       children: [
         todayStatsAsync.when(
           data: (stats) {
-            final total = stats['total'] as int? ?? 0;
-            final completed = stats['completed'] as int? ?? 0;
             final remaining = stats['remaining'] as int? ?? 0;
             final successRate = (stats['successRate'] as num?)?.toDouble() ?? 0.0;
 

@@ -1,13 +1,17 @@
 // lib/views/task_form.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import '../controllers/task_controller.dart';
 import '../models/task.dart';
 import '../models/category.dart';
 import '../models/priority.dart';
 import '../models/status.dart';
 import '../providers/task_providers.dart';
+import '../utils/validators.dart';
+import '../widgets/form/color_selector.dart';
+import '../widgets/form/time_picker_field.dart';
+import '../widgets/form/date_picker_field.dart';
+import '../widgets/common/confirmation_dialog.dart';
 
 class TaskForm extends ConsumerStatefulWidget {
   final Task? task;
@@ -143,7 +147,7 @@ class _TaskFormState extends ConsumerState<TaskForm> {
                         counterText: '',
                       ),
                       maxLength: 100,
-                      validator: _taskController.validateTitle,
+                      validator: Validators.validateTitle,
                     ),
                     const SizedBox(height: 16),
 
@@ -158,26 +162,15 @@ class _TaskFormState extends ConsumerState<TaskForm> {
                       ),
                       maxLines: 3,
                       maxLength: 500,
-                      validator: _taskController.validateDescription,
+                      validator: Validators.validateDescription,
                     ),
                     const SizedBox(height: 16),
 
                     // ============ DATE ============
-                    InkWell(
-                      onTap: _selectDate,
-                      child: InputDecorator(
-                        decoration: const InputDecoration(
-                          labelText: 'Date *',
-                          border: OutlineInputBorder(),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.calendar_today_rounded),
-                            const SizedBox(width: 8),
-                            Text(DateFormat('dd MMMM yyyy', 'fr_FR').format(_date)),
-                          ],
-                        ),
-                      ),
+                    DatePickerField(
+                      value: _date,
+                      label: 'Date *',
+                      onDateSelected: (date) => setState(() => _date = date),
                     ),
                     const SizedBox(height: 16),
 
@@ -194,23 +187,10 @@ class _TaskFormState extends ConsumerState<TaskForm> {
                       },
                     ),
                     if (_hasStartTime) ...[
-                      InkWell(
-                        onTap: () => _selectTime(context, _startTime ?? const TimeOfDay(hour: 9, minute: 0), (time) {
-                          setState(() => _startTime = time);
-                        }),
-                        child: InputDecorator(
-                          decoration: const InputDecoration(
-                            labelText: 'Heure de début',
-                            border: OutlineInputBorder(),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.access_time_rounded),
-                              const SizedBox(width: 8),
-                              Text(_startTime?.format(context) ?? 'Sélectionner'),
-                            ],
-                          ),
-                        ),
+                      TimePickerField(
+                        value: _startTime,
+                        label: 'Heure de début',
+                        onTimeSelected: (time) => setState(() => _startTime = time),
                       ),
                     ],
                     const SizedBox(height: 16),
@@ -228,23 +208,10 @@ class _TaskFormState extends ConsumerState<TaskForm> {
                       },
                     ),
                     if (_hasEndTime) ...[
-                      InkWell(
-                        onTap: () => _selectTime(context, _endTime ?? const TimeOfDay(hour: 10, minute: 0), (time) {
-                          setState(() => _endTime = time);
-                        }),
-                        child: InputDecorator(
-                          decoration: const InputDecoration(
-                            labelText: 'Heure de fin',
-                            border: OutlineInputBorder(),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.access_time_rounded),
-                              const SizedBox(width: 8),
-                              Text(_endTime?.format(context) ?? 'Sélectionner'),
-                            ],
-                          ),
-                        ),
+                      TimePickerField(
+                        value: _endTime,
+                        label: 'Heure de fin',
+                        onTimeSelected: (time) => setState(() => _endTime = time),
                       ),
                     ],
                     const SizedBox(height: 16),
@@ -276,7 +243,7 @@ class _TaskFormState extends ConsumerState<TaskForm> {
                         );
                       }).toList(),
                       onChanged: (value) => setState(() => _selectedCategoryId = value),
-                      validator: (value) => _taskController.validateCategory(value),
+                      validator: Validators.validateCategory,
                     ),
                     const SizedBox(height: 16),
 
@@ -307,7 +274,7 @@ class _TaskFormState extends ConsumerState<TaskForm> {
                         );
                       }).toList(),
                       onChanged: (value) => setState(() => _selectedPriorityId = value),
-                      validator: (value) => _taskController.validatePriority(value),
+                      validator: Validators.validatePriority,
                     ),
                     const SizedBox(height: 16),
 
@@ -338,7 +305,22 @@ class _TaskFormState extends ConsumerState<TaskForm> {
                         );
                       }).toList(),
                       onChanged: (value) => setState(() => _selectedStatusId = value),
-                      validator: (value) => _taskController.validateStatus(value),
+                      validator: Validators.validateStatus,
+                    ),
+                    const SizedBox(height: 24),
+
+                    // ============ COULEUR ============
+                    const Text(
+                      'Couleur',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ColorSelector(
+                      selectedColor: _color,
+                      onColorSelected: (color) => setState(() => _color = color),
                     ),
                     const SizedBox(height: 24),
 
@@ -356,7 +338,7 @@ class _TaskFormState extends ConsumerState<TaskForm> {
                       subtitle: const Text('Recevez une notification avant la tâche'),
                       value: _enableReminder,
                       onChanged: (value) {
-                          setState(() {
+                        setState(() {
                           _enableReminder = value;
                           if (value && !_hasStartTime) {
                             _hasStartTime = true;
@@ -367,31 +349,29 @@ class _TaskFormState extends ConsumerState<TaskForm> {
                     ),
 
                     if (_enableReminder) ...[
-                       const SizedBox(height: 8),
-                    // Message d'avertissement si pas d'heure de début
-                    if (!_hasStartTime)
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.orange.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.orange.withOpacity(0.3)),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(Icons.warning_amber_rounded, color: Colors.orange),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                'Un rappel nécessite une heure de début',
-                                style: TextStyle(color: Colors.orange[800], fontSize: 13),
+                      const SizedBox(height: 8),
+                      if (!_hasStartTime)
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.orange.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.warning_amber_rounded, color: Colors.orange),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'Un rappel nécessite une heure de début',
+                                  style: TextStyle(color: Colors.orange[800], fontSize: 13),
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
                       const SizedBox(height: 16),
-                      // Menu déroulant dynamique pour le temps de rappel
                       DropdownButtonFormField<int>(
                         value: _reminderMinutesBefore,
                         decoration: const InputDecoration(
@@ -403,7 +383,6 @@ class _TaskFormState extends ConsumerState<TaskForm> {
                         onChanged: (value) => setState(() => _reminderMinutesBefore = value!),
                       ),
                       const SizedBox(height: 8),
-                      // Affichage dynamique du temps choisi
                       Text(
                         'Vous serez notifié ${_taskController.formatReminderTime(_reminderMinutesBefore)} avant la tâche',
                         style: TextStyle(
@@ -422,52 +401,18 @@ class _TaskFormState extends ConsumerState<TaskForm> {
     );
   }
 
-  // ============ MÉTHODES DE SÉLECTION ============
-
-  Future<void> _selectDate() async {
-    final date = await showDatePicker(
-      context: context,
-      initialDate: _date,
-      firstDate: DateTime.now(),
-      lastDate: DateTime(2100),
-    );
-    if (date != null) {
-      setState(() => _date = date);
-    }
-  }
-
-  Future<void> _selectTime(BuildContext context, TimeOfDay initial, Function(TimeOfDay) onSelect) async {
-    final time = await showTimePicker(
-      context: context,
-      initialTime: initial,
-    );
-    if (time != null) {
-      onSelect(time);
-    }
-  }
-
   // ============ SUPPRESSION ============
 
   Future<void> _confirmDelete() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Supprimer la tâche'),
-        content: Text('Voulez-vous supprimer « ${widget.task?.title} » ?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Annuler'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Supprimer', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
+    final confirmed = await ConfirmationDialog.show(
+      context,
+      title: 'Supprimer la tâche',
+      message: 'Voulez-vous supprimer « ${widget.task?.title} » ?',
+      confirmText: 'Supprimer',
+      isDestructive: true,
     );
 
-    if (confirmed == true) {
+    if (confirmed) {
       try {
         await _taskController.deleteTask(widget.task!.idTasks);
         
@@ -497,7 +442,7 @@ class _TaskFormState extends ConsumerState<TaskForm> {
 
   // ============ SAUVEGARDE ============
 
-   Future<void> _saveTask() async {
+  Future<void> _saveTask() async {
     // Validation du formulaire
     if (!_formKey.currentState!.validate()) return;
 

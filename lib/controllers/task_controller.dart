@@ -9,6 +9,7 @@ import '../services/notification_service.dart';
 import '../models/category.dart';
 import '../models/priority.dart';
 import '../models/status.dart';
+import '../utils/validators.dart';
 
 class TaskController {
   final TaskRepository _taskRepo = TaskRepository();
@@ -19,30 +20,15 @@ class TaskController {
 
   // ============ VALIDATIONS ============
 
-  /// Valide le titre (obligatoire, 3-100 caractères)
-  String? validateTitle(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'Le titre est obligatoire';
-    }
-    if (value.trim().length < 3) {
-      return 'Le titre doit contenir au moins 3 caractères';
-    }
-    if (value.trim().length > 100) {
-      return 'Le titre ne doit pas dépasser 100 caractères';
-    }
-    return null;
-  }
+  String? validateTitle(String? value) => Validators.validateTitle(value);
 
-  /// Valide la description (optionnelle, max 500 caractères)
-  String? validateDescription(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return null; // Optionnel
-    }
-    if (value.trim().length > 500) {
-      return 'La description ne doit pas dépasser 500 caractères';
-    }
-    return null;
-  }
+  String? validateDescription(String? value) => Validators.validateDescription(value);
+
+  String? validateCategory(int? categoryId) => Validators.validateCategory(categoryId);
+
+  String? validatePriority(int? priorityId) => Validators.validatePriority(priorityId);
+
+  String? validateStatus(int? statusId) => Validators.validateStatus(statusId);
 
   /// Valide la date (obligatoire, pas dans le passé pour une nouvelle tâche)
   String? validateDate(DateTime? date, {bool isNewTask = true}) {
@@ -66,28 +52,6 @@ class TaskController {
       if (endTime.isBefore(startTime)) {
         return 'L\'heure de fin doit être après l\'heure de début';
       }
-    }
-    return null;
-  }
-
-  /// Valide les sélections obligatoires
-  String? validateCategory(int? categoryId) {
-    if (categoryId == null || categoryId == 0) {
-      return 'La catégorie est obligatoire';
-    }
-    return null;
-  }
-
-  String? validatePriority(int? priorityId) {
-    if (priorityId == null || priorityId == 0) {
-      return 'La priorité est obligatoire';
-    }
-    return null;
-  }
-
-  String? validateStatus(int? statusId) {
-    if (statusId == null || statusId == 0) {
-      return 'Le statut est obligatoire';
     }
     return null;
   }
@@ -122,12 +86,10 @@ class TaskController {
 
   // ============ RAPPELS ============
 
-  /// Planifie un rappel avec un délai personnalisé
   Future<void> scheduleReminder({
     required Task task,
     required int minutesBefore,
   }) async {
-    // Si pas d'heure de début, on ne peut pas planifier un rappel
     if (task.startTime == null) {
       throw Exception('Impossible de planifier un rappel sans heure de début');
     }
@@ -141,7 +103,6 @@ class TaskController {
     );
   }
 
-  /// Supprime tous les rappels d'une tâche
   Future<void> cancelAllReminders(int taskId) async {
     final task = await _taskRepo.getTaskById(taskId);
     if (task != null) {
@@ -151,22 +112,18 @@ class TaskController {
 
   // ============ MÉTHODES UTILITAIRES ============
 
-  /// Récupère les catégories disponibles
   Future<List<Category>> getCategories() async {
     return await _categoryRepo.getAllCategories();
   }
 
-  /// Récupère les priorités disponibles
   Future<List<Priority>> getPriorities() async {
     return await _priorityRepo.getAllPriorities();
   }
 
-  /// Récupère les statuts disponibles
   Future<List<Status>> getStatuses() async {
     return await _statusRepo.getAllStatus();
   }
 
-  /// Génère les options de rappel dynamiques
   List<DropdownMenuItem<int>> getReminderOptions() {
     return [
       const DropdownMenuItem(value: 5, child: Text('5 minutes avant')),
@@ -185,7 +142,6 @@ class TaskController {
     ];
   }
 
-  /// Formate le temps de rappel pour affichage
   String formatReminderTime(int minutes) {
     if (minutes < 60) {
       return '$minutes minute${minutes > 1 ? 's' : ''}';

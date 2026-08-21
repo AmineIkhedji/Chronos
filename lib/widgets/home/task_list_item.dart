@@ -1,6 +1,8 @@
+// lib/widgets/home/task_list_item.dart
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:chronos/models/task.dart';
+import '../../utils/date_formatters.dart';
+import '../../utils/priority_colors.dart';
 
 class TaskListItem extends StatelessWidget {
   final Task task;
@@ -24,12 +26,8 @@ class TaskListItem extends StatelessWidget {
         ? const Color(0xFF94A3B8)
         : const Color(0xFF64748B);
     final isCompleted = task.isCompleted;
-    final priorityColor = _priorityColor(task.idPriority);
-
-    // Gérer les heures optionnelles
-    final timeRange = task.startTime != null || task.endTime != null
-        ? task.formatTimeRange()
-        : 'Pas de créneau horaire';
+    final priorityColor = PriorityColors.getColor(task.idPriority);
+    final timeRange = DateFormatters.formatTimeRange(task.startTime, task.endTime);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -200,11 +198,5 @@ class TaskListItem extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  Color _priorityColor(int priorityId) {
-    if (priorityId == 3) return const Color(0xFFEF4444);
-    if (priorityId == 2) return const Color(0xFFF59E0B);
-    return const Color(0xFF4F7CFF);
   }
 }

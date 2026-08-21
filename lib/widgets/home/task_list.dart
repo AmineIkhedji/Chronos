@@ -116,9 +116,7 @@ class TaskList extends ConsumerWidget {
                         TaskListItem(
                           task: tasks[index],
                           onToggle: () => toggleCompletion(tasks[index]),
-                          // Tap = ouvrir les détails
                           onTap: () => _openTaskDetail(context, ref, tasks[index]),
-                          // Long press = ouvrir le formulaire de modification
                           onLongPress: () => _openTaskForm(context, ref, tasks[index]),
                         ),
                       ],

@@ -5,6 +5,7 @@ import '../repositories/habit_repository.dart';
 import '../repositories/category_repository.dart';
 import '../models/category.dart';
 import '../services/notification_service.dart';
+import '../utils/validators.dart';
 
 class HabitController {
   final HabitRepository _habitRepo = HabitRepository();
@@ -13,46 +14,13 @@ class HabitController {
 
   // ============ VALIDATIONS ============
 
-  /// Valide le titre (obligatoire, 3-100 caractères)
-  String? validateTitle(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'Le titre est obligatoire';
-    }
-    if (value.trim().length < 3) {
-      return 'Le titre doit contenir au moins 3 caractères';
-    }
-    if (value.trim().length > 100) {
-      return 'Le titre ne doit pas dépasser 100 caractères';
-    }
-    return null;
-  }
+  String? validateTitle(String? value) => Validators.validateTitle(value);
 
-  /// Valide la description (optionnelle, max 500 caractères)
-  String? validateDescription(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return null;
-    }
-    if (value.trim().length > 500) {
-      return 'La description ne doit pas dépasser 500 caractères';
-    }
-    return null;
-  }
+  String? validateDescription(String? value) => Validators.validateDescription(value);
 
-  /// Valide les jours sélectionnés (au moins un jour obligatoire)
-  String? validateDays(Set<int> days) {
-    if (days.isEmpty) {
-      return 'Veuillez sélectionner au moins un jour';
-    }
-    return null;
-  }
+  String? validateCategory(int? categoryId) => Validators.validateCategory(categoryId);
 
-  /// Valide la catégorie (obligatoire)
-  String? validateCategory(int? categoryId) {
-    if (categoryId == null || categoryId == 0) {
-      return 'La catégorie est obligatoire';
-    }
-    return null;
-  }
+  String? validateDays(Set<int> days) => Validators.validateDays(days);
 
   // ============ CRUD ============
 
@@ -90,7 +58,6 @@ class HabitController {
 
   // ============ RAPPELS ============
 
-  /// Planifie les rappels pour une habitude
   Future<void> scheduleHabitReminders({
     required Habit habit,
     required List<int> daysOfWeek,
@@ -103,7 +70,6 @@ class HabitController {
     );
   }
 
-  /// Supprime tous les rappels d'une habitude
   Future<void> cancelAllReminders(int habitId) async {
     final notifications = await _notificationService.getNotificationsForHabit(habitId);
     for (final notif in notifications) {

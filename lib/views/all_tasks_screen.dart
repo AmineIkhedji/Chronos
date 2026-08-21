@@ -1,8 +1,9 @@
+// lib/views/all_tasks_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import '../models/task.dart';
 import '../providers/task_providers.dart';
+import '../utils/date_formatters.dart';
 import '../views/task_form.dart';
 import '../views/task_detail_screen.dart';
 import '../widgets/home/task_list_item.dart';
@@ -34,7 +35,6 @@ class AllTasksScreen extends ConsumerWidget {
     final tasksAsync = ref.watch(allTasksProvider);
     final toggleCompletion = ref.read(toggleTaskCompletionProvider);
     final theme = Theme.of(context);
-    final dateFormat = DateFormat('EEEE d MMMM yyyy', 'fr_FR');
 
     return Scaffold(
       appBar: AppBar(
@@ -81,7 +81,7 @@ class AllTasksScreen extends ConsumerWidget {
                       Padding(
                         padding: const EdgeInsets.only(bottom: 8, left: 4),
                         child: Text(
-                          _formatDateHeader(task.date, dateFormat),
+                          _formatDateHeader(task.date),
                           style: TextStyle(
                             color: theme.colorScheme.onSurface.withOpacity(0.6),
                             fontSize: 13,
@@ -96,9 +96,7 @@ class AllTasksScreen extends ConsumerWidget {
                       child: TaskListItem(
                         task: task,
                         onToggle: () => toggleCompletion(task),
-                        // Tap = ouvrir les détails
                         onTap: () => _openTaskDetail(context, ref, task),
-                        // Long press = ouvrir le formulaire de modification
                         onLongPress: () => _openTaskForm(context, ref, task: task),
                       ),
                     ),
@@ -121,7 +119,7 @@ class AllTasksScreen extends ConsumerWidget {
     return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 
-  String _formatDateHeader(DateTime date, DateFormat format) {
+  String _formatDateHeader(DateTime date) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final taskDay = DateTime(date.year, date.month, date.day);
@@ -130,10 +128,6 @@ class AllTasksScreen extends ConsumerWidget {
     if (taskDay == today.subtract(const Duration(days: 1))) return 'Hier';
     if (taskDay == today.add(const Duration(days: 1))) return 'Demain';
 
-    try {
-      return format.format(date);
-    } catch (_) {
-      return DateFormat('EEEE d MMMM yyyy', 'en_US').format(date);
-    }
+    return DateFormatters.formatFullDate(date);
   }
 }

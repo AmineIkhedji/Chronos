@@ -8,9 +8,11 @@ import '../models/priority.dart';
 import '../models/status.dart';
 import '../providers/task_providers.dart';
 import '../providers/repository_providers.dart';
-import '../repositories/category_repository.dart';
-import '../repositories/priority_repository.dart';
-import '../repositories/status_repository.dart';
+import '../utils/date_formatters.dart';
+import '../widgets/task/priority_badge.dart';
+import '../widgets/task/status_badge.dart';
+import '../widgets/task/task_info_row.dart';
+import '../widgets/common/confirmation_dialog.dart';
 import 'task_form.dart';
 
 class TaskDetailScreen extends ConsumerWidget {
@@ -25,7 +27,6 @@ class TaskDetailScreen extends ConsumerWidget {
     final textSecondary = theme.colorScheme.onBackground.withOpacity(0.6);
     final cardColor = theme.cardColor;
     final borderColor = theme.dividerColor;
-    final primaryColor = theme.primaryColor;
     final toggleCompletion = ref.read(toggleTaskCompletionProvider);
 
     return Scaffold(
@@ -59,16 +60,8 @@ class TaskDetailScreen extends ConsumerWidget {
             Wrap(
               spacing: 8,
               children: [
-                _buildBadge(
-                  context,
-                  task.isCompleted ? 'Terminé' : 'En cours',
-                  task.isCompleted ? Colors.green : Colors.orange,
-                ),
-                _buildBadge(
-                  context,
-                  _getPriorityLabel(task.idPriority),
-                  _getPriorityColor(task.idPriority),
-                ),
+                StatusBadge(statusId: task.idStatus),
+                PriorityBadge(priorityId: task.idPriority),
               ],
             ),
             const SizedBox(height: 20),
@@ -126,44 +119,35 @@ class TaskDetailScreen extends ConsumerWidget {
               ),
               child: Column(
                 children: [
-                  _buildInfoRow(
-                    context,
-                    Icons.calendar_today_rounded,
-                    'Date',
-                    DateFormat('EEEE d MMMM yyyy', 'fr_FR').format(task.date),
+                  TaskInfoRow(
+                    icon: Icons.calendar_today_rounded,
+                    label: 'Date',
+                    value: DateFormatters.formatFullDate(task.date),
                   ),
                   
                   if (task.startTime != null)
-                    _buildInfoRow(
-                      context,
-                      Icons.access_time_rounded,
-                      'Heure de début',
-                      task.formatStartTime(),
+                    TaskInfoRow(
+                      icon: Icons.access_time_rounded,
+                      label: 'Heure de début',
+                      value: DateFormatters.formatTime(task.startTime),
                     ),
                   
                   if (task.endTime != null)
-                    _buildInfoRow(
-                      context,
-                      Icons.access_time_rounded,
-                      'Heure de fin',
-                      task.formatEndTime(),
+                    TaskInfoRow(
+                      icon: Icons.access_time_rounded,
+                      label: 'Heure de fin',
+                      value: DateFormatters.formatTime(task.endTime),
                     ),
                   
                   if (task.startTime == null && task.endTime == null)
-                    _buildInfoRow(
-                      context,
-                      Icons.access_time_rounded,
-                      'Heures',
-                      'Toute la journée',
+                    const TaskInfoRow(
+                      icon: Icons.access_time_rounded,
+                      label: 'Heures',
+                      value: 'Toute la journée',
                     ),
                   
-                  // Charger le nom de la catégorie
                   _buildCategoryInfoRow(context, ref, task.idCategory),
-                  
-                  // Charger le nom de la priorité
                   _buildPriorityInfoRow(context, ref, task.idPriority),
-                  
-                  // Charger le nom du statut
                   _buildStatusInfoRow(context, ref, task.idStatus),
                 ],
               ),
@@ -206,7 +190,6 @@ class TaskDetailScreen extends ConsumerWidget {
                   padding: const EdgeInsets.all(16),
                   child: Row(
                     children: [
-                      // Checkbox
                       AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
                         width: 28,
@@ -264,7 +247,8 @@ class TaskDetailScreen extends ConsumerWidget {
     );
   }
 
-  // Nouvelle méthode pour charger et afficher le nom de la catégorie
+  // ============ MÉTHODES D'AFFICHAGE DES RELATIONS ============
+
   Widget _buildCategoryInfoRow(BuildContext context, WidgetRef ref, int categoryId) {
     final categoryRepo = ref.read(categoryRepositoryProvider);
     
@@ -272,17 +256,15 @@ class TaskDetailScreen extends ConsumerWidget {
       future: categoryRepo.getCategoryById(categoryId),
       builder: (context, snapshot) {
         final categoryName = snapshot.data?.name ?? 'Catégorie inconnue';
-        return _buildInfoRow(
-          context,
-          Icons.category_rounded,
-          'Catégorie',
-          categoryName,
+        return TaskInfoRow(
+          icon: Icons.category_rounded,
+          label: 'Catégorie',
+          value: categoryName,
         );
       },
     );
   }
 
-  // Nouvelle méthode pour charger et afficher le nom de la priorité
   Widget _buildPriorityInfoRow(BuildContext context, WidgetRef ref, int priorityId) {
     final priorityRepo = ref.read(priorityRepositoryProvider);
     
@@ -290,17 +272,15 @@ class TaskDetailScreen extends ConsumerWidget {
       future: priorityRepo.getPriorityById(priorityId),
       builder: (context, snapshot) {
         final priorityName = snapshot.data?.name ?? 'Priorité inconnue';
-        return _buildInfoRow(
-          context,
-          Icons.flag_rounded,
-          'Priorité',
-          priorityName,
+        return TaskInfoRow(
+          icon: Icons.flag_rounded,
+          label: 'Priorité',
+          value: priorityName,
         );
       },
     );
   }
 
-  // Nouvelle méthode pour charger et afficher le nom du statut
   Widget _buildStatusInfoRow(BuildContext context, WidgetRef ref, int statusId) {
     final statusRepo = ref.read(statusRepositoryProvider);
     
@@ -308,17 +288,17 @@ class TaskDetailScreen extends ConsumerWidget {
       future: statusRepo.getStatusById(statusId),
       builder: (context, snapshot) {
         final statusName = snapshot.data?.name ?? 'Statut inconnu';
-        return _buildInfoRow(
-          context,
-          Icons.check_circle_rounded,
-          'Statut',
-          statusName,
+        return TaskInfoRow(
+          icon: Icons.check_circle_rounded,
+          label: 'Statut',
+          value: statusName,
         );
       },
     );
   }
 
-  // Nouvelle méthode pour afficher les rappels
+  // ============ RAPPELS ============
+
   Widget _buildRemindersSection(BuildContext context, WidgetRef ref, Task task) {
     final notificationsProvider = ref.watch(notificationsForTaskProvider(task.idTasks));
     
@@ -389,97 +369,18 @@ class TaskDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildBadge(BuildContext context, String label, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.3)),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: color,
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInfoRow(
-    BuildContext context,
-    IconData icon,
-    String label,
-    String value,
-  ) {
-    final theme = Theme.of(context);
-    final textColor = theme.colorScheme.onBackground;
-    final textSecondary = theme.colorScheme.onBackground.withOpacity(0.6);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          Icon(icon, size: 20, color: theme.primaryColor),
-          const SizedBox(width: 12),
-          Text(
-            label,
-            style: TextStyle(color: textSecondary, fontSize: 14),
-          ),
-          const Spacer(),
-          Text(
-            value,
-            style: TextStyle(
-              color: textColor,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _getPriorityLabel(int priorityId) {
-    switch (priorityId) {
-      case 1: return 'Basse';
-      case 2: return 'Moyenne';
-      case 3: return 'Haute';
-      default: return 'Moyenne';
-    }
-  }
-
-  Color _getPriorityColor(int priorityId) {
-    switch (priorityId) {
-      case 1: return const Color(0xFF4F7CFF);
-      case 2: return const Color(0xFFF59E0B);
-      case 3: return const Color(0xFFEF4444);
-      default: return const Color(0xFFF59E0B);
-    }
-  }
+  // ============ SUPPRESSION ============
 
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Supprimer la tâche'),
-        content: Text('Voulez-vous supprimer « ${task.title} » ?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Annuler'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Supprimer', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
+    final confirmed = await ConfirmationDialog.show(
+      context,
+      title: 'Supprimer la tâche',
+      message: 'Voulez-vous supprimer « ${task.title} » ?',
+      confirmText: 'Supprimer',
+      isDestructive: true,
     );
 
-    if (confirmed == true) {
+    if (confirmed) {
       try {
         final controller = ref.read(taskControllerProvider);
         await controller.deleteTask(task.idTasks);

@@ -1,6 +1,4 @@
 // lib/widgets/theme/theme_colors.dart
-import 'package:flutter/material.dart';
-
 class ThemeColors {
   // ============ COULEURS DU THÈME ============
   

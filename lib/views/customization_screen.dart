@@ -1,3 +1,4 @@
+// lib/views/customization_screen.dart
 import 'package:flutter/material.dart';
 import '../models/category.dart';
 import '../models/priority.dart';
@@ -5,6 +6,7 @@ import '../models/status.dart';
 import '../repositories/category_repository.dart';
 import '../repositories/priority_repository.dart';
 import '../repositories/status_repository.dart';
+import '../widgets/common/confirmation_dialog.dart';
 
 enum CustomizationKind { categories, priorities, statuses }
 
@@ -26,6 +28,7 @@ class _CustomizationScreenState extends State<CustomizationScreen> {
     0xFFA855F7,
     0xFF06B6D4,
   ];
+  
   static const icons = {
     'category': Icons.category_rounded,
     'work': Icons.work_rounded,
@@ -93,10 +96,14 @@ class _CustomizationScreenState extends State<CustomizationScreen> {
   Widget _itemTile(dynamic item) {
     final name = item.name as String;
     final color = Color(item.color as int);
-    final iconName = widget.kind == CustomizationKind.categories ? item.icon as String : item.icon as String;
+    final iconName = item.icon as String;
+    
     return Card(
       child: ListTile(
-        leading: CircleAvatar(backgroundColor: color, child: Icon(icons[iconName] ?? Icons.label, color: Colors.white)),
+        leading: CircleAvatar(
+          backgroundColor: color,
+          child: Icon(icons[iconName] ?? Icons.label, color: Colors.white),
+        ),
         title: Text(name),
         trailing: PopupMenuButton<String>(
           onSelected: (action) {
@@ -116,6 +123,7 @@ class _CustomizationScreenState extends State<CustomizationScreen> {
     final nameController = TextEditingController(text: item?.name as String? ?? '');
     var selectedColor = item?.color as int? ?? colors.first;
     var selectedIcon = item?.icon as String? ?? icons.keys.first;
+    
     final result = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => StatefulBuilder(
@@ -124,7 +132,11 @@ class _CustomizationScreenState extends State<CustomizationScreen> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(controller: nameController, autofocus: true, decoration: const InputDecoration(labelText: 'Nom')),
+              TextField(
+                controller: nameController,
+                autofocus: true,
+                decoration: const InputDecoration(labelText: 'Nom'),
+              ),
               const SizedBox(height: 20),
               Wrap(
                 spacing: 10,
@@ -132,7 +144,9 @@ class _CustomizationScreenState extends State<CustomizationScreen> {
                   onTap: () => setDialogState(() => selectedColor = color),
                   child: CircleAvatar(
                     backgroundColor: Color(color),
-                    child: selectedColor == color ? const Icon(Icons.check, color: Colors.white) : null,
+                    child: selectedColor == color 
+                      ? const Icon(Icons.check, color: Colors.white) 
+                      : null,
                   ),
                 )).toList(),
               ),
@@ -140,13 +154,18 @@ class _CustomizationScreenState extends State<CustomizationScreen> {
               DropdownButtonFormField<String>(
                 initialValue: selectedIcon,
                 decoration: const InputDecoration(labelText: 'Icône'),
-                items: icons.entries.map((entry) => DropdownMenuItem(value: entry.key, child: Icon(entry.value))).toList(),
+                items: icons.entries.map((entry) => 
+                  DropdownMenuItem(value: entry.key, child: Icon(entry.value))
+                ).toList(),
                 onChanged: (value) => setDialogState(() => selectedIcon = value!),
               ),
             ],
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('Annuler')),
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Annuler'),
+            ),
             FilledButton(
               onPressed: () async {
                 if (nameController.text.trim().isEmpty) return;
@@ -159,6 +178,7 @@ class _CustomizationScreenState extends State<CustomizationScreen> {
         ),
       ),
     );
+    
     nameController.dispose();
     if (result == true && mounted) _reload();
   }
@@ -167,20 +187,39 @@ class _CustomizationScreenState extends State<CustomizationScreen> {
     switch (widget.kind) {
       case CustomizationKind.categories:
         final value = item as Category? ?? Category();
-        value..name = name..color = color..icon = icon;
+        value
+          ..name = name
+          ..color = color
+          ..icon = icon;
         await CategoryRepository().saveCategory(value);
       case CustomizationKind.priorities:
         final value = item as Priority? ?? Priority();
-        value..name = name..color = color..icon = icon;
+        value
+          ..name = name
+          ..color = color
+          ..icon = icon;
         await PriorityRepository().savePriority(value);
       case CustomizationKind.statuses:
         final value = item as Status? ?? Status();
-        value..name = name..color = color..icon = icon;
+        value
+          ..name = name
+          ..color = color
+          ..icon = icon;
         await StatusRepository().saveStatus(value);
     }
   }
 
   Future<void> _deleteItem(dynamic item) async {
+    final confirmed = await ConfirmationDialog.show(
+      context,
+      title: 'Supprimer',
+      message: 'Voulez-vous supprimer cet élément ?',
+      confirmText: 'Supprimer',
+      isDestructive: true,
+    );
+
+    if (!confirmed) return;
+
     try {
       switch (widget.kind) {
         case CustomizationKind.categories:
@@ -192,7 +231,14 @@ class _CustomizationScreenState extends State<CustomizationScreen> {
       }
       if (mounted) _reload();
     } catch (error) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error.toString().replaceFirst('Exception: ', ''))));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(error.toString().replaceFirst('Exception: ', '')),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 }

@@ -1,3 +1,4 @@
+// lib/views/habits_management_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/habit.dart';
@@ -7,6 +8,7 @@ import '../views/habit_form.dart';
 import '../widgets/common/empty_state.dart';
 import '../widgets/common/loading_indicator.dart';
 import '../widgets/common/error_state.dart';
+import '../widgets/common/confirmation_dialog.dart';
 
 class HabitsManagementScreen extends ConsumerWidget {
   const HabitsManagementScreen({super.key});
@@ -97,25 +99,15 @@ class HabitsManagementScreen extends ConsumerWidget {
     WidgetRef ref,
     Habit habit,
   ) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Supprimer l\'habitude'),
-        content: Text('Voulez-vous supprimer « ${habit.title} » ?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Annuler'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Supprimer', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
+    final confirmed = await ConfirmationDialog.show(
+      context,
+      title: 'Supprimer l\'habitude',
+      message: 'Voulez-vous supprimer « ${habit.title} » ?',
+      confirmText: 'Supprimer',
+      isDestructive: true,
     );
 
-    if (confirmed == true) {
+    if (confirmed) {
       final repo = ref.read(habitRepositoryProvider);
       await repo.deleteHabit(habit.idHabit);
       ref.invalidate(allHabitsManagementProvider);

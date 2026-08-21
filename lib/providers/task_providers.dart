@@ -92,9 +92,6 @@ final taskWithRelationsProvider = FutureProvider.family<Map<String, dynamic>?, i
 // ============ STATISTIQUES ============
 
 // Statistiques globales
-// lib/providers/task_providers.dart
-
-// Statistiques globales
 final statisticsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   final repo = ref.read(taskRepositoryProvider);
   final total = await repo.getTotalTasksCount();
@@ -102,7 +99,6 @@ final statisticsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   final remaining = await repo.getRemainingTasksCount();
   final lateTasks = await repo.getLateTasks();
   
-  // Correction : on force le cast en double et on gère la division par zéro
   double successRate = 0.0;
   if (total > 0) {
     successRate = (completed / total) * 100;
@@ -113,9 +109,11 @@ final statisticsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
     'completed': completed,
     'remaining': remaining,
     'late': lateTasks.length,
-    'successRate': successRate, // C'est bien un double maintenant
+    'successRate': successRate,
   };
 });
+
+// Statistiques pour aujourd'hui
 final todayStatisticsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   final repo = ref.read(taskRepositoryProvider);
   final todayTasks = await repo.getTodayTasks();
@@ -173,7 +171,6 @@ final completedTasksPerDayProvider = FutureProvider.family<Map<DateTime, int>, (
 final addTaskProvider = FutureProvider.family<void, Task>((ref, task) async {
   final repo = ref.read(taskRepositoryProvider);
   await repo.saveTask(task);
-  // Rafraîchir les données
   ref.invalidate(allTasksProvider);
   ref.invalidate(todayTasksProvider);
   ref.invalidate(statisticsProvider);
@@ -223,23 +220,18 @@ final toggleTaskCompletionProvider = Provider<ToggleTaskCompletion>((ref) {
     final repo = ref.read(taskRepositoryProvider);
     final controller = ref.read(taskControllerProvider);
     
-    // Toggle le statut
     task.idStatus = task.isCompleted ? 1 : 3;
     await repo.updateTask(task);
     
-    // Si la tâche est maintenant terminée, annuler les rappels
     if (task.isCompleted) {
       await controller.cancelAllReminders(task.idTasks);
     }
     
-    // Invalider tous les providers concernés
     ref.invalidate(allTasksProvider);
     ref.invalidate(todayTasksProvider);
     ref.invalidate(statisticsProvider);
     ref.invalidate(todayStatisticsProvider);
     ref.invalidate(notificationsForTaskProvider(task.idTasks));
-    
-    // Rafraîchir l'écran de détails
     ref.invalidate(taskWithRelationsProvider(task.idTasks));
   };
 });
@@ -248,4 +240,5 @@ void invalidateTaskProviders(WidgetRef ref) {
   ref.invalidate(allTasksProvider);
   ref.invalidate(todayTasksProvider);
   ref.invalidate(statisticsProvider);
+  ref.invalidate(todayStatisticsProvider);
 }

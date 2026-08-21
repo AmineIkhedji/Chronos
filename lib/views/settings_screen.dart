@@ -2,6 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/common/custom_app_bar.dart';
+import '../widgets/common/settings_card.dart';
+import '../widgets/common/settings_list_tile.dart';
+import '../widgets/dialogs/color_picker_dialog.dart';
 import '../widgets/theme/theme_provider.dart';
 import '../widgets/theme/theme_colors.dart';
 import '../repositories/settings_repository.dart';
@@ -46,7 +49,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Future<void> _updateNotificationsEnabled(bool value) async {
     try {
       await SettingsRepository().setNotificationsEnabled(value);
-      // Gérer l'activation/désactivation des notifications système
       await NotificationService().handleNotificationsEnabledChange(value);
       
       if (mounted) {
@@ -73,6 +75,41 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
   }
 
+  Future<void> _selectPrimaryColor(BuildContext context, Color currentColor) async {
+    final result = await showDialog<int>(
+      context: context,
+      builder: (context) => ColorPickerDialog(currentColor: currentColor),
+    );
+
+    if (result != null) {
+      try {
+        final repo = SettingsRepository();
+        await repo.setPrimaryColor(result);
+        
+        // Trouver la clé correspondante
+        String? colorKey;
+        for (final entry in ThemeColors.userColors.entries) {
+          if (entry.value == result) {
+            colorKey = entry.key;
+            break;
+          }
+        }
+        if (colorKey != null) {
+          ref.read(userColorProvider.notifier).state = colorKey;
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('❌ Erreur lors du changement de couleur'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -80,9 +117,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final userColorKey = ref.watch(userColorProvider);
     final primaryColor = Color(ThemeColors.userColors[userColorKey] ?? ThemeColors.defaultPrimary);
 
-    final cardColor = theme.cardColor;
-    final borderColor = isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0);
-    final textColor = theme.colorScheme.onSurface;
+    final textColor = theme.colorScheme.onBackground;
     final textSecondary = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
 
     if (_isLoading) {
@@ -113,11 +148,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             // --- SECTION APPARENCE ---
             _buildSectionTitle('Apparence', textColor),
             const SizedBox(height: 12),
-            _buildCard(
-              color: cardColor,
-              borderColor: borderColor,
+            SettingsCard(
               children: [
-                _buildListTile(
+                SettingsListTile(
                   leadingIcon: Icons.dark_mode_rounded,
                   title: 'Mode sombre',
                   trailing: Switch(
@@ -139,8 +172,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     activeThumbColor: primaryColor,
                   ),
                 ),
-                Divider(height: 1, color: borderColor.withOpacity(0.5)),
-                _buildListTile(
+                Divider(height: 1, color: theme.dividerColor.withOpacity(0.5)),
+                SettingsListTile(
                   leadingIcon: Icons.color_lens_rounded,
                   title: 'Couleur principale',
                   subtitle: 'Personnalisez l\'accent de l\'app',
@@ -153,14 +186,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         decoration: BoxDecoration(
                           color: primaryColor,
                           shape: BoxShape.circle,
-                          border: Border.all(color: borderColor, width: 2),
+                          border: Border.all(color: theme.dividerColor, width: 2),
                         ),
                       ),
                       const SizedBox(width: 8),
                       const Icon(Icons.chevron_right_rounded, size: 20),
                     ],
                   ),
-                  onTap: () => _showColorPickerDialog(context, primaryColor),
+                  onTap: () => _selectPrimaryColor(context, primaryColor),
                 ),
               ],
             ),
@@ -170,20 +203,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             // --- SECTION CALENDRIER ---
             _buildSectionTitle('Calendrier', textColor),
             const SizedBox(height: 12),
-            _buildCard(
-              color: cardColor,
-              borderColor: borderColor,
+            SettingsCard(
               children: [
-                _buildListTile(
+                SettingsListTile(
                   leadingIcon: Icons.calendar_today_rounded,
                   title: 'Premier jour de la semaine',
                 ),
-                Divider(height: 1, color: borderColor.withOpacity(0.5)),
+                Divider(height: 1, color: theme.dividerColor.withOpacity(0.5)),
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: _buildWeekdayToggle(
                     primaryColor: primaryColor,
-                    borderColor: borderColor,
+                    borderColor: theme.dividerColor,
                     inactiveTextColor: textSecondary,
                   ),
                 ),
@@ -195,11 +226,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             // --- SECTION NOTIFICATIONS ---
             _buildSectionTitle('Notifications', textColor),
             const SizedBox(height: 12),
-            _buildCard(
-              color: cardColor,
-              borderColor: borderColor,
+            SettingsCard(
               children: [
-                _buildListTile(
+                SettingsListTile(
                   leadingIcon: Icons.notifications_rounded,
                   title: 'Rappels activés',
                   trailing: Switch(
@@ -209,7 +238,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                 ),
                 if (!_notificationsEnabled) ...[
-                  Divider(height: 1, color: borderColor.withOpacity(0.5)),
+                  Divider(height: 1, color: theme.dividerColor.withOpacity(0.5)),
                   Padding(
                     padding: const EdgeInsets.all(16),
                     child: Text(
@@ -229,29 +258,24 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             // --- SECTION PERSONNALISATION ---
             _buildSectionTitle('Personnalisation', textColor),
             const SizedBox(height: 12),
-            _buildCard(
-              color: cardColor,
-              borderColor: borderColor,
+            SettingsCard(
               children: [
-                // Catégories
-                _buildListTile(
+                SettingsListTile(
                   leadingIcon: Icons.sell_rounded,
                   title: 'Catégories',
-                  leadingIconColor: const Color(0xFF22C55E),
+                  leadingIconColor: const Color(0xFF6366F1),
                   iconBgColor: const Color(0xFF6366F1).withOpacity(0.15),
                   onTap: () => _openCustomization(CustomizationKind.categories),
                 ),
-                Divider(height: 1, color: borderColor.withOpacity(0.5)),
-                // Priorités
-                _buildListTile(
+                Divider(height: 1, color: theme.dividerColor.withOpacity(0.5)),
+                SettingsListTile(
                   leadingIcon: Icons.flag_rounded,
                   title: 'Priorités',
                   leadingIconColor: const Color(0xFFEF4444),
                   onTap: () => _openCustomization(CustomizationKind.priorities),
                 ),
-                Divider(height: 1, color: borderColor.withOpacity(0.5)),
-                // Statuts
-                _buildListTile(
+                Divider(height: 1, color: theme.dividerColor.withOpacity(0.5)),
+                SettingsListTile(
                   leadingIcon: Icons.check_circle_rounded,
                   title: 'Statuts',
                   leadingIconColor: const Color(0xFF22C55E),
@@ -287,98 +311,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           color: color,
           fontSize: 20,
           fontWeight: FontWeight.w800,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCard({
-    required Color color,
-    required Color borderColor,
-    required List<Widget> children,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: borderColor.withOpacity(0.5)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: children,
-      ),
-    );
-  }
-
-  Widget _buildListTile({
-    required IconData leadingIcon,
-    required String title,
-    String? subtitle,
-    Widget? trailing,
-    VoidCallback? onTap,
-    Color? leadingIconColor,
-    Color? iconBgColor,
-  }) {
-    final theme = Theme.of(context);
-    final isDark = ref.watch(darkModeProvider);
-    final textSecondary = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
-
-    // Icône "neutre" par défaut
-    final neutralIconBg = isDark ? const Color(0xFF334155) : const Color(0xFFF1F5F9);
-    final neutralIconColor = isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569);
-
-    final effectiveIconColor = leadingIconColor ?? neutralIconColor;
-    final effectiveBgColor = iconBgColor ??
-        (leadingIconColor != null ? leadingIconColor.withOpacity(0.15) : neutralIconBg);
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: effectiveBgColor,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(
-                leadingIcon,
-                color: effectiveIconColor,
-                size: 20,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      color: theme.colorScheme.onSurface,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  if (subtitle != null) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        color: textSecondary,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            if (trailing != null) trailing,
-          ],
         ),
       ),
     );
@@ -458,109 +390,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             color: isSelected ? Colors.white : inactiveTextColor,
             fontWeight: FontWeight.w700,
             fontSize: 15,
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ============ DIALOGUE DE SÉLECTION DE COULEUR ============
-
-  void _showColorPickerDialog(BuildContext context, Color currentColor) {
-    final theme = Theme.of(context);
-    final isDark = ref.watch(darkModeProvider);
-    final backgroundColor = theme.scaffoldBackgroundColor;
-    final textColor = theme.colorScheme.onSurface;
-
-    showDialog(
-      context: context,
-      builder: (dialogContext) => Dialog(
-        backgroundColor: backgroundColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        insetPadding: const EdgeInsets.all(20),
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Choisir une couleur',
-                style: TextStyle(
-                  color: textColor,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Sélectionnez la couleur principale de l\'application',
-                style: TextStyle(
-                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(height: 20),
-              Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                children: ThemeColors.userColors.entries.map((entry) {
-                  final color = Color(entry.value);
-                  final isSelected = color == currentColor;
-
-                  return InkWell(
-                    onTap: () async {
-                      try {
-                        final repo = SettingsRepository();
-                        await repo.setPrimaryColor(entry.value);
-
-                        ref.read(userColorProvider.notifier).state = entry.key;
-
-                        if (dialogContext.mounted) Navigator.pop(dialogContext);
-                      } catch (e) {
-                        if (dialogContext.mounted) {
-                          ScaffoldMessenger.of(dialogContext).showSnackBar(
-                            const SnackBar(
-                              content: Text('❌ Erreur lors du changement de couleur'),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                        }
-                      }
-                    },
-                    borderRadius: BorderRadius.circular(16),
-                    child: Container(
-                      width: 70,
-                      height: 70,
-                      decoration: BoxDecoration(
-                        color: color,
-                        borderRadius: BorderRadius.circular(16),
-                        border: isSelected
-                            ? Border.all(color: Colors.white, width: 3)
-                            : null,
-                        boxShadow: isSelected
-                            ? [BoxShadow(color: color.withOpacity(0.4), blurRadius: 8)]
-                            : null,
-                      ),
-                      child: isSelected
-                          ? const Icon(Icons.check_rounded, color: Colors.white, size: 32)
-                          : null,
-                    ),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 20),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () => Navigator.pop(dialogContext),
-                  child: Text(
-                    'Annuler',
-                    style: TextStyle(color: theme.primaryColor),
-                  ),
-                ),
-              ),
-            ],
           ),
         ),
       ),

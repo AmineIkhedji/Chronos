@@ -1,12 +1,15 @@
 // lib/views/habit_form.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_lucide/flutter_lucide.dart';
 import '../controllers/habit_controller.dart';
 import '../models/habit.dart';
 import '../models/category.dart';
 import '../providers/habit_providers.dart';
-import '../providers/repository_providers.dart';
+import '../utils/validators.dart';
+import '../widgets/form/color_selector.dart';
+import '../widgets/form/time_picker_field.dart';
+import '../widgets/habits/habit_day_selector.dart';
+import '../widgets/common/confirmation_dialog.dart';
 
 class HabitForm extends ConsumerStatefulWidget {
   final Habit? habit;
@@ -31,28 +34,6 @@ class _HabitFormState extends ConsumerState<HabitForm> {
   // Mode de répétition : 'daily' = tous les jours, 'specific' = jours spécifiques
   String _repeatMode = 'daily';
   Set<int> _selectedDays = {};
-
-  static const _availableColors = [
-    0xFF4F7CFF, // Bleu
-    0xFF22C55E, // Vert
-    0xFFF59E0B, // Orange
-    0xFFEF4444, // Rouge
-    0xFFA855F7, // Violet
-    0xFF06B6D4, // Cyan
-    0xFFEC4899, // Rose
-    0xFF84CC16, // Lime
-  ];
-
-  // Jours de la semaine avec leur lettre
-  static const _daysOfWeek = [
-    (1, 'L'),
-    (2, 'M'),
-    (3, 'M'),
-    (4, 'J'),
-    (5, 'V'),
-    (6, 'S'),
-    (7, 'D'),
-  ];
 
   List<Category> _categories = [];
   bool _isLoading = false;
@@ -106,8 +87,6 @@ class _HabitFormState extends ConsumerState<HabitForm> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -140,13 +119,12 @@ class _HabitFormState extends ConsumerState<HabitForm> {
                       controller: _titleController,
                       decoration: const InputDecoration(
                         labelText: 'Titre *',
-                        hintText:
-                            'Entrez le titre de l\'habitude (3-100 caractères)',
+                        hintText: 'Entrez le titre de l\'habitude (3-100 caractères)',
                         border: OutlineInputBorder(),
                         counterText: '',
                       ),
                       maxLength: 100,
-                      validator: _habitController.validateTitle,
+                      validator: Validators.validateTitle,
                     ),
                     const SizedBox(height: 16),
 
@@ -155,14 +133,13 @@ class _HabitFormState extends ConsumerState<HabitForm> {
                       controller: _descriptionController,
                       decoration: const InputDecoration(
                         labelText: 'Description',
-                        hintText:
-                            'Décrivez l\'habitude (optionnel, max 500 caractères)',
+                        hintText: 'Décrivez l\'habitude (optionnel, max 500 caractères)',
                         border: OutlineInputBorder(),
                         counterText: '',
                       ),
                       maxLines: 3,
                       maxLength: 500,
-                      validator: _habitController.validateDescription,
+                      validator: Validators.validateDescription,
                     ),
                     const SizedBox(height: 16),
 
@@ -192,10 +169,8 @@ class _HabitFormState extends ConsumerState<HabitForm> {
                           ),
                         );
                       }).toList(),
-                      onChanged: (value) =>
-                          setState(() => _selectedCategoryId = value),
-                      validator: (value) =>
-                          _habitController.validateCategory(value),
+                      onChanged: (value) => setState(() => _selectedCategoryId = value),
+                      validator: Validators.validateCategory,
                     ),
                     const SizedBox(height: 16),
 
@@ -208,45 +183,9 @@ class _HabitFormState extends ConsumerState<HabitForm> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 12,
-                      runSpacing: 12,
-                      children: _availableColors.map((color) {
-                        final isSelected = _color == color;
-                        return InkWell(
-                          onTap: () => setState(() => _color = color),
-                          borderRadius: BorderRadius.circular(20),
-                          child: Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: Color(color),
-                              shape: BoxShape.circle,
-                              border: isSelected
-                                  ? Border.all(
-                                      color: theme.colorScheme.onSurface,
-                                      width: 3,
-                                    )
-                                  : null,
-                              boxShadow: isSelected
-                                  ? [
-                                      BoxShadow(
-                                        color: Color(color).withOpacity(0.4),
-                                        blurRadius: 8,
-                                      ),
-                                    ]
-                                  : null,
-                            ),
-                            child: isSelected
-                                ? const Icon(
-                                    Icons.check_rounded,
-                                    color: Colors.white,
-                                    size: 20,
-                                  )
-                                : null,
-                          ),
-                        );
-                      }).toList(),
+                    ColorSelector(
+                      selectedColor: _color,
+                      onColorSelected: (color) => setState(() => _color = color),
                     ),
                     const SizedBox(height: 24),
 
@@ -260,70 +199,28 @@ class _HabitFormState extends ConsumerState<HabitForm> {
                     ),
                     const SizedBox(height: 12),
 
-                    // Deux boutons : Tous les jours / Jours spécifiques
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildRepeatModeButton(
-                            label: 'Tous les jours',
-                            icon: LucideIcons.calendar_days,
-                            isSelected: _repeatMode == 'daily',
-                            onTap: () {
-                              setState(() {
-                                _repeatMode = 'daily';
-                                _selectedDays = {1, 2, 3, 4, 5, 6, 7};
-                              });
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _buildRepeatModeButton(
-                            label: 'Jours spécifiques',
-                            icon: LucideIcons.calendar_clock,
-                            isSelected: _repeatMode == 'specific',
-                            onTap: () {
-                              setState(() {
-                                _repeatMode = 'specific';
-                                if (_selectedDays.length == 7) {
-                                  _selectedDays = {};
-                                }
-                              });
-                            },
-                          ),
-                        ),
-                      ],
+                    HabitDaySelector(
+                      repeatMode: _repeatMode,
+                      selectedDays: _selectedDays,
+                      selectedColor: _color,
+                      onRepeatModeChanged: (mode) {
+                        setState(() {
+                          _repeatMode = mode;
+                          if (mode == 'daily') {
+                            _selectedDays = {1, 2, 3, 4, 5, 6, 7};
+                          }
+                        });
+                      },
+                      onDayToggle: (day) {
+                        setState(() {
+                          if (_selectedDays.contains(day)) {
+                            _selectedDays.remove(day);
+                          } else {
+                            _selectedDays.add(day);
+                          }
+                        });
+                      },
                     ),
-
-                    // Boules des jours (visible uniquement en mode spécifique)
-                    if (_repeatMode == 'specific') ...[
-                      const SizedBox(height: 20),
-                      Wrap(
-                        alignment: WrapAlignment.center,
-                        spacing: 12,
-                        runSpacing: 12,
-                        children: _daysOfWeek.map((dayData) {
-                          final day = dayData.$1;
-                          final letter = dayData.$2;
-                          final isSelected = _selectedDays.contains(day);
-
-                          return _buildDayBubble(
-                            day: day,
-                            letter: letter,
-                            isSelected: isSelected,
-                          );
-                        }).toList(),
-                      ),
-                      const SizedBox(height: 8),
-                      // Message si aucun jour sélectionné
-                      if (_selectedDays.isEmpty)
-                        Center(
-                          child: Text(
-                            'Sélectionnez au moins un jour',
-                            style: TextStyle(color: Colors.red, fontSize: 12),
-                          ),
-                        ),
-                    ],
 
                     const SizedBox(height: 24),
 
@@ -338,31 +235,17 @@ class _HabitFormState extends ConsumerState<HabitForm> {
                     const SizedBox(height: 8),
                     SwitchListTile(
                       title: const Text('Activer le rappel'),
-                      subtitle: const Text(
-                        'Recevez une notification à l\'heure de l\'habitude',
-                      ),
+                      subtitle: const Text('Recevez une notification à l\'heure de l\'habitude'),
                       value: _enableReminder,
-                      onChanged: (value) =>
-                          setState(() => _enableReminder = value),
+                      onChanged: (value) => setState(() => _enableReminder = value),
                     ),
 
                     if (_enableReminder) ...[
                       const SizedBox(height: 16),
-                      InkWell(
-                        onTap: () => _selectTime(context),
-                        child: InputDecorator(
-                          decoration: const InputDecoration(
-                            labelText: 'Heure du rappel',
-                            border: OutlineInputBorder(),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.access_time_rounded),
-                              const SizedBox(width: 8),
-                              Text('${_reminderTime.format(context)}'),
-                            ],
-                          ),
-                        ),
+                      TimePickerField(
+                        value: _reminderTime,
+                        label: 'Heure du rappel',
+                        onTimeSelected: (time) => setState(() => _reminderTime = time),
                       ),
                     ],
 
@@ -374,133 +257,16 @@ class _HabitFormState extends ConsumerState<HabitForm> {
     );
   }
 
-  Widget _buildRepeatModeButton({
-    required String label,
-    required IconData icon,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    final theme = Theme.of(context);
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? theme.primaryColor.withOpacity(0.15)
-              : theme.cardColor,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected
-                ? theme.primaryColor.withOpacity(0.5)
-                : theme.dividerColor.withOpacity(0.5),
-          ),
-        ),
-        child: Column(
-          children: [
-            Icon(
-              icon,
-              color: isSelected
-                  ? theme.primaryColor
-                  : theme.colorScheme.onSurface.withOpacity(0.6),
-              size: 24,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: TextStyle(
-                color: isSelected
-                    ? theme.primaryColor
-                    : theme.colorScheme.onSurface,
-                fontSize: 13,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-              ),
-              textAlign: TextAlign.center, // ✅ Correct ici
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDayBubble({
-    required int day,
-    required String letter,
-    required bool isSelected,
-  }) {
-    final theme = Theme.of(context);
-    final primaryColor = Color(_color);
-
-    return InkWell(
-      onTap: () {
-        setState(() {
-          if (isSelected) {
-            _selectedDays.remove(day);
-          } else {
-            _selectedDays.add(day);
-          }
-        });
-      },
-      borderRadius: BorderRadius.circular(25),
-      child: Container(
-        width: 48,
-        height: 48,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: isSelected ? primaryColor.withOpacity(0.2) : theme.cardColor,
-          border: Border.all(
-            color: isSelected
-                ? primaryColor
-                : theme.dividerColor.withOpacity(0.5),
-            width: 2,
-          ),
-        ),
-        child: Center(
-          child: Text(
-            letter,
-            style: TextStyle(
-              color: isSelected ? primaryColor : theme.colorScheme.onSurface,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Future<void> _selectTime(BuildContext context) async {
-    final time = await showTimePicker(
-      context: context,
-      initialTime: _reminderTime,
-    );
-    if (time != null) {
-      setState(() => _reminderTime = time);
-    }
-  }
-
   Future<void> _confirmDelete() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Supprimer l\'habitude'),
-        content: Text('Voulez-vous supprimer « ${widget.habit?.title} » ?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Annuler'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Supprimer', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
+    final confirmed = await ConfirmationDialog.show(
+      context,
+      title: 'Supprimer l\'habitude',
+      message: 'Voulez-vous supprimer « ${widget.habit?.title} » ?',
+      confirmText: 'Supprimer',
+      isDestructive: true,
     );
 
-    if (confirmed == true) {
+    if (confirmed) {
       try {
         await _habitController.deleteHabit(widget.habit!.idHabit);
 
