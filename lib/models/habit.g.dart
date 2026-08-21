@@ -23,7 +23,12 @@ const HabitSchema = CollectionSchema(
       name: r'description',
       type: IsarType.string,
     ),
-    r'title': PropertySchema(id: 2, name: r'title', type: IsarType.string),
+    r'idCategory': PropertySchema(
+      id: 2,
+      name: r'idCategory',
+      type: IsarType.long,
+    ),
+    r'title': PropertySchema(id: 3, name: r'title', type: IsarType.string),
   },
 
   estimateSize: _habitEstimateSize,
@@ -60,7 +65,8 @@ void _habitSerialize(
 ) {
   writer.writeLong(offsets[0], object.color);
   writer.writeString(offsets[1], object.description);
-  writer.writeString(offsets[2], object.title);
+  writer.writeLong(offsets[2], object.idCategory);
+  writer.writeString(offsets[3], object.title);
 }
 
 Habit _habitDeserialize(
@@ -72,8 +78,9 @@ Habit _habitDeserialize(
   final object = Habit();
   object.color = reader.readLong(offsets[0]);
   object.description = reader.readString(offsets[1]);
+  object.idCategory = reader.readLong(offsets[2]);
   object.idHabit = id;
-  object.title = reader.readString(offsets[2]);
+  object.title = reader.readString(offsets[3]);
   return object;
 }
 
@@ -89,6 +96,8 @@ P _habitDeserializeProp<P>(
     case 1:
       return (reader.readString(offset)) as P;
     case 2:
+      return (reader.readLong(offset)) as P;
+    case 3:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -391,6 +400,65 @@ extension HabitQueryFilter on QueryBuilder<Habit, Habit, QFilterCondition> {
     });
   }
 
+  QueryBuilder<Habit, Habit, QAfterFilterCondition> idCategoryEqualTo(
+    int value,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'idCategory', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<Habit, Habit, QAfterFilterCondition> idCategoryGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'idCategory',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Habit, Habit, QAfterFilterCondition> idCategoryLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'idCategory',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Habit, Habit, QAfterFilterCondition> idCategoryBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'idCategory',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
   QueryBuilder<Habit, Habit, QAfterFilterCondition> idHabitEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -624,6 +692,18 @@ extension HabitQuerySortBy on QueryBuilder<Habit, Habit, QSortBy> {
     });
   }
 
+  QueryBuilder<Habit, Habit, QAfterSortBy> sortByIdCategory() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'idCategory', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Habit, Habit, QAfterSortBy> sortByIdCategoryDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'idCategory', Sort.desc);
+    });
+  }
+
   QueryBuilder<Habit, Habit, QAfterSortBy> sortByTitle() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'title', Sort.asc);
@@ -659,6 +739,18 @@ extension HabitQuerySortThenBy on QueryBuilder<Habit, Habit, QSortThenBy> {
   QueryBuilder<Habit, Habit, QAfterSortBy> thenByDescriptionDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'description', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Habit, Habit, QAfterSortBy> thenByIdCategory() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'idCategory', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Habit, Habit, QAfterSortBy> thenByIdCategoryDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'idCategory', Sort.desc);
     });
   }
 
@@ -702,6 +794,12 @@ extension HabitQueryWhereDistinct on QueryBuilder<Habit, Habit, QDistinct> {
     });
   }
 
+  QueryBuilder<Habit, Habit, QDistinct> distinctByIdCategory() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'idCategory');
+    });
+  }
+
   QueryBuilder<Habit, Habit, QDistinct> distinctByTitle({
     bool caseSensitive = true,
   }) {
@@ -727,6 +825,12 @@ extension HabitQueryProperty on QueryBuilder<Habit, Habit, QQueryProperty> {
   QueryBuilder<Habit, String, QQueryOperations> descriptionProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'description');
+    });
+  }
+
+  QueryBuilder<Habit, int, QQueryOperations> idCategoryProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'idCategory');
     });
   }
 

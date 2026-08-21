@@ -25,9 +25,9 @@ class HabitChip extends StatelessWidget {
         constraints: const BoxConstraints(maxWidth: 200),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: cardColor,
+          color: Color(habit.color).withOpacity(0.1),
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: borderColor.withOpacity(0.5)),
+          border: Border.all(color: Color(habit.color).withOpacity(0.3)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -35,7 +35,7 @@ class HabitChip extends StatelessWidget {
             Icon(
               Icons.bolt_rounded,
               size: 16,
-              color: theme.primaryColor,
+              color: Color(habit.color),
             ),
             const SizedBox(width: 8),
             Flexible(

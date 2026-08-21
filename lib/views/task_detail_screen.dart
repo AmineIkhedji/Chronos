@@ -26,6 +26,7 @@ class TaskDetailScreen extends ConsumerWidget {
     final cardColor = theme.cardColor;
     final borderColor = theme.dividerColor;
     final primaryColor = theme.primaryColor;
+    final toggleCompletion = ref.read(toggleTaskCompletionProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -76,9 +77,10 @@ class TaskDetailScreen extends ConsumerWidget {
             Text(
               task.title,
               style: TextStyle(
-                color: textColor,
+                color: textColor.withOpacity(task.isCompleted ? 0.5 : 1.0),
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
+                decoration: task.isCompleted ? TextDecoration.lineThrough : null,
               ),
             ),
             const SizedBox(height: 16),
@@ -104,7 +106,11 @@ class TaskDetailScreen extends ConsumerWidget {
                 ),
                 child: Text(
                   task.description,
-                  style: TextStyle(color: textColor, fontSize: 14, height: 1.5),
+                  style: TextStyle(
+                    color: textColor.withOpacity(task.isCompleted ? 0.5 : 1.0),
+                    fontSize: 14,
+                    height: 1.5,
+                  ),
                 ),
               ),
               const SizedBox(height: 20),
@@ -166,7 +172,7 @@ class TaskDetailScreen extends ConsumerWidget {
             const SizedBox(height: 20),
 
             // ============ RAPPELS ============
-            if (task.idStatus != 3) ...[
+            if (!task.isCompleted) ...[
               Text(
                 'Rappels',
                 style: TextStyle(
@@ -178,6 +184,78 @@ class TaskDetailScreen extends ConsumerWidget {
               const SizedBox(height: 8),
               _buildRemindersSection(context, ref, task),
             ],
+
+            const SizedBox(height: 24),
+
+            // ============ BOUTON COCHER TERMINER (EN BAS) ============
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: task.isCompleted ? Colors.green.withOpacity(0.15) : cardColor,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: task.isCompleted 
+                    ? Colors.green.withOpacity(0.5) 
+                    : borderColor.withOpacity(0.5),
+                ),
+              ),
+              child: InkWell(
+                onTap: () => toggleCompletion(task),
+                borderRadius: BorderRadius.circular(12),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      // Checkbox
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        width: 28,
+                        height: 28,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: task.isCompleted 
+                              ? Colors.green 
+                              : theme.colorScheme.onSurface.withOpacity(0.3),
+                            width: 2,
+                          ),
+                          color: task.isCompleted ? Colors.green : Colors.transparent,
+                        ),
+                        child: task.isCompleted
+                            ? const Icon(Icons.check, size: 18, color: Colors.white)
+                            : null,
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              task.isCompleted ? 'Tâche terminée' : 'Marquer comme terminée',
+                              style: TextStyle(
+                                color: task.isCompleted ? Colors.green : textColor,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              task.isCompleted 
+                                ? 'Vous avez accompli cette tâche !' 
+                                : 'Cochez pour indiquer que la tâche est accomplie',
+                              style: TextStyle(
+                                color: textSecondary,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
 
             const SizedBox(height: 24),
           ],

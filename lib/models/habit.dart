@@ -1,3 +1,4 @@
+// lib/models/habit.dart
 import 'package:isar_community/isar.dart';
 
 part 'habit.g.dart';
@@ -9,4 +10,5 @@ class Habit {
   String title = '';
   String description = '';
   int color = 0xFF4F7CFF;
+  late int idCategory;
 }

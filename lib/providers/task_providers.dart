@@ -232,10 +232,15 @@ final toggleTaskCompletionProvider = Provider<ToggleTaskCompletion>((ref) {
       await controller.cancelAllReminders(task.idTasks);
     }
     
+    // Invalider tous les providers concernés
     ref.invalidate(allTasksProvider);
     ref.invalidate(todayTasksProvider);
     ref.invalidate(statisticsProvider);
+    ref.invalidate(todayStatisticsProvider);
     ref.invalidate(notificationsForTaskProvider(task.idTasks));
+    
+    // Rafraîchir l'écran de détails
+    ref.invalidate(taskWithRelationsProvider(task.idTasks));
   };
 });
 

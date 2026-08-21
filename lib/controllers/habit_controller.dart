@@ -2,10 +2,13 @@
 import 'package:flutter/material.dart';
 import '../models/habit.dart';
 import '../repositories/habit_repository.dart';
+import '../repositories/category_repository.dart';
+import '../models/category.dart';
 import '../services/notification_service.dart';
 
 class HabitController {
   final HabitRepository _habitRepo = HabitRepository();
+  final CategoryRepository _categoryRepo = CategoryRepository();
   final NotificationService _notificationService = NotificationService();
 
   // ============ VALIDATIONS ============
@@ -43,6 +46,14 @@ class HabitController {
     return null;
   }
 
+  /// Valide la catégorie (obligatoire)
+  String? validateCategory(int? categoryId) {
+    if (categoryId == null || categoryId == 0) {
+      return 'La catégorie est obligatoire';
+    }
+    return null;
+  }
+
   // ============ CRUD ============
 
   Future<void> saveHabit(Habit habit) async {
@@ -69,6 +80,12 @@ class HabitController {
 
   Future<List<int>> getDaysForHabit(int habitId) async {
     return await _habitRepo.getDaysForHabit(habitId);
+  }
+
+  // ============ CATÉGORIES ============
+
+  Future<List<Category>> getCategories() async {
+    return await _categoryRepo.getAllCategories();
   }
 
   // ============ RAPPELS ============
