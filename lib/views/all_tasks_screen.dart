@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../models/task.dart';
 import '../providers/task_providers.dart';
 import '../views/task_form.dart';
+import '../views/task_detail_screen.dart';
 import '../widgets/home/task_list_item.dart';
 import '../widgets/common/empty_state.dart';
 import '../widgets/common/loading_indicator.dart';
@@ -16,6 +17,14 @@ class AllTasksScreen extends ConsumerWidget {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => TaskForm(task: task)),
+    );
+    invalidateTaskProviders(ref);
+  }
+
+  Future<void> _openTaskDetail(BuildContext context, WidgetRef ref, Task task) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => TaskDetailScreen(task: task)),
     );
     invalidateTaskProviders(ref);
   }
@@ -87,7 +96,10 @@ class AllTasksScreen extends ConsumerWidget {
                       child: TaskListItem(
                         task: task,
                         onToggle: () => toggleCompletion(task),
-                        onTap: () => _openTaskForm(context, ref, task: task),
+                        // Tap = ouvrir les détails
+                        onTap: () => _openTaskDetail(context, ref, task),
+                        // Long press = ouvrir le formulaire de modification
+                        onLongPress: () => _openTaskForm(context, ref, task: task),
                       ),
                     ),
                   ],

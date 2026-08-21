@@ -6,12 +6,14 @@ class TaskListItem extends StatelessWidget {
   final Task task;
   final VoidCallback? onToggle;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
 
   const TaskListItem({
     super.key,
     required this.task,
     this.onToggle,
     this.onTap,
+    this.onLongPress,
   });
 
   @override
@@ -24,9 +26,10 @@ class TaskListItem extends StatelessWidget {
     final isCompleted = task.isCompleted;
     final priorityColor = _priorityColor(task.idPriority);
 
-    final timeFormat = DateFormat('HH:mm');
-    final timeRange =
-        '${timeFormat.format(task.startTime)} - ${timeFormat.format(task.endTime)}';
+    // Gérer les heures optionnelles
+    final timeRange = task.startTime != null || task.endTime != null
+        ? task.formatTimeRange()
+        : 'Pas de créneau horaire';
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -34,6 +37,7 @@ class TaskListItem extends StatelessWidget {
 
         return InkWell(
           onTap: onTap,
+          onLongPress: onLongPress,
           borderRadius: BorderRadius.circular(12),
           child: Padding(
             padding: EdgeInsets.symmetric(

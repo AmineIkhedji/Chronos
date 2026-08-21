@@ -5,6 +5,7 @@ import 'package:chronos/models/task.dart';
 import '../../providers/task_providers.dart';
 import '../../views/all_tasks_screen.dart';
 import '../../views/task_form.dart';
+import '../../views/task_detail_screen.dart';
 import 'task_list_item.dart';
 import '../theme/theme_provider.dart';
 
@@ -21,7 +22,15 @@ class TaskList extends ConsumerWidget {
     invalidateTaskProviders(ref);
   }
 
-  Future<void> _openTask(BuildContext context, WidgetRef ref, Task task) async {
+  Future<void> _openTaskDetail(BuildContext context, WidgetRef ref, Task task) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => TaskDetailScreen(task: task)),
+    );
+    invalidateTaskProviders(ref);
+  }
+
+  Future<void> _openTaskForm(BuildContext context, WidgetRef ref, Task task) async {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => TaskForm(task: task)),
@@ -107,7 +116,10 @@ class TaskList extends ConsumerWidget {
                         TaskListItem(
                           task: tasks[index],
                           onToggle: () => toggleCompletion(tasks[index]),
-                          onTap: () => _openTask(context, ref, tasks[index]),
+                          // Tap = ouvrir les détails
+                          onTap: () => _openTaskDetail(context, ref, tasks[index]),
+                          // Long press = ouvrir le formulaire de modification
+                          onLongPress: () => _openTaskForm(context, ref, tasks[index]),
                         ),
                       ],
                     ],

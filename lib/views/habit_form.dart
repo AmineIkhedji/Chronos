@@ -1,10 +1,10 @@
-// lib/views/habit_form.dart (à créer)
+// lib/views/habit_form.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../controllers/habit_controller.dart';
 import '../models/habit.dart';
-import '../providers/repository_providers.dart';
 import '../providers/habit_providers.dart';
-import '../services/notification_service.dart';
+import '../providers/repository_providers.dart';
 
 class HabitForm extends ConsumerStatefulWidget {
   final Habit? habit;
@@ -19,6 +19,7 @@ class _HabitFormState extends ConsumerState<HabitForm> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
+  final _habitController = HabitController();
   
   int _color = 0xFF4F7CFF;
   bool _enableReminder = false;
@@ -35,8 +36,7 @@ class _HabitFormState extends ConsumerState<HabitForm> {
   }
 
   Future<void> _loadHabitData(Habit habit) async {
-    final habitRepo = ref.read(habitRepositoryProvider);
-    final days = await habitRepo.getDaysForHabit(habit.idHabit);
+    final days = await _habitController.getDaysForHabit(habit.idHabit);
     _titleController.text = habit.title;
     _descriptionController.text = habit.description;
     _color = habit.color;
@@ -61,6 +61,12 @@ class _HabitFormState extends ConsumerState<HabitForm> {
       appBar: AppBar(
         title: Text(widget.habit == null ? 'Nouvelle habitude' : 'Modifier l\'habitude'),
         actions: [
+          if (widget.habit != null)
+            IconButton(
+              icon: const Icon(Icons.delete_outline_rounded),
+              tooltip: 'Supprimer',
+              onPressed: _confirmDelete,
+            ),
           TextButton(
             onPressed: _saveHabit,
             child: const Text('Enregistrer'),
@@ -78,16 +84,13 @@ class _HabitFormState extends ConsumerState<HabitForm> {
               TextFormField(
                 controller: _titleController,
                 decoration: const InputDecoration(
-                  labelText: 'Titre',
-                  hintText: 'Entrez le titre de l\'habitude',
+                  labelText: 'Titre *',
+                  hintText: 'Entrez le titre de l\'habitude (3-100 caractères)',
                   border: OutlineInputBorder(),
+                  counterText: '',
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Le titre est requis';
-                  }
-                  return null;
-                },
+                maxLength: 100,
+                validator: _habitController.validateTitle,
               ),
               const SizedBox(height: 16),
 
@@ -96,16 +99,19 @@ class _HabitFormState extends ConsumerState<HabitForm> {
                 controller: _descriptionController,
                 decoration: const InputDecoration(
                   labelText: 'Description',
-                  hintText: 'Décrivez l\'habitude',
+                  hintText: 'Décrivez l\'habitude (optionnel, max 500 caractères)',
                   border: OutlineInputBorder(),
+                  counterText: '',
                 ),
                 maxLines: 3,
+                maxLength: 500,
+                validator: _habitController.validateDescription,
               ),
               const SizedBox(height: 16),
 
               // Jours de la semaine
               const Text(
-                'Jours de la semaine',
+                'Jours de la semaine *',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -125,6 +131,18 @@ class _HabitFormState extends ConsumerState<HabitForm> {
                   _buildDayChip(7, 'Dimanche'),
                 ],
               ),
+              // Message d'erreur pour les jours
+              if (_selectedDays.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(
+                    'Veuillez sélectionner au moins un jour',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
               const SizedBox(height: 24),
 
               // SECTION RAPPEL
@@ -206,16 +224,71 @@ class _HabitFormState extends ConsumerState<HabitForm> {
     }
   }
 
+  Future<void> _confirmDelete() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Supprimer l\'habitude'),
+        content: Text('Voulez-vous supprimer « ${widget.habit?.title} » ?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Annuler'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Supprimer', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      try {
+        await _habitController.deleteHabit(widget.habit!.idHabit);
+        
+        ref.invalidate(allHabitsProvider);
+        ref.invalidate(todayHabitsProvider);
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('✅ Habitude supprimée'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.pop(context);
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('❌ Erreur: ${e.toString()}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
+
   Future<void> _saveHabit() async {
+    // Validation du formulaire
     if (!_formKey.currentState!.validate()) return;
-    if (_selectedDays.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Veuillez sélectionner au moins un jour')),
-      );
+
+    // Validation des jours
+    final dayError = _habitController.validateDays(_selectedDays);
+    if (dayError != null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('⚠️ $dayError'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
       return;
     }
-
-    final habitRepo = ref.read(habitRepositoryProvider);
 
     try {
       final habit = widget.habit ?? Habit();
@@ -224,11 +297,10 @@ class _HabitFormState extends ConsumerState<HabitForm> {
         ..description = _descriptionController.text.trim()
         ..color = _color;
 
-      await habitRepo.saveHabitWithDays(habit, _selectedDays.toList());
+      await _habitController.saveHabitWithDays(habit, _selectedDays.toList());
 
       if (_enableReminder) {
-        final notificationService = NotificationService();
-        await notificationService.scheduleHabitWithSettings(
+        await _habitController.scheduleHabitReminders(
           habit: habit,
           daysOfWeek: _selectedDays.toList(),
           reminderTime: _reminderTime,

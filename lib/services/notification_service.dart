@@ -412,7 +412,9 @@ class NotificationService {
     required Task task,
     required int minutesBefore,
   }) async {
-    final remindAt = task.startTime.subtract(Duration(minutes: minutesBefore));
+    final taskStartTime = task.startTime;
+    if (taskStartTime == null) return;
+    final remindAt = taskStartTime.subtract(Duration(minutes: minutesBefore));
     await scheduleTaskReminder(
       task.idTasks,
       task.title,
@@ -447,6 +449,10 @@ class NotificationService {
 
           await scheduleHabitReminder(habit.idHabit, habit.title, scheduledTime);
     }
+  }
+
+  Future<List<notif_model.Notification>> getNotificationsForHabit(int habitId) {
+    return _notifRepo.getNotificationsForHabit(habitId);
   }
 
   DateTime _getNextDateForDay(int dayOfWeek, DateTime from) {

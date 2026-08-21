@@ -15,8 +15,8 @@ class Task {
   late String title;
   late String description;
   late DateTime date;
-  late DateTime startTime;
-  late DateTime endTime;
+  DateTime? startTime;
+  DateTime? endTime;
   late int color;
   late int idCategory;
   late int idPriority;
@@ -28,7 +28,8 @@ class Task {
 extension TaskExtension on Task {
   /// Calcule le temps de rappel en fonction des minutes avant la tâche
   DateTime getReminderTime(int minutesBefore) {
-    return startTime.subtract(Duration(minutes: minutesBefore));
+    final taskStartTime = startTime ?? DateTime(date.year, date.month, date.day, 9);
+    return taskStartTime.subtract(Duration(minutes: minutesBefore));
   }
 
   /// Vérifie si la tâche a un rappel actif
@@ -51,7 +52,7 @@ extension TaskExtension on Task {
   }
 
   /// Annule tous les rappels pour cette tâche
-  Future<void> cancelAllReminders() async {
+ Future<void> cancelAllReminders() async {
     final notifications = await AppDatabase.isar.notifications
         .filter()
         .idTaskEqualTo(idTasks)
@@ -132,16 +133,21 @@ extension TaskExtension on Task {
 
   /// Formate l'heure de début pour l'affichage
   String formatStartTime() {
-    return '${startTime.hour.toString().padLeft(2, '0')}:${startTime.minute.toString().padLeft(2, '0')}';
+    if (startTime == null) return 'Pas d\'heure';
+    return '${startTime!.hour.toString().padLeft(2, '0')}:${startTime!.minute.toString().padLeft(2, '0')}';
   }
 
   /// Formate l'heure de fin pour l'affichage
   String formatEndTime() {
-    return '${endTime.hour.toString().padLeft(2, '0')}:${endTime.minute.toString().padLeft(2, '0')}';
+    if (endTime == null) return 'Pas d\'heure';
+    return '${endTime!.hour.toString().padLeft(2, '0')}:${endTime!.minute.toString().padLeft(2, '0')}';
   }
 
   /// Formate la plage horaire complète
   String formatTimeRange() {
+    if (startTime == null && endTime == null) return 'Toute la journée';
+    if (startTime != null && endTime == null) return 'À partir de ${formatStartTime()}';
+    if (startTime == null && endTime != null) return 'Jusqu\'à ${formatEndTime()}';
     return '${formatStartTime()} - ${formatEndTime()}';
   }
 }

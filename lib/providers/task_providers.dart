@@ -13,7 +13,7 @@ final allTasksProvider = FutureProvider<List<Task>>((ref) async {
   tasks.sort((a, b) {
     final dateCompare = b.date.compareTo(a.date);
     if (dateCompare != 0) return dateCompare;
-    return a.startTime.compareTo(b.startTime);
+    return (a.startTime ?? DateTime(2100)).compareTo(b.startTime ?? DateTime(2100));
   });
   return tasks;
 });
@@ -28,9 +28,9 @@ final todayTasksProvider = FutureProvider<List<Task>>((ref) async {
 /// Tri : tâches actives par heure de début croissante, terminées à la fin.
 List<Task> sortTodayTasks(List<Task> tasks) {
   final incomplete = tasks.where((t) => !t.isCompleted).toList()
-    ..sort((a, b) => a.startTime.compareTo(b.startTime));
+    ..sort((a, b) => (a.startTime ?? DateTime(2100)).compareTo(b.startTime ?? DateTime(2100)));
   final completed = tasks.where((t) => t.isCompleted).toList()
-    ..sort((a, b) => a.startTime.compareTo(b.startTime));
+    ..sort((a, b) => (a.startTime ?? DateTime(2100)).compareTo(b.startTime ?? DateTime(2100)));
   return [...incomplete, ...completed];
 }
 
@@ -201,11 +201,21 @@ typedef ToggleTaskCompletion = Future<void> Function(Task task);
 final toggleTaskCompletionProvider = Provider<ToggleTaskCompletion>((ref) {
   return (Task task) async {
     final repo = ref.read(taskRepositoryProvider);
+    final controller = ref.read(taskControllerProvider);
+    
+    // Toggle le statut
     task.idStatus = task.isCompleted ? 1 : 3;
     await repo.updateTask(task);
+    
+    // Si la tâche est maintenant terminée, annuler les rappels
+    if (task.isCompleted) {
+      await controller.cancelAllReminders(task.idTasks);
+    }
+    
     ref.invalidate(allTasksProvider);
     ref.invalidate(todayTasksProvider);
     ref.invalidate(statisticsProvider);
+    ref.invalidate(notificationsForTaskProvider(task.idTasks));
   };
 });
 
