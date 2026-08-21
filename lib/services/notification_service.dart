@@ -191,7 +191,7 @@ class NotificationService {
 
       final notification = notif_model.Notification()
         ..idNotif = id
-        ..idTasks = taskId
+        ..idTask = taskId
         ..remindAt = remindAt
         ..enabled = true;
 
@@ -233,7 +233,7 @@ class NotificationService {
 
       final notification = notif_model.Notification()
         ..idNotif = id
-        ..idTasks = habitId
+        ..idHabit = habitId
         ..remindAt = scheduledTime
         ..enabled = true;
 
@@ -332,9 +332,13 @@ class NotificationService {
     }
 
     final notifications = await _notifRepo.getEnabledNotifications();
-    final rescheduledTaskIds = <int>{};
+    final rescheduledNotificationIds = <int>{};
+    await _notifications.cancelAll();
 
     for (final notif in notifications) {
+      if (!rescheduledNotificationIds.add(notif.idNotif)) {
+        continue;
+      }
       if (notif.remindAt.isBefore(DateTime.now())) {
         // Supprimer les notifications passées
         await _notifRepo.deleteNotification(notif.idNotif);
@@ -342,34 +346,44 @@ class NotificationService {
         continue;
       }
 
-      // Vérifier si c'est une tâche ou une habitude
-      final task = await AppDatabase.isar.tasks.get(notif.idTasks);
-      if (task != null) {
-        if (!rescheduledTaskIds.add(notif.idTasks)) {
-          continue;
-        }
-        // C'est une tâche
-        await scheduleTaskReminder(
-          notif.idTasks,
-          task.title,
-          task.description,
-          notif.remindAt,
+      if (notif.idHabit != null) {
+        final habit = await AppDatabase.isar.habits.get(notif.idHabit!);
+        if (habit == null) continue;
+        await _scheduleStoredNotification(
+          notification: notif,
+          title: '🌱 Habitude: ${habit.title}',
+          body: 'C\'est l\'heure de votre habitude quotidienne !',
+          payload: 'habit|${habit.idHabit}',
         );
-      } else {
-        // Vérifier si c'est une habitude
-        final habit = await AppDatabase.isar.habits.get(notif.idTasks);
-        if (habit != null) {
-          final habitTask = await AppDatabase.isar.tasks.get(habit.idTasks);
-          if (habitTask != null) {
-            await scheduleHabitReminder(
-              habit.idHabit,
-              habitTask.title,
-              notif.remindAt,
-            );
-          }
-        }
+        continue;
+      }
+
+      if (notif.idTask == null) continue;
+      final task = await AppDatabase.isar.tasks.get(notif.idTask!);
+      if (task != null) {
+        await _scheduleStoredNotification(
+          notification: notif,
+          title: '🔔 Rappel: ${task.title}',
+          body: 'Il est temps de commencer cette tâche !',
+          payload: 'task|${task.idTasks}',
+        );
       }
     }
+  }
+
+  Future<void> _scheduleStoredNotification({
+    required notif_model.Notification notification,
+    required String title,
+    required String body,
+    required String payload,
+  }) async {
+    await _scheduleNotification(
+      id: notification.idNotif,
+      title: title,
+      body: body,
+      scheduledTime: notification.remindAt,
+      payload: payload,
+    );
   }
 
   Future<void> handleNotificationsEnabledChange(bool enabled) async {
@@ -409,10 +423,17 @@ class NotificationService {
 
   Future<void> scheduleHabitWithSettings({
     required Habit habit,
-    required Task task,
     required List<int> daysOfWeek,
     required TimeOfDay reminderTime,
   }) async {
+    final existingNotifications = await _notifRepo.getNotificationsForHabit(
+      habit.idHabit,
+    );
+    for (final notification in existingNotifications) {
+      await cancelNotification(notification.idNotif, logCancellation: false);
+    }
+    await _notifRepo.deleteNotificationsForHabit(habit.idHabit);
+
     for (final day in daysOfWeek) {
       final now = DateTime.now();
       final nextDate = _getNextDateForDay(day, now);
@@ -424,7 +445,7 @@ class NotificationService {
         reminderTime.minute,
       );
 
-      await scheduleHabitReminder(habit.idHabit, task.title, scheduledTime);
+          await scheduleHabitReminder(habit.idHabit, habit.title, scheduledTime);
     }
   }
 

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/habit.dart';
-import '../models/task.dart';
 import '../providers/habit_providers.dart';
 import '../providers/repository_providers.dart';
 import '../views/habit_form.dart';
@@ -31,13 +30,13 @@ class HabitsManagementScreen extends ConsumerWidget {
       context,
       MaterialPageRoute(builder: (context) => HabitForm(habit: habit)),
     );
-    ref.invalidate(allHabitsWithTasksProvider);
+    ref.invalidate(allHabitsManagementProvider);
     ref.invalidate(todayHabitsProvider);
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final habitsAsync = ref.watch(allHabitsWithTasksProvider);
+    final habitsAsync = ref.watch(allHabitsManagementProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -64,24 +63,21 @@ class HabitsManagementScreen extends ConsumerWidget {
 
           return RefreshIndicator(
             onRefresh: () async {
-              ref.invalidate(allHabitsWithTasksProvider);
-              await ref.read(allHabitsWithTasksProvider.future);
+              ref.invalidate(allHabitsManagementProvider);
+              await ref.read(allHabitsManagementProvider.future);
             },
             child: ListView.separated(
               padding: const EdgeInsets.all(16),
               itemCount: habitsData.length,
               separatorBuilder: (_, __) => const SizedBox(height: 8),
               itemBuilder: (context, index) {
-                final entry = habitsData[index];
-                final habit = entry.keys.first;
-                final task = entry.values.first;
+                final habit = habitsData[index];
 
                 return _HabitManagementTile(
                   habit: habit,
-                  task: task,
                   dayLabels: _dayLabels,
                   onTap: () => _openHabitForm(context, ref, habit: habit),
-                  onDelete: () => _confirmDelete(context, ref, habit, task),
+                  onDelete: () => _confirmDelete(context, ref, habit),
                 );
               },
             ),
@@ -90,7 +86,7 @@ class HabitsManagementScreen extends ConsumerWidget {
         loading: () => const LoadingIndicator(),
         error: (_, __) => ErrorState(
           message: 'Impossible de charger les habitudes',
-          onRetry: () => ref.invalidate(allHabitsWithTasksProvider),
+          onRetry: () => ref.invalidate(allHabitsManagementProvider),
         ),
       ),
     );
@@ -100,13 +96,12 @@ class HabitsManagementScreen extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     Habit habit,
-    Task task,
   ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Supprimer l\'habitude'),
-        content: Text('Voulez-vous supprimer « ${task.title} » ?'),
+        content: Text('Voulez-vous supprimer « ${habit.title} » ?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -123,23 +118,20 @@ class HabitsManagementScreen extends ConsumerWidget {
     if (confirmed == true) {
       final repo = ref.read(habitRepositoryProvider);
       await repo.deleteHabit(habit.idHabit);
-      ref.invalidate(allHabitsProvider);
+      ref.invalidate(allHabitsManagementProvider);
       ref.invalidate(todayHabitsProvider);
-      ref.invalidate(allHabitsWithTasksProvider);
     }
   }
 }
 
 class _HabitManagementTile extends ConsumerWidget {
   final Habit habit;
-  final Task task;
   final Map<int, String> dayLabels;
   final VoidCallback onTap;
   final VoidCallback onDelete;
 
   const _HabitManagementTile({
     required this.habit,
-    required this.task,
     required this.dayLabels,
     required this.onTap,
     required this.onDelete,
@@ -160,7 +152,7 @@ class _HabitManagementTile extends ConsumerWidget {
           child: Icon(Icons.bolt_rounded, color: theme.primaryColor, size: 20),
         ),
         title: Text(
-          task.title,
+          habit.title,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(fontWeight: FontWeight.w500),

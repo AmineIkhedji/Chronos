@@ -189,7 +189,9 @@ final notificationsForTaskProvider = FutureProvider.family<List<Notification>, i
 final addNotificationToTaskProvider = FutureProvider.family<void, Notification>((ref, notification) async {
   final notifRepo = ref.read(notificationRepositoryProvider);
   await notifRepo.saveNotification(notification);
-  ref.invalidate(notificationsForTaskProvider(notification.idTasks));
+  if (notification.idTask != null) {
+    ref.invalidate(notificationsForTaskProvider(notification.idTask!));
+  }
 });
 
 // ============ ACTIONS ============

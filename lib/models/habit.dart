@@ -5,6 +5,8 @@ part 'habit.g.dart';
 @collection
 class Habit {
   Id idHabit = Isar.autoIncrement;
-  
-  late int idTasks;
+
+  String title = '';
+  String description = '';
+  int color = 0xFF4F7CFF;
 }

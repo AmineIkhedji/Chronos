@@ -1,7 +1,6 @@
 // lib/providers/habit_providers.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/habit.dart';
-import '../models/task.dart';
 import 'repository_providers.dart';
 
 // Toutes les habitudes
@@ -11,7 +10,7 @@ final allHabitsProvider = FutureProvider<List<Habit>>((ref) async {
 });
 
 // Habitudes d'aujourd'hui
-final todayHabitsProvider = FutureProvider<List<Map<Habit, Task>>>((ref) async {
+final todayHabitsProvider = FutureProvider<List<Habit>>((ref) async {
   final repo = ref.read(habitRepositoryProvider);
   return await repo.getHabitsForToday();
 });
@@ -28,16 +27,10 @@ final dailyHabitsProvider = FutureProvider<List<Habit>>((ref) async {
   return await repo.getDailyHabits();
 });
 
-// Toutes les habitudes avec leurs tâches
-final allHabitsWithTasksProvider = FutureProvider<List<Map<Habit, Task>>>((ref) async {
+// Toutes les habitudes
+final allHabitsManagementProvider = FutureProvider<List<Habit>>((ref) async {
   final repo = ref.read(habitRepositoryProvider);
-  return await repo.getAllHabitsWithTasks();
-});
-
-// Habitude avec sa tâche (paramétré)
-final habitWithTaskProvider = FutureProvider.family<Map<Habit, Task>?, int>((ref, habitId) async {
-  final repo = ref.read(habitRepositoryProvider);
-  return await repo.getHabitWithTask(habitId);
+  return await repo.getAllHabits();
 });
 
 // Jours d'une habitude (paramétré)

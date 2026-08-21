@@ -2,10 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/habit.dart';
-import '../models/task.dart';
 import '../providers/repository_providers.dart';
 import '../providers/habit_providers.dart';
-import '../providers/task_providers.dart';
 import '../services/notification_service.dart';
 
 class HabitForm extends ConsumerStatefulWidget {
@@ -38,15 +36,10 @@ class _HabitFormState extends ConsumerState<HabitForm> {
 
   Future<void> _loadHabitData(Habit habit) async {
     final habitRepo = ref.read(habitRepositoryProvider);
-    final taskRepo = ref.read(taskRepositoryProvider);
     final days = await habitRepo.getDaysForHabit(habit.idHabit);
-
-    final task = await taskRepo.getTaskById(habit.idTasks);
-    if (task != null) {
-      _titleController.text = task.title;
-      _descriptionController.text = task.description;
-      _color = task.color;
-    }
+    _titleController.text = habit.title;
+    _descriptionController.text = habit.description;
+    _color = habit.color;
 
     if (mounted) {
       setState(() {
@@ -64,8 +57,6 @@ class _HabitFormState extends ConsumerState<HabitForm> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.habit == null ? 'Nouvelle habitude' : 'Modifier l\'habitude'),
@@ -224,48 +215,21 @@ class _HabitFormState extends ConsumerState<HabitForm> {
       return;
     }
 
-    final taskRepo = ref.read(taskRepositoryProvider);
     final habitRepo = ref.read(habitRepositoryProvider);
 
     try {
-      late Task task;
-      late Habit habit;
+      final habit = widget.habit ?? Habit();
+      habit
+        ..title = _titleController.text.trim()
+        ..description = _descriptionController.text.trim()
+        ..color = _color;
 
-      if (widget.habit != null) {
-        habit = widget.habit!;
-        final existingTask = await taskRepo.getTaskById(habit.idTasks);
-        if (existingTask == null) {
-          throw Exception('Tâche associée introuvable');
-        }
-        task = existingTask
-          ..title = _titleController.text.trim()
-          ..description = _descriptionController.text.trim()
-          ..color = _color;
-        await taskRepo.updateTask(task);
-      } else {
-        task = Task()
-          ..title = _titleController.text.trim()
-          ..description = _descriptionController.text.trim()
-          ..date = DateTime.now()
-          ..startTime = DateTime.now()
-          ..endTime = DateTime.now().add(const Duration(hours: 1))
-          ..color = _color
-          ..idCategory = 1
-          ..idPriority = 2
-          ..idStatus = 2;
-        await taskRepo.saveTask(task);
-
-        habit = Habit()..idTasks = task.idTasks;
-        await habitRepo.saveHabit(habit);
-      }
-
-      await habitRepo.addDaysToHabit(habit.idHabit, _selectedDays.toList());
+      await habitRepo.saveHabitWithDays(habit, _selectedDays.toList());
 
       if (_enableReminder) {
         final notificationService = NotificationService();
         await notificationService.scheduleHabitWithSettings(
           habit: habit,
-          task: task,
           daysOfWeek: _selectedDays.toList(),
           reminderTime: _reminderTime,
         );
@@ -273,9 +237,7 @@ class _HabitFormState extends ConsumerState<HabitForm> {
 
       ref.invalidate(allHabitsProvider);
       ref.invalidate(todayHabitsProvider);
-      ref.invalidate(allHabitsWithTasksProvider);
       ref.invalidate(habitDaysProvider(habit.idHabit));
-      invalidateTaskProviders(ref);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

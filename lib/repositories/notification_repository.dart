@@ -27,9 +27,16 @@ class NotificationRepository {
   Future<List<Notification>> getNotificationsForTask(int taskId) async {
     return await AppDatabase.isar.notifications
         .filter()
-        .idTasksEqualTo(taskId)
+        .idTaskEqualTo(taskId)
         .findAll();
   }
+
+        Future<List<Notification>> getNotificationsForHabit(int habitId) async {
+          return await AppDatabase.isar.notifications
+          .filter()
+          .idHabitEqualTo(habitId)
+          .findAll();
+        }
 
   Future<List<Notification>> getEnabledNotifications() async {
     return await AppDatabase.isar.notifications
@@ -53,7 +60,16 @@ class NotificationRepository {
     await AppDatabase.isar.writeTxn(() async {
       await AppDatabase.isar.notifications
           .filter()
-          .idTasksEqualTo(taskId)
+          .idTaskEqualTo(taskId)
+          .deleteAll();
+    });
+  }
+
+  Future<void> deleteNotificationsForHabit(int habitId) async {
+    await AppDatabase.isar.writeTxn(() async {
+      await AppDatabase.isar.notifications
+          .filter()
+          .idHabitEqualTo(habitId)
           .deleteAll();
     });
   }

@@ -18,9 +18,10 @@ const NotificationSchema = CollectionSchema(
   id: -4128487677257470820,
   properties: {
     r'enabled': PropertySchema(id: 0, name: r'enabled', type: IsarType.bool),
-    r'idTasks': PropertySchema(id: 1, name: r'idTasks', type: IsarType.long),
+    r'idHabit': PropertySchema(id: 1, name: r'idHabit', type: IsarType.long),
+    r'idTask': PropertySchema(id: 2, name: r'idTask', type: IsarType.long),
     r'remindAt': PropertySchema(
-      id: 2,
+      id: 3,
       name: r'remindAt',
       type: IsarType.dateTime,
     ),
@@ -57,8 +58,9 @@ void _notificationSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeBool(offsets[0], object.enabled);
-  writer.writeLong(offsets[1], object.idTasks);
-  writer.writeDateTime(offsets[2], object.remindAt);
+  writer.writeLong(offsets[1], object.idHabit);
+  writer.writeLong(offsets[2], object.idTask);
+  writer.writeDateTime(offsets[3], object.remindAt);
 }
 
 Notification _notificationDeserialize(
@@ -69,9 +71,10 @@ Notification _notificationDeserialize(
 ) {
   final object = Notification();
   object.enabled = reader.readBool(offsets[0]);
+  object.idHabit = reader.readLongOrNull(offsets[1]);
   object.idNotif = id;
-  object.idTasks = reader.readLong(offsets[1]);
-  object.remindAt = reader.readDateTime(offsets[2]);
+  object.idTask = reader.readLongOrNull(offsets[2]);
+  object.remindAt = reader.readDateTime(offsets[3]);
   return object;
 }
 
@@ -85,8 +88,10 @@ P _notificationDeserializeProp<P>(
     case 0:
       return (reader.readBool(offset)) as P;
     case 1:
-      return (reader.readLong(offset)) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 2:
+      return (reader.readLongOrNull(offset)) as P;
+    case 3:
       return (reader.readDateTime(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -205,6 +210,79 @@ extension NotificationQueryFilter
   }
 
   QueryBuilder<Notification, Notification, QAfterFilterCondition>
+  idHabitIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNull(property: r'idHabit'),
+      );
+    });
+  }
+
+  QueryBuilder<Notification, Notification, QAfterFilterCondition>
+  idHabitIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'idHabit'),
+      );
+    });
+  }
+
+  QueryBuilder<Notification, Notification, QAfterFilterCondition>
+  idHabitEqualTo(int? value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'idHabit', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<Notification, Notification, QAfterFilterCondition>
+  idHabitGreaterThan(int? value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'idHabit',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Notification, Notification, QAfterFilterCondition>
+  idHabitLessThan(int? value, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'idHabit',
+          value: value,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Notification, Notification, QAfterFilterCondition>
+  idHabitBetween(
+    int? lower,
+    int? upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'idHabit',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Notification, Notification, QAfterFilterCondition>
   idNotifEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
@@ -260,21 +338,40 @@ extension NotificationQueryFilter
   }
 
   QueryBuilder<Notification, Notification, QAfterFilterCondition>
-  idTasksEqualTo(int value) {
+  idTaskIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'idTasks', value: value),
+        const FilterCondition.isNull(property: r'idTask'),
       );
     });
   }
 
   QueryBuilder<Notification, Notification, QAfterFilterCondition>
-  idTasksGreaterThan(int value, {bool include = false}) {
+  idTaskIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const FilterCondition.isNotNull(property: r'idTask'),
+      );
+    });
+  }
+
+  QueryBuilder<Notification, Notification, QAfterFilterCondition> idTaskEqualTo(
+    int? value,
+  ) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'idTask', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<Notification, Notification, QAfterFilterCondition>
+  idTaskGreaterThan(int? value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.greaterThan(
           include: include,
-          property: r'idTasks',
+          property: r'idTask',
           value: value,
         ),
       );
@@ -282,29 +379,28 @@ extension NotificationQueryFilter
   }
 
   QueryBuilder<Notification, Notification, QAfterFilterCondition>
-  idTasksLessThan(int value, {bool include = false}) {
+  idTaskLessThan(int? value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.lessThan(
           include: include,
-          property: r'idTasks',
+          property: r'idTask',
           value: value,
         ),
       );
     });
   }
 
-  QueryBuilder<Notification, Notification, QAfterFilterCondition>
-  idTasksBetween(
-    int lower,
-    int upper, {
+  QueryBuilder<Notification, Notification, QAfterFilterCondition> idTaskBetween(
+    int? lower,
+    int? upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.between(
-          property: r'idTasks',
+          property: r'idTask',
           lower: lower,
           includeLower: includeLower,
           upper: upper,
@@ -390,15 +486,27 @@ extension NotificationQuerySortBy
     });
   }
 
-  QueryBuilder<Notification, Notification, QAfterSortBy> sortByIdTasks() {
+  QueryBuilder<Notification, Notification, QAfterSortBy> sortByIdHabit() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'idTasks', Sort.asc);
+      return query.addSortBy(r'idHabit', Sort.asc);
     });
   }
 
-  QueryBuilder<Notification, Notification, QAfterSortBy> sortByIdTasksDesc() {
+  QueryBuilder<Notification, Notification, QAfterSortBy> sortByIdHabitDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'idTasks', Sort.desc);
+      return query.addSortBy(r'idHabit', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Notification, Notification, QAfterSortBy> sortByIdTask() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'idTask', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Notification, Notification, QAfterSortBy> sortByIdTaskDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'idTask', Sort.desc);
     });
   }
 
@@ -429,6 +537,18 @@ extension NotificationQuerySortThenBy
     });
   }
 
+  QueryBuilder<Notification, Notification, QAfterSortBy> thenByIdHabit() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'idHabit', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Notification, Notification, QAfterSortBy> thenByIdHabitDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'idHabit', Sort.desc);
+    });
+  }
+
   QueryBuilder<Notification, Notification, QAfterSortBy> thenByIdNotif() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'idNotif', Sort.asc);
@@ -441,15 +561,15 @@ extension NotificationQuerySortThenBy
     });
   }
 
-  QueryBuilder<Notification, Notification, QAfterSortBy> thenByIdTasks() {
+  QueryBuilder<Notification, Notification, QAfterSortBy> thenByIdTask() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'idTasks', Sort.asc);
+      return query.addSortBy(r'idTask', Sort.asc);
     });
   }
 
-  QueryBuilder<Notification, Notification, QAfterSortBy> thenByIdTasksDesc() {
+  QueryBuilder<Notification, Notification, QAfterSortBy> thenByIdTaskDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'idTasks', Sort.desc);
+      return query.addSortBy(r'idTask', Sort.desc);
     });
   }
 
@@ -474,9 +594,15 @@ extension NotificationQueryWhereDistinct
     });
   }
 
-  QueryBuilder<Notification, Notification, QDistinct> distinctByIdTasks() {
+  QueryBuilder<Notification, Notification, QDistinct> distinctByIdHabit() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'idTasks');
+      return query.addDistinctBy(r'idHabit');
+    });
+  }
+
+  QueryBuilder<Notification, Notification, QDistinct> distinctByIdTask() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'idTask');
     });
   }
 
@@ -501,9 +627,15 @@ extension NotificationQueryProperty
     });
   }
 
-  QueryBuilder<Notification, int, QQueryOperations> idTasksProperty() {
+  QueryBuilder<Notification, int?, QQueryOperations> idHabitProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'idTasks');
+      return query.addPropertyName(r'idHabit');
+    });
+  }
+
+  QueryBuilder<Notification, int?, QQueryOperations> idTaskProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'idTask');
     });
   }
 

@@ -35,7 +35,7 @@ extension TaskExtension on Task {
   Future<bool> hasActiveReminder() async {
     final notifications = await AppDatabase.isar.notifications
         .filter()
-        .idTasksEqualTo(idTasks)
+        .idTaskEqualTo(idTasks)
         .enabledEqualTo(true)
         .findAll();
     return notifications.isNotEmpty;
@@ -45,7 +45,7 @@ extension TaskExtension on Task {
   Future<List<Notification>> getActiveReminders() async {
     return await AppDatabase.isar.notifications
         .filter()
-        .idTasksEqualTo(idTasks)
+        .idTaskEqualTo(idTasks)
         .enabledEqualTo(true)
         .findAll();
   }
@@ -54,7 +54,7 @@ extension TaskExtension on Task {
   Future<void> cancelAllReminders() async {
     final notifications = await AppDatabase.isar.notifications
         .filter()
-        .idTasksEqualTo(idTasks)
+        .idTaskEqualTo(idTasks)
         .findAll();
     
     for (final notif in notifications) {

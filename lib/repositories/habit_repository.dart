@@ -3,7 +3,6 @@ import 'package:isar_community/isar.dart';
 import '../database/app_database.dart';
 import '../models/habit.dart';
 import '../models/days.dart';
-import '../models/task.dart';
 
 class HabitRepository {
   // ============ CRUD DE BASE ============
@@ -16,20 +15,30 @@ class HabitRepository {
     return await AppDatabase.isar.habits.get(id);
   }
 
-  Future<Map<Habit, Task>?> getHabitWithTask(int habitId) async {
-    final habit = await getHabitById(habitId);
-    if (habit == null) return null;
-    
-    final task = await AppDatabase.isar.tasks.get(habit.idTasks);
-    if (task == null) return null;
-    
-    return {habit: task};
-  }
-
   Future<void> saveHabit(Habit habit) async {
     await AppDatabase.isar.writeTxn(() async {
       await AppDatabase.isar.habits.put(habit);
     });
+  }
+
+  Future<void> saveHabitWithDays(Habit habit, List<int> daysOfWeek) async {
+    await AppDatabase.isar.writeTxn(() async {
+      await AppDatabase.isar.habits.put(habit);
+      await AppDatabase.isar.days
+          .filter()
+          .idHabitEqualTo(habit.idHabit)
+          .deleteAll();
+      await _saveDays(habit.idHabit, daysOfWeek);
+    });
+  }
+
+  Future<void> _saveDays(int habitId, List<int> daysOfWeek) async {
+    for (final day in daysOfWeek) {
+      final habitDay = Days()
+        ..idHabit = habitId
+        ..dayOfWeek = day;
+      await AppDatabase.isar.days.put(habitDay);
+    }
   }
 
   Future<void> deleteHabit(int id) async {
@@ -46,19 +55,11 @@ class HabitRepository {
       final habit = await getHabitById(habitId);
       if (habit == null) throw Exception('Habitude non trouvée');
       
-      // Supprimer les anciens jours
-        await AppDatabase.isar.days
+      await AppDatabase.isar.days
           .filter()
           .idHabitEqualTo(habitId)
           .deleteAll();
-      
-      // Ajouter les nouveaux jours
-      for (var day in daysOfWeek) {
-        final days = Days()
-          ..idHabit = habitId
-          ..dayOfWeek = day;
-        await AppDatabase.isar.days.put(days);
-      }
+      await _saveDays(habitId, daysOfWeek);
     });
   }
 
@@ -88,7 +89,7 @@ class HabitRepository {
 
   // ============ RECHERCHES SPÉCIFIQUES ============
   
-  Future<List<Map<Habit, Task>>> getHabitsForToday() async {
+  Future<List<Habit>> getHabitsForToday() async {
     final now = DateTime.now();
     final today = now.weekday;
     
@@ -99,14 +100,11 @@ class HabitRepository {
     
     if (days.isEmpty) return [];
     
-    final List<Map<Habit, Task>> result = [];
+    final List<Habit> result = [];
     for (var day in days) {
       final habit = await getHabitById(day.idHabit);
       if (habit != null) {
-        final task = await AppDatabase.isar.tasks.get(habit.idTasks);
-        if (task != null) {
-          result.add({habit: task});
-        }
+        result.add(habit);
       }
     }
     
@@ -146,18 +144,4 @@ class HabitRepository {
     return dailyHabits;
   }
 
-  // ✅ Récupère toutes les habitudes avec leurs tâches
-  Future<List<Map<Habit, Task>>> getAllHabitsWithTasks() async {
-    final habits = await getAllHabits();
-    final List<Map<Habit, Task>> result = [];
-    
-    for (var habit in habits) {
-      final task = await AppDatabase.isar.tasks.get(habit.idTasks);
-      if (task != null) {
-        result.add({habit: task});
-      }
-    }
-    
-    return result;
-  }
 }

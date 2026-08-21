@@ -28,7 +28,7 @@ class TaskRepository {
     final status = await AppDatabase.isar.status.get(task.idStatus);
     final notifications = await AppDatabase.isar.notifications
         .filter()
-        .idTasksEqualTo(id)
+        .idTaskEqualTo(id)
         .findAll();
     
     return {
@@ -56,7 +56,7 @@ class TaskRepository {
     await AppDatabase.isar.writeTxn(() async {
       await AppDatabase.isar.notifications
           .filter()
-          .idTasksEqualTo(id)
+           .idTaskEqualTo(id)
           .deleteAll();
       await AppDatabase.isar.tasks.delete(id);
     });
@@ -242,7 +242,7 @@ class TaskRepository {
   Future<List<Notification>> getNotificationsForTask(int taskId) async {
     return await AppDatabase.isar.notifications
         .filter()
-        .idTasksEqualTo(taskId)
+         .idTaskEqualTo(taskId)
         .findAll();
   }
 
@@ -260,7 +260,9 @@ class TaskRepository {
     
     final List<Task> result = [];
     for (var notif in notifications) {
-      final task = await AppDatabase.isar.tasks.get(notif.idTasks);
+        final task = notif.idTask == null
+          ? null
+          : await AppDatabase.isar.tasks.get(notif.idTask!);
       if (task != null &&
           task.date.isAfter(today) &&
           task.date.isBefore(tomorrow)) {

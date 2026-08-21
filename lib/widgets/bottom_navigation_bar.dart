@@ -266,7 +266,7 @@ class ChronosBottomNavigationBar extends ConsumerWidget {
                   MaterialPageRoute(builder: (context) => const HabitForm()),
                 ).then((_) {
                   ref.invalidate(todayHabitsProvider);
-                  ref.invalidate(allHabitsWithTasksProvider);
+                  ref.invalidate(allHabitsManagementProvider);
                   invalidateTaskProviders(ref);
                 });
               },

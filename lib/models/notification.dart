@@ -8,5 +8,6 @@ class Notification {
   
   late DateTime remindAt;
   late bool enabled;
-  late int idTasks;
+  int? idTask;
+  int? idHabit;
 }

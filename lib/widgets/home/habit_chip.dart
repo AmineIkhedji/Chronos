@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:chronos/models/task.dart';
+import 'package:chronos/models/habit.dart';
 
 class HabitChip extends StatelessWidget {
-  final Task task;
+  final Habit habit;
   final Color cardColor;
   final Color borderColor;
   final VoidCallback? onTap;
 
   const HabitChip({
     super.key,
-    required this.task,
+    required this.habit,
     required this.cardColor,
     required this.borderColor,
     this.onTap,
@@ -40,7 +40,7 @@ class HabitChip extends StatelessWidget {
             const SizedBox(width: 8),
             Flexible(
               child: Text(
-                task.title,
+                habit.title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(

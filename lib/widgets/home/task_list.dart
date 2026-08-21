@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:chronos/models/task.dart';
 import '../../providers/task_providers.dart';
 import '../../views/all_tasks_screen.dart';
+import '../../views/task_form.dart';
 import 'task_list_item.dart';
 import '../theme/theme_provider.dart';
 
@@ -16,6 +17,14 @@ class TaskList extends ConsumerWidget {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const AllTasksScreen()),
+    );
+    invalidateTaskProviders(ref);
+  }
+
+  Future<void> _openTask(BuildContext context, WidgetRef ref, Task task) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => TaskForm(task: task)),
     );
     invalidateTaskProviders(ref);
   }
@@ -98,6 +107,7 @@ class TaskList extends ConsumerWidget {
                         TaskListItem(
                           task: tasks[index],
                           onToggle: () => toggleCompletion(tasks[index]),
+                          onTap: () => _openTask(context, ref, tasks[index]),
                         ),
                       ],
                     ],

@@ -2,14 +2,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:chronos/models/habit.dart';
-import 'package:chronos/models/task.dart';
 import '../../views/habits_management_screen.dart';
 import '../../providers/habit_providers.dart';
 import 'habit_chip.dart';
 import '../theme/theme_provider.dart';
 
 class HabitList extends ConsumerWidget {
-  final AsyncValue<List<Map<Habit, Task>>> habitsAsync;
+  final AsyncValue<List<Habit>> habitsAsync;
 
   const HabitList({super.key, required this.habitsAsync});
 
@@ -21,7 +20,7 @@ class HabitList extends ConsumerWidget {
       ),
     );
     ref.invalidate(todayHabitsProvider);
-    ref.invalidate(allHabitsWithTasksProvider);
+    ref.invalidate(allHabitsManagementProvider);
   }
 
   @override
@@ -89,10 +88,9 @@ class HabitList extends ConsumerWidget {
                     itemCount: habits.length,
                     separatorBuilder: (_, __) => const SizedBox(width: 12),
                     itemBuilder: (context, index) {
-                      final habitData = habits[index];
-                      final task = habitData.values.first;
+                      final habit = habits[index];
                       return HabitChip(
-                        task: task,
+                        habit: habit,
                         cardColor: cardColor,
                         borderColor: borderColor,
                         onTap: () => _openHabitsManagement(context, ref),
