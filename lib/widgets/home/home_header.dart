@@ -10,7 +10,7 @@ class HomeHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final statsAsync = ref.watch(statisticsProvider);
+    final todayStatsAsync = ref.watch(todayStatisticsProvider);
     final theme = Theme.of(context);
     final userColor = ref.watch(userColorProvider);
     final primaryColor = Color(ThemeColors.userColors[userColor] ?? ThemeColors.defaultPrimary);
@@ -18,16 +18,16 @@ class HomeHeader extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        statsAsync.when(
+        todayStatsAsync.when(
           data: (stats) {
             final total = stats['total'] as int? ?? 0;
             final completed = stats['completed'] as int? ?? 0;
-            final remaining = total - completed;
+            final remaining = stats['remaining'] as int? ?? 0;
             final successRate = (stats['successRate'] as num?)?.toDouble() ?? 0.0;
 
             return Row(
               children: [
-                // Carte Gauche (Tâches)
+                // Carte Gauche (Tâches restantes aujourd'hui)
                 Expanded(
                   child: _buildStatCard(
                     title: '$remaining',
@@ -36,11 +36,11 @@ class HomeHeader extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                // Carte Droite (Pourcentage)
+                // Carte Droite (Pourcentage de réussite du jour)
                 Expanded(
                   child: _buildStatCard(
                     title: '${successRate.toStringAsFixed(0)}%',
-                    subtitle: 'Réussite semaine',
+                    subtitle: 'Réussite du jour',
                     color: primaryColor.withOpacity(0.6),
                   ),
                 ),

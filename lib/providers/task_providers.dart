@@ -116,6 +116,26 @@ final statisticsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
     'successRate': successRate, // C'est bien un double maintenant
   };
 });
+final todayStatisticsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
+  final repo = ref.read(taskRepositoryProvider);
+  final todayTasks = await repo.getTodayTasks();
+  
+  final total = todayTasks.length;
+  final completed = todayTasks.where((t) => t.isCompleted).length;
+  final remaining = total - completed;
+  
+  double successRate = 0.0;
+  if (total > 0) {
+    successRate = (completed / total) * 100;
+  }
+  
+  return {
+    'total': total,
+    'completed': completed,
+    'remaining': remaining,
+    'successRate': successRate,
+  };
+});
 
 // Statistiques pour une période (paramétré)
 final statisticsForPeriodProvider = FutureProvider.family<Map<String, dynamic>, (DateTime, DateTime)>((ref, period) async {
