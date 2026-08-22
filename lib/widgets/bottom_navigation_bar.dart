@@ -142,13 +142,6 @@ class ChronosBottomNavigationBar extends ConsumerWidget {
                               color: Colors.white.withOpacity(0.35),
                               width: 1.5,
                             ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: primaryColor.withOpacity(0.4),
-                                blurRadius: 16,
-                                offset: const Offset(0, 6),
-                              ),
-                            ],
                           ),
                           child: const Icon(
                             Icons.add_rounded,
@@ -199,11 +192,10 @@ class ChronosBottomNavigationBar extends ConsumerWidget {
     final isSelected = tab == selectedTab;
     final color = isSelected ? primaryColor : inactiveColor;
 
-    return InkWell(
+    return GestureDetector(
       onTap: () {
         ref.read(selectedTabProvider.notifier).state = tab;
       },
-      borderRadius: BorderRadius.circular(12),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12),
         child: Column(

@@ -7,6 +7,7 @@ import '../widgets/common/settings_list_tile.dart';
 import '../widgets/dialogs/color_picker_dialog.dart';
 import '../widgets/theme/theme_provider.dart';
 import '../widgets/theme/theme_colors.dart';
+import '../widgets/bottom_navigation_bar.dart';
 import '../repositories/settings_repository.dart';
 import '../services/notification_service.dart';
 import 'customization_screen.dart';
@@ -26,6 +27,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   @override
   void initState() {
     super.initState();
+    ref.read(selectedTabProvider.notifier).state = AppTab.settings;
     _loadSettings();
   }
 
@@ -34,7 +36,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     try {
       final settings = await SettingsRepository().getSettings();
       if (!mounted) return;
-      
+
       setState(() {
         _firstDayOfWeek = settings?.firstDayWeek ?? DateTime.monday;
         _notificationsEnabled = settings?.notificationsEnabled ?? true;
@@ -50,15 +52,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     try {
       await SettingsRepository().setNotificationsEnabled(value);
       await NotificationService().handleNotificationsEnabledChange(value);
-      
+
       if (mounted) {
         setState(() => _notificationsEnabled = value);
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(value 
-              ? '✅ Notifications activées' 
-              : '🔕 Notifications désactivées'),
+            content: Text(
+              value
+                  ? '✅ Notifications activées'
+                  : '🔕 Notifications désactivées',
+            ),
             duration: const Duration(seconds: 2),
           ),
         );
@@ -75,7 +79,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
   }
 
-  Future<void> _selectPrimaryColor(BuildContext context, Color currentColor) async {
+  Future<void> _selectPrimaryColor(
+    BuildContext context,
+    Color currentColor,
+  ) async {
     final result = await showDialog<int>(
       context: context,
       builder: (context) => ColorPickerDialog(currentColor: currentColor),
@@ -85,7 +92,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       try {
         final repo = SettingsRepository();
         await repo.setPrimaryColor(result);
-        
+
         // Trouver la clé correspondante
         String? colorKey;
         for (final entry in ThemeColors.userColors.entries) {
@@ -115,10 +122,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final theme = Theme.of(context);
     final isDark = ref.watch(darkModeProvider);
     final userColorKey = ref.watch(userColorProvider);
-    final primaryColor = Color(ThemeColors.userColors[userColorKey] ?? ThemeColors.defaultPrimary);
+    final primaryColor = Color(
+      ThemeColors.userColors[userColorKey] ?? ThemeColors.defaultPrimary,
+    );
 
     final textColor = theme.colorScheme.onBackground;
-    final textSecondary = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
+    final textSecondary = isDark
+        ? const Color(0xFF94A3B8)
+        : const Color(0xFF64748B);
 
     if (_isLoading) {
       return Scaffold(
@@ -163,7 +174,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       } catch (e) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('❌ Erreur lors du changement de mode'),
+                            content: Text(
+                              '❌ Erreur lors du changement de mode',
+                            ),
                             backgroundColor: Colors.red,
                           ),
                         );
@@ -186,7 +199,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         decoration: BoxDecoration(
                           color: primaryColor,
                           shape: BoxShape.circle,
-                          border: Border.all(color: theme.dividerColor, width: 2),
+                          border: Border.all(
+                            color: theme.dividerColor,
+                            width: 2,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -238,15 +254,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                 ),
                 if (!_notificationsEnabled) ...[
-                  Divider(height: 1, color: theme.dividerColor.withOpacity(0.5)),
+                  Divider(
+                    height: 1,
+                    color: theme.dividerColor.withOpacity(0.5),
+                  ),
                   Padding(
                     padding: const EdgeInsets.all(16),
                     child: Text(
                       'Les rappels sont désactivés. Vous ne recevrez plus de notifications.',
-                      style: TextStyle(
-                        color: textSecondary,
-                        fontSize: 14,
-                      ),
+                      style: TextStyle(color: textSecondary, fontSize: 14),
                     ),
                   ),
                 ],

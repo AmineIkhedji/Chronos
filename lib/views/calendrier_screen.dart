@@ -8,7 +8,7 @@ import '../widgets/calendar/month_view.dart';
 import '../widgets/calendar/kanban_view.dart';
 import '../widgets/theme/theme_provider.dart';
 import '../widgets/common/custom_app_bar.dart';
-import 'task_form.dart';
+import '../widgets/bottom_navigation_bar.dart';
 
 enum CalendarViewType {
   day('Jour'),
@@ -33,6 +33,12 @@ class _CalendrierScreenState extends ConsumerState<CalendrierScreen> {
   DateTime _selectedDate = DateTime.now();
 
   @override
+  void initState() {
+    super.initState();
+    ref.read(selectedTabProvider.notifier).state = AppTab.calendar;
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
@@ -49,27 +55,14 @@ class _CalendrierScreenState extends ConsumerState<CalendrierScreen> {
               foregroundColor: theme.colorScheme.onBackground,
               elevation: 0,
             ),
-            
+
             // Sélecteur de vue
             _buildViewSelector(),
-            
+
             // Contenu de la vue sélectionnée
-            Expanded(
-              child: _buildSelectedView(),
-            ),
+            Expanded(child: _buildSelectedView()),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const TaskForm()),
-          );
-          if (mounted) setState(() {});
-        },
-        backgroundColor: theme.primaryColor,
-        child: const Icon(Icons.add_rounded, color: Colors.white),
       ),
     );
   }
@@ -77,8 +70,8 @@ class _CalendrierScreenState extends ConsumerState<CalendrierScreen> {
   Widget _buildViewSelector() {
     final theme = Theme.of(context);
     final isDark = ref.watch(darkModeProvider);
-    final borderColor = isDark 
-        ? const Color(0xFF334155) 
+    final borderColor = isDark
+        ? const Color(0xFF334155)
         : const Color(0xFFE2E8F0);
 
     return Container(
@@ -104,7 +97,10 @@ class _CalendrierScreenState extends ConsumerState<CalendrierScreen> {
                 },
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
                     color: isSelected ? theme.primaryColor : Colors.transparent,
                     borderRadius: BorderRadius.circular(8),
@@ -112,7 +108,9 @@ class _CalendrierScreenState extends ConsumerState<CalendrierScreen> {
                   child: Text(
                     type.label,
                     style: TextStyle(
-                      color: isSelected ? Colors.white : theme.colorScheme.onSurface.withOpacity(0.6),
+                      color: isSelected
+                          ? Colors.white
+                          : theme.colorScheme.onSurface.withOpacity(0.6),
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                     ),
