@@ -5,14 +5,16 @@ import '../models/task.dart';
 import '../providers/task_providers.dart';
 import '../utils/date_formatters.dart';
 import '../views/task_form.dart';
-import '../views/task_detail_screen.dart';
+import 'task_detail_screen.dart';
 import '../widgets/home/task_list_item.dart';
 import '../widgets/common/empty_state.dart';
 import '../widgets/common/loading_indicator.dart';
 import '../widgets/common/error_state.dart';
 
 class AllTasksScreen extends ConsumerWidget {
-  const AllTasksScreen({super.key});
+  const AllTasksScreen({super.key, this.date});
+
+  final DateTime? date;
 
   Future<void> _openTaskForm(BuildContext context, WidgetRef ref, {Task? task}) async {
     await Navigator.push(
@@ -32,13 +34,15 @@ class AllTasksScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final tasksAsync = ref.watch(allTasksProvider);
+    final tasksAsync = date == null
+      ? ref.watch(allTasksProvider)
+      : ref.watch(tasksByDateProvider(date!));
     final toggleCompletion = ref.read(toggleTaskCompletionProvider);
     final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Toutes les tâches'),
+        title: Text(date == null ? 'Toutes les tâches' : 'Tâches du jour'),
         actions: [
           IconButton(
             icon: const Icon(Icons.add_rounded),
@@ -61,8 +65,13 @@ class AllTasksScreen extends ConsumerWidget {
 
           return RefreshIndicator(
             onRefresh: () async {
-              ref.invalidate(allTasksProvider);
-              await ref.read(allTasksProvider.future);
+              if (date == null) {
+                ref.invalidate(allTasksProvider);
+                await ref.read(allTasksProvider.future);
+              } else {
+                ref.invalidate(tasksByDateProvider(date!));
+                await ref.read(tasksByDateProvider(date!).future);
+              }
             },
             child: ListView.separated(
               padding: const EdgeInsets.all(16),

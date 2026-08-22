@@ -1,4 +1,4 @@
-// lib/views/home_screen.dart
+// lib/views/home_screen.dart (modification)
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -9,6 +9,7 @@ import '../widgets/home/habit_list.dart';
 import '../widgets/home/home_greeting.dart';
 import '../providers/task_providers.dart';
 import '../providers/habit_providers.dart';
+import '../widgets/bottom_navigation_bar.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -44,7 +45,13 @@ class HomeScreen extends ConsumerWidget {
                 const SizedBox(height: 20),
                 const HomeHeader(),
                 const SizedBox(height: 24),
-                const MiniCalendar(),
+                // Mini calendrier avec navigation
+                GestureDetector(
+                  onTap: () {
+                    ref.read(selectedTabProvider.notifier).state = AppTab.calendar;
+                  },
+                  child: const MiniCalendar(),
+                ),
                 const SizedBox(height: 24),
                 TaskList(tasksAsync: todayTasksAsync),
                 const SizedBox(height: 24),

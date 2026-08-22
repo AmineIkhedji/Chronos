@@ -16,7 +16,7 @@ import 'widgets/common/custom_app_bar.dart';
 import 'widgets/common/loading_indicator.dart';
 import 'views/home_screen.dart';
 import 'views/settings_screen.dart';
-
+import 'views/calendrier_screen.dart';
 Future<void> _initializeBackgroundServices() async {
   try {
     final notificationService = NotificationService();
@@ -112,13 +112,8 @@ class HomePage extends ConsumerWidget {
         title = ''; // Pas de titre, HomeScreen gère son propre header
         break;
       case AppTab.calendar:
-        content = Center(
-          child: Text(
-            'Calendrier',
-            style: TextStyle(color: theme.colorScheme.onBackground),
-          ),
-        );
-        title = 'Calendrier';
+        content = const CalendrierScreen();
+        title = ''; // CalendrierScreen gère son propre header
         break;
       case AppTab.stats:
         content = Center(
@@ -136,7 +131,7 @@ class HomePage extends ConsumerWidget {
     }
 
     // AppBar seulement pour les pages qui n'ont pas leur propre header
-    final showAppBar = selectedTab != AppTab.home && selectedTab != AppTab.settings;
+    final showAppBar = selectedTab == AppTab.stats;
 
     return AppScaffold(
       appBar: showAppBar 
