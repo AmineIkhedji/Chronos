@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/calendar_providers.dart';
 import '../../models/task.dart';
+import '../../views/task_detail_screen.dart';
 import 'all_day_tasks_row.dart';
 import '../theme/theme_provider.dart';
 
@@ -196,7 +197,7 @@ class DayView extends ConsumerWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => _TaskDetailPlaceholder(task: task),
+                builder: (context) => TaskDetailScreen(task: task),
               ),
             );
           },
@@ -285,7 +286,7 @@ class DayView extends ConsumerWidget {
                             context,
                             MaterialPageRoute(
                               builder: (context) =>
-                                  _TaskDetailPlaceholder(task: task),
+                                  TaskDetailScreen(task: task),
                             ),
                           );
                         },
@@ -380,24 +381,4 @@ class _TaskPosition {
     required this.startHour,
     required this.endHour,
   });
-}
-
-// Placeholder pour le détail de la tâche
-class _TaskDetailPlaceholder extends StatelessWidget {
-  final Task task;
-  const _TaskDetailPlaceholder({required this.task});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Scaffold(
-      appBar: AppBar(title: Text(task.title)),
-      body: Center(
-        child: Text(
-          'Détails de la tâche: ${task.title}',
-          style: TextStyle(color: theme.colorScheme.onBackground),
-        ),
-      ),
-    );
-  }
 }
