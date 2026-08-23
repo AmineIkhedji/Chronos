@@ -1,7 +1,7 @@
 // lib/utils/validators.dart
 class Validators {
   // ============ VALIDATIONS COMMUNES ============
-  
+
   static String? validateTitle(String? value) {
     if (value == null || value.trim().isEmpty) {
       return 'Le titre est obligatoire';
@@ -49,6 +49,19 @@ class Validators {
   static String? validateDays(Set<int> days) {
     if (days.isEmpty) {
       return 'Veuillez sélectionner au moins un jour';
+    }
+    return null;
+  }
+
+  static String? validateCustomizationName(String? value, String itemType) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Le nom de $itemType est obligatoire';
+    }
+    if (value.trim().length < 2) {
+      return 'Le nom de $itemType doit contenir au moins 2 caractères';
+    }
+    if (value.trim().length > 50) {
+      return 'Le nom de $itemType ne doit pas dépasser 50 caractères';
     }
     return null;
   }
