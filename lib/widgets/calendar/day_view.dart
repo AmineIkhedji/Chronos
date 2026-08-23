@@ -3,17 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/calendar_providers.dart';
 import '../../models/task.dart';
+import 'all_day_tasks_row.dart';
 import '../theme/theme_provider.dart';
 
 class DayView extends ConsumerWidget {
   final DateTime date;
   final ValueChanged<DateTime> onDateSelected;
 
-  const DayView({
-    super.key,
-    required this.date,
-    required this.onDateSelected,
-  });
+  const DayView({super.key, required this.date, required this.onDateSelected});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -45,15 +42,12 @@ class DayView extends ConsumerWidget {
                   );
                 },
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (_, __) => const Center(
-                  child: Text('Erreur de chargement'),
-                ),
+                error: (_, __) =>
+                    const Center(child: Text('Erreur de chargement')),
               );
             },
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (_, __) => const Center(
-              child: Text('Erreur'),
-            ),
+            error: (_, __) => const Center(child: Text('Erreur')),
           ),
         ),
       ],
@@ -64,12 +58,13 @@ class DayView extends ConsumerWidget {
     final theme = Theme.of(context);
     final isDark = ref.watch(darkModeProvider);
     final textColor = theme.colorScheme.onBackground;
-    final textColorSecondary = isDark 
-        ? const Color(0xFF94A3B8) 
+    final textColorSecondary = isDark
+        ? const Color(0xFF94A3B8)
         : const Color(0xFF64748B);
     final primaryColor = theme.primaryColor;
 
-    final isToday = date.year == DateTime.now().year &&
+    final isToday =
+        date.year == DateTime.now().year &&
         date.month == DateTime.now().month &&
         date.day == DateTime.now().day;
 
@@ -143,8 +138,8 @@ class DayView extends ConsumerWidget {
     final theme = Theme.of(context);
     final isDark = ref.watch(darkModeProvider);
     final textColor = theme.colorScheme.onBackground;
-    final lineColor = isDark 
-        ? const Color(0xFF1E293B) 
+    final lineColor = isDark
+        ? const Color(0xFF1E293B)
         : const Color(0xFFF1F5F9);
 
     // Heures de début et fin de la journée
@@ -152,160 +147,198 @@ class DayView extends ConsumerWidget {
     const endHour = 24;
     const hourHeight = 60.0;
 
-    // Positions des tâches
+    final allDayTasks = tasks
+        .where((task) => task.startTime == null && task.endTime == null)
+        .toList();
+
+    // Positions des tâches horaires
     final taskPositions = <_TaskPosition>[];
-    for (final task in tasks) {
-      final startTime = task.startTime ?? DateTime(task.date.year, task.date.month, task.date.day, 9);
+    for (final task in tasks.where(
+      (task) => task.startTime != null || task.endTime != null,
+    )) {
+      final startTime =
+          task.startTime ??
+          DateTime(task.date.year, task.date.month, task.date.day, 9);
       final endTime = task.endTime ?? startTime.add(const Duration(hours: 1));
-      
+
       final startHourDouble = startTime.hour + startTime.minute / 60;
       final endHourDouble = endTime.hour + endTime.minute / 60;
-      
+
       final top = (startHourDouble - startHour) * hourHeight;
       final height = (endHourDouble - startHourDouble) * hourHeight;
-      
-      taskPositions.add(_TaskPosition(
-        task: task,
-        top: top,
-        height: height,
-        startHour: startHourDouble,
-        endHour: endHourDouble,
-      ));
+
+      taskPositions.add(
+        _TaskPosition(
+          task: task,
+          top: top,
+          height: height,
+          startHour: startHourDouble,
+          endHour: endHourDouble,
+        ),
+      );
     }
 
-    return SingleChildScrollView(
-      child: SizedBox(
-        height: (endHour - startHour) * hourHeight,
-        child: Stack(
-          children: [
-            // Lignes horizontales (heures)
-            Column(
-              children: List.generate(endHour - startHour, (index) {
-                final hour = startHour + index;
-                return SizedBox(
-                  height: hourHeight,
-                  child: Row(
-                    children: [
-                      SizedBox(
-                        width: 56,
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: Text(
-                            '${hour.toString().padLeft(2, '0')}:00',
-                            textAlign: TextAlign.right,
-                            style: TextStyle(
-                              color: textColor.withOpacity(0.5),
-                              fontSize: 11,
+    final allDayTasksByDay = <int, List<Task>>{};
+    if (allDayTasks.isNotEmpty) {
+      allDayTasksByDay[date.year * 10000 + date.month * 100 + date.day] =
+          allDayTasks;
+    }
+
+    return Column(
+      children: [
+        AllDayTasksRow(
+          days: [date],
+          tasksByDay: allDayTasksByDay,
+          hourLabelWidth: 56,
+          textColorSecondary: textColor.withOpacity(0.5),
+          borderColor: lineColor,
+          onTaskTap: (task) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => _TaskDetailPlaceholder(task: task),
+              ),
+            );
+          },
+        ),
+        Expanded(
+          child: SingleChildScrollView(
+            child: SizedBox(
+              height: (endHour - startHour) * hourHeight,
+              child: Stack(
+                children: [
+                  // Lignes horizontales (heures)
+                  Column(
+                    children: List.generate(endHour - startHour, (index) {
+                      final hour = startHour + index;
+                      return SizedBox(
+                        height: hourHeight,
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: 56,
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 8),
+                                child: Text(
+                                  '${hour.toString().padLeft(2, '0')}:00',
+                                  textAlign: TextAlign.right,
+                                  style: TextStyle(
+                                    color: textColor.withOpacity(0.5),
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Container(height: 1, color: lineColor),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+                  ),
+
+                  // Ligne verticale courante
+                  if (_isToday(date))
+                    Positioned(
+                      left: 56,
+                      right: 0,
+                      top: _getCurrentTimePosition(hourHeight, startHour) - 4,
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.only(top: 4),
+                            height: 2,
+                            color: Colors.red,
+                          ),
+                          Positioned(
+                            left: -5,
+                            top: 0,
+                            child: Container(
+                              width: 10,
+                              height: 10,
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
                             ),
                           ),
-                        ),
+                        ],
                       ),
-                      Expanded(
+                    ),
+
+                  // Tâches
+                  ...taskPositions.map((position) {
+                    final task = position.task;
+                    final color = Color(task.color);
+
+                    return Positioned(
+                      left: 64,
+                      right: 8,
+                      top: position.top + 2,
+                      height: position.height - 4,
+                      child: GestureDetector(
+                        onTap: () {
+                          // Navigation vers détail de la tâche
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  _TaskDetailPlaceholder(task: task),
+                            ),
+                          );
+                        },
                         child: Container(
-                          height: 1,
-                          color: lineColor,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: color,
+                            borderRadius: BorderRadius.circular(6),
+                            boxShadow: [
+                              BoxShadow(
+                                color: color.withOpacity(0.3),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                task.title,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              if (position.height > 40)
+                                Text(
+                                  '${_formatTime(task.startTime)} - ${_formatTime(task.endTime)}',
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.9),
+                                    fontSize: 10,
+                                  ),
+                                ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                );
-              }),
-            ),
-
-            // Ligne verticale courante
-            if (_isToday(date))
-              Positioned(
-                left: 56,
-                right: 0,
-                top: _getCurrentTimePosition(hourHeight, startHour) - 4,
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.only(top: 4),
-                      height: 2,
-                      color: Colors.red,
-                    ),
-                    Positioned(
-                      left: -5,
-                      top: 0,
-                      child: Container(
-                        width: 10,
-                        height: 10,
-                        decoration: const BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-            // Tâches
-            ...taskPositions.map((position) {
-              final task = position.task;
-              final color = categoryColors[task.idCategory] ?? theme.primaryColor;
-              
-              return Positioned(
-                left: 64,
-                right: 8,
-                top: position.top + 2,
-                height: position.height - 4,
-                child: GestureDetector(
-                  onTap: () {
-                    // Navigation vers détail de la tâche
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => _TaskDetailPlaceholder(task: task),
                       ),
                     );
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: color,
-                      borderRadius: BorderRadius.circular(6),
-                      boxShadow: [
-                        BoxShadow(
-                          color: color.withOpacity(0.3),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          task.title,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        if (position.height > 40)
-                          Text(
-                            '${_formatTime(task.startTime)} - ${_formatTime(task.endTime)}',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.9),
-                              fontSize: 10,
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            }),
-          ],
+                  }),
+                ],
+              ),
+            ),
+          ),
         ),
-      ),
+      ],
     );
   }
 

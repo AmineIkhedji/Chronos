@@ -18,14 +18,15 @@ class MonthView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final firstDayOfWeek = ref.watch(firstDayOfWeekProvider).value ?? DateTime.monday;
+    final firstDayOfWeek =
+        ref.watch(firstDayOfWeekProvider).value ?? DateTime.monday;
     final tasksAsync = ref.watch(tasksForMonthProvider(selectedDate));
     final categoriesAsync = ref.watch(allCategoriesProvider);
     final theme = Theme.of(context);
     final isDark = ref.watch(darkModeProvider);
     final textColor = theme.colorScheme.onBackground;
-    final textColorSecondary = isDark 
-        ? const Color(0xFF94A3B8) 
+    final textColorSecondary = isDark
+        ? const Color(0xFF94A3B8)
         : const Color(0xFF64748B);
     final primaryColor = theme.primaryColor;
 
@@ -57,11 +58,15 @@ class MonthView extends ConsumerWidget {
               IconButton(
                 icon: const Icon(Icons.chevron_left_rounded),
                 onPressed: () {
-                  onDateSelected(DateTime(selectedDate.year, selectedDate.month - 1, 1));
+                  onDateSelected(
+                    DateTime(selectedDate.year, selectedDate.month - 1, 1),
+                  );
                 },
               ),
               Text(
-                _getMonthName(selectedDate.month) + ' ' + selectedDate.year.toString(),
+                _getMonthName(selectedDate.month) +
+                    ' ' +
+                    selectedDate.year.toString(),
                 style: TextStyle(
                   color: textColor,
                   fontSize: 18,
@@ -71,13 +76,15 @@ class MonthView extends ConsumerWidget {
               IconButton(
                 icon: const Icon(Icons.chevron_right_rounded),
                 onPressed: () {
-                  onDateSelected(DateTime(selectedDate.year, selectedDate.month + 1, 1));
+                  onDateSelected(
+                    DateTime(selectedDate.year, selectedDate.month + 1, 1),
+                  );
                 },
               ),
             ],
           ),
         ),
-        
+
         // Jours de la semaine
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -100,20 +107,19 @@ class MonthView extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 8),
-        
+
         // Grille du mois
         Expanded(
           child: categoriesAsync.when(
             data: (categories) {
-              final categoryColors = <int, Color>{
-                for (final cat in categories) cat.idCategory: Color(cat.color),
-              };
-
               return tasksAsync.when(
                 data: (tasks) {
                   final tasksByDay = <int, List<Task>>{};
                   for (final task in tasks) {
-                    final dateKey = task.date.year * 10000 + task.date.month * 100 + task.date.day;
+                    final dateKey =
+                        task.date.year * 10000 +
+                        task.date.month * 100 +
+                        task.date.day;
                     if (!tasksByDay.containsKey(dateKey)) {
                       tasksByDay[dateKey] = [];
                     }
@@ -136,14 +142,17 @@ class MonthView extends ConsumerWidget {
                           final date = cells[index];
                           if (date == null) return const SizedBox.shrink();
 
-                          final isToday = date.year == DateTime.now().year &&
+                          final isToday =
+                              date.year == DateTime.now().year &&
                               date.month == DateTime.now().month &&
                               date.day == DateTime.now().day;
-                          final isSelected = date.year == selectedDate.year &&
+                          final isSelected =
+                              date.year == selectedDate.year &&
                               date.month == selectedDate.month &&
                               date.day == selectedDate.day;
 
-                          final dateKey = date.year * 10000 + date.month * 100 + date.day;
+                          final dateKey =
+                              date.year * 10000 + date.month * 100 + date.day;
                           final dayTasks = tasksByDay[dateKey] ?? [];
 
                           return GestureDetector(
@@ -152,7 +161,8 @@ class MonthView extends ConsumerWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => AllTasksScreen(date: date),
+                                  builder: (context) =>
+                                      AllTasksScreen(date: date),
                                 ),
                               );
                             },
@@ -160,9 +170,11 @@ class MonthView extends ConsumerWidget {
                               margin: const EdgeInsets.all(2),
                               padding: const EdgeInsets.all(4),
                               decoration: BoxDecoration(
-                                color: isSelected ? primaryColor.withOpacity(0.2) : null,
+                                color: isSelected
+                                    ? primaryColor.withOpacity(0.2)
+                                    : null,
                                 borderRadius: BorderRadius.circular(8),
-                                border: isSelected 
+                                border: isSelected
                                     ? Border.all(color: primaryColor, width: 2)
                                     : null,
                               ),
@@ -181,7 +193,9 @@ class MonthView extends ConsumerWidget {
                                     child: Text(
                                       '${date.day}',
                                       style: TextStyle(
-                                        color: isToday ? Colors.white : textColor,
+                                        color: isToday
+                                            ? Colors.white
+                                            : textColor,
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,
                                       ),
@@ -195,14 +209,18 @@ class MonthView extends ConsumerWidget {
                                         ? null
                                         : Row(
                                             mainAxisSize: MainAxisSize.min,
-                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
                                             children: [
                                               ...dayTasks.take(2).map((task) {
-                                                final color = categoryColors[task.idCategory] ?? Colors.grey;
+                                                final color = Color(task.color);
                                                 return Container(
                                                   width: 6,
                                                   height: 6,
-                                                  margin: const EdgeInsets.symmetric(horizontal: 1),
+                                                  margin:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 1,
+                                                      ),
                                                   decoration: BoxDecoration(
                                                     color: color,
                                                     shape: BoxShape.circle,
@@ -242,8 +260,20 @@ class MonthView extends ConsumerWidget {
   }
 
   String _getMonthName(int month) {
-    const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
-                    'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+    const months = [
+      'Janvier',
+      'Février',
+      'Mars',
+      'Avril',
+      'Mai',
+      'Juin',
+      'Juillet',
+      'Août',
+      'Septembre',
+      'Octobre',
+      'Novembre',
+      'Décembre',
+    ];
     return months[month - 1];
   }
 

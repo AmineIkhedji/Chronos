@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/task.dart';
 import '../../providers/calendar_providers.dart';
 import '../../views/task_detail_screen.dart';
+import 'all_day_tasks_row.dart';
 import '../theme/theme_provider.dart';
 
 class ThreeDaysView extends ConsumerStatefulWidget {
@@ -45,27 +46,35 @@ class _ThreeDaysViewState extends ConsumerState<ThreeDaysView> {
     super.dispose();
   }
 
-  DateTime _stripTime(DateTime date) => DateTime(date.year, date.month, date.day);
+  DateTime _stripTime(DateTime date) =>
+      DateTime(date.year, date.month, date.day);
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = ref.watch(darkModeProvider);
     final textColor = theme.colorScheme.onBackground;
-    final textColorSecondary =
-        isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
-    final borderColor =
-        isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0);
+    final textColorSecondary = isDark
+        ? const Color(0xFF94A3B8)
+        : const Color(0xFF64748B);
+    final borderColor = isDark
+        ? const Color(0xFF334155)
+        : const Color(0xFFE2E8F0);
 
     // Comme pour la semaine : on affiche toujours "daysCount" jours
     // consécutifs à partir de la date sélectionnée (aujourd'hui par
     // défaut), et non un découpage fixe. Le premier jour affiché reste
     // donc "aujourd'hui" tant qu'on n'a pas navigué.
     final rangeStart = _stripTime(widget.selectedDate);
-    final days = List.generate(daysCount, (i) => rangeStart.add(Duration(days: i)));
+    final days = List.generate(
+      daysCount,
+      (i) => rangeStart.add(Duration(days: i)),
+    );
     final rangeEnd = rangeStart.add(const Duration(days: daysCount));
 
-    final tasksAsync = ref.watch(tasksForPeriodProvider((rangeStart, rangeEnd)));
+    final tasksAsync = ref.watch(
+      tasksForPeriodProvider((rangeStart, rangeEnd)),
+    );
 
     return Column(
       children: [
@@ -83,10 +92,7 @@ class _ThreeDaysViewState extends ConsumerState<ThreeDaysView> {
               ),
               Text(
                 '${days.first.day}/${days.first.month} - ${days.last.day}/${days.last.month}',
-                style: TextStyle(
-                  color: textColor,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
               ),
               IconButton(
                 icon: const Icon(Icons.chevron_right_rounded),
@@ -115,128 +121,190 @@ class _ThreeDaysViewState extends ConsumerState<ThreeDaysView> {
             data: (tasks) {
               final tasksByDay = <int, List<Task>>{};
               for (final task in tasks) {
-                final key = task.date.year * 10000 +
+                final key =
+                    task.date.year * 10000 +
                     task.date.month * 100 +
                     task.date.day;
                 (tasksByDay[key] ??= []).add(task);
               }
 
-              return SingleChildScrollView(
-                controller: _scrollController,
-                child: SizedBox(
-                  height: 24 * hourHeight,
-                  child: Stack(
-                    children: [
-                      // Lignes horaires + libellés des heures (00h -> 23h)
-                      Column(
-                        children: List.generate(24, (hour) {
-                          return SizedBox(
-                            height: hourHeight,
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                SizedBox(
-                                  width: hourLabelWidth,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(top: 2, right: 6),
-                                    child: Text(
-                                      '${hour.toString().padLeft(2, '0')}:00',
-                                      textAlign: TextAlign.right,
-                                      style: TextStyle(
-                                        color: textColorSecondary,
-                                        fontSize: 11,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Divider(
-                                    color: theme.dividerColor,
-                                    height: 1,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        }),
+              final allDayTasksByDay = <int, List<Task>>{};
+              for (final task in tasks) {
+                if (task.startTime == null && task.endTime == null) {
+                  final key =
+                      task.date.year * 10000 +
+                      task.date.month * 100 +
+                      task.date.day;
+                  (allDayTasksByDay[key] ??= []).add(task);
+                }
+              }
+
+              return Column(
+                children: [
+                  AllDayTasksRow(
+                    days: days,
+                    tasksByDay: allDayTasksByDay,
+                    hourLabelWidth: hourLabelWidth,
+                    textColorSecondary: textColorSecondary,
+                    borderColor: borderColor,
+                    onTaskTap: (task) => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => TaskDetailScreen(task: task),
                       ),
-
-                      // Colonnes des jours avec les tâches
-                      Positioned(
-                        left: hourLabelWidth,
-                        right: 0,
-                        top: 0,
+                    ),
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      controller: _scrollController,
+                      child: SizedBox(
                         height: 24 * hourHeight,
-                        child: Row(
-                          children: days.map((day) {
-                            final key =
-                                day.year * 10000 + day.month * 100 + day.day;
-                            final dayTasks = tasksByDay[key] ?? [];
-
-                            return Expanded(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    left: BorderSide(
-                                      color: borderColor.withOpacity(0.4),
-                                    ),
-                                  ),
-                                ),
-                                child: Stack(
-                                  children: dayTasks.map<Widget>((task) {
-                                    final start = task.startTime ??
-                                        DateTime(day.year, day.month, day.day, 9);
-                                    final end = task.endTime ??
-                                        start.add(const Duration(hours: 1));
-                                    final startValue =
-                                        start.hour + start.minute / 60;
-                                    final endValue =
-                                        end.hour + end.minute / 60;
-
-                                    return Positioned(
-                                      left: 3,
-                                      right: 3,
-                                      top: startValue * hourHeight + 2,
-                                      height: ((endValue - startValue) *
-                                              hourHeight)
-                                          .clamp(20.0, double.infinity),
-                                      child: GestureDetector(
-                                        onTap: () => Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) =>
-                                                TaskDetailScreen(task: task),
-                                          ),
-                                        ),
-                                        child: Container(
-                                          padding: const EdgeInsets.all(4),
-                                          decoration: BoxDecoration(
-                                            color: theme.primaryColor,
-                                            borderRadius:
-                                                BorderRadius.circular(6),
+                        child: Stack(
+                          children: [
+                            // Lignes horaires + libellés des heures (00h -> 23h)
+                            Column(
+                              children: List.generate(24, (hour) {
+                                return SizedBox(
+                                  height: hourHeight,
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      SizedBox(
+                                        width: hourLabelWidth,
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(
+                                            top: 2,
+                                            right: 6,
                                           ),
                                           child: Text(
-                                            task.title,
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: const TextStyle(
-                                              color: Colors.white,
+                                            '${hour.toString().padLeft(2, '0')}:00',
+                                            textAlign: TextAlign.right,
+                                            style: TextStyle(
+                                              color: textColorSecondary,
                                               fontSize: 11,
                                             ),
                                           ),
                                         ),
                                       ),
-                                    );
-                                  }).toList(),
-                                ),
+                                      Expanded(
+                                        child: Divider(
+                                          color: theme.dividerColor,
+                                          height: 1,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }),
+                            ),
+
+                            // Colonnes des jours avec les tâches horaires
+                            Positioned(
+                              left: hourLabelWidth,
+                              right: 0,
+                              top: 0,
+                              height: 24 * hourHeight,
+                              child: Row(
+                                children: days.map((day) {
+                                  final key =
+                                      day.year * 10000 +
+                                      day.month * 100 +
+                                      day.day;
+                                  final dayTasks = tasksByDay[key] ?? [];
+                                  final timedTasks = dayTasks.where(
+                                    (task) =>
+                                        task.startTime != null ||
+                                        task.endTime != null,
+                                  );
+
+                                  return Expanded(
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        border: Border(
+                                          left: BorderSide(
+                                            color: borderColor.withOpacity(0.4),
+                                          ),
+                                        ),
+                                      ),
+                                      child: Stack(
+                                        children: timedTasks.map<Widget>((
+                                          task,
+                                        ) {
+                                          final start =
+                                              task.startTime ??
+                                              DateTime(
+                                                day.year,
+                                                day.month,
+                                                day.day,
+                                                9,
+                                              );
+                                          final end =
+                                              task.endTime ??
+                                              start.add(
+                                                const Duration(hours: 1),
+                                              );
+                                          final startValue =
+                                              start.hour + start.minute / 60;
+                                          final endValue =
+                                              end.hour + end.minute / 60;
+
+                                          return Positioned(
+                                            left: 3,
+                                            right: 3,
+                                            top: startValue * hourHeight + 2,
+                                            height:
+                                                ((endValue - startValue) *
+                                                        hourHeight)
+                                                    .clamp(
+                                                      20.0,
+                                                      double.infinity,
+                                                    ),
+                                            child: GestureDetector(
+                                              onTap: () => Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (_) =>
+                                                      TaskDetailScreen(
+                                                        task: task,
+                                                      ),
+                                                ),
+                                              ),
+                                              child: Container(
+                                                padding: const EdgeInsets.all(
+                                                  4,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: Color(task.color),
+                                                  borderRadius:
+                                                      BorderRadius.circular(6),
+                                                ),
+                                                child: Text(
+                                                  task.title,
+                                                  maxLines: 2,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 11,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        }).toList(),
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
                               ),
-                            );
-                          }).toList(),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               );
             },
             loading: () => const Center(child: CircularProgressIndicator()),

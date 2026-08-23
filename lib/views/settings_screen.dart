@@ -8,6 +8,7 @@ import '../widgets/dialogs/color_picker_dialog.dart';
 import '../widgets/theme/theme_provider.dart';
 import '../widgets/theme/theme_colors.dart';
 import '../widgets/bottom_navigation_bar.dart';
+import '../providers/calendar_providers.dart';
 import '../repositories/settings_repository.dart';
 import '../services/notification_service.dart';
 import 'customization_screen.dart';
@@ -380,6 +381,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         if (_firstDayOfWeek == day) return;
         try {
           await SettingsRepository().setFirstDayOfWeek(day);
+          ref.invalidate(firstDayOfWeekProvider);
           if (mounted) setState(() => _firstDayOfWeek = day);
         } catch (e) {
           if (mounted) {

@@ -2,6 +2,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/settings.dart';
+import 'calendar_providers.dart';
 import 'repository_providers.dart';
 import '../widgets/theme/theme_provider.dart';
 
@@ -21,7 +22,7 @@ final settingsProvider = FutureProvider<Settings?>((ref) async {
 final toggleDarkModeProvider = FutureProvider<void>((ref) async {
   final repo = ref.read(settingsRepositoryProvider);
   await repo.toggleDarkMode();
-  
+
   // Rafraîchir les données brutes
   ref.invalidate(settingsProvider);
   // Rafraîchir l'UI du thème (provoque un rebuild de toute l'app)
@@ -29,19 +30,26 @@ final toggleDarkModeProvider = FutureProvider<void>((ref) async {
 });
 
 // Changer la couleur principale
-final setPrimaryColorProvider = FutureProvider.family<void, int>((ref, color) async {
+final setPrimaryColorProvider = FutureProvider.family<void, int>((
+  ref,
+  color,
+) async {
   final repo = ref.read(settingsRepositoryProvider);
   await repo.setPrimaryColor(color);
-  
+
   ref.invalidate(settingsProvider);
   ref.invalidate(loadThemeProvider);
 });
 
 // Changer le premier jour de la semaine
-final setFirstDayWeekProvider = FutureProvider.family<void, int>((ref, day) async {
+final setFirstDayWeekProvider = FutureProvider.family<void, int>((
+  ref,
+  day,
+) async {
   final repo = ref.read(settingsRepositoryProvider);
   await repo.setFirstDayOfWeek(day);
   ref.invalidate(settingsProvider);
+  ref.invalidate(firstDayOfWeekProvider);
 });
 
 // Basculer les notifications

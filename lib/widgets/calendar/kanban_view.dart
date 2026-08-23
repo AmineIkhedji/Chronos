@@ -25,7 +25,8 @@ class KanbanView extends ConsumerWidget {
             return categoriesAsync.when(
               data: (categories) {
                 final categoryColors = <int, Color>{
-                  for (final cat in categories) cat.idCategory: Color(cat.color),
+                  for (final cat in categories)
+                    cat.idCategory: Color(cat.color),
                 };
                 final categoryNames = <int, String>{
                   for (final cat in categories) cat.idCategory: cat.name,
@@ -38,14 +39,18 @@ class KanbanView extends ConsumerWidget {
                     // peu de statuts sur un écran large. On scroll horizontalement
                     // au lieu d'étirer les colonnes en Expanded.
                     const columnWidth = 280.0;
-                    final totalColumnsWidth = statuses.length * (columnWidth + 8);
-                    final shouldCenter = totalColumnsWidth < constraints.maxWidth;
+                    final totalColumnsWidth =
+                        statuses.length * (columnWidth + 8);
+                    final shouldCenter =
+                        totalColumnsWidth < constraints.maxWidth;
 
                     final row = Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: statuses.map((status) {
-                        final statusTasks = tasks.where((t) => t.idStatus == status.idStatus).toList();
+                        final statusTasks = tasks
+                            .where((t) => t.idStatus == status.idStatus)
+                            .toList();
 
                         return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -72,7 +77,9 @@ class KanbanView extends ConsumerWidget {
                       child: row,
                     );
 
-                    return shouldCenter ? Center(child: scrollable) : scrollable;
+                    return shouldCenter
+                        ? Center(child: scrollable)
+                        : scrollable;
                   },
                 );
               },
@@ -89,7 +96,11 @@ class KanbanView extends ConsumerWidget {
     );
   }
 
-  Future<void> _updateTaskStatus(WidgetRef ref, Task task, int newStatusId) async {
+  Future<void> _updateTaskStatus(
+    WidgetRef ref,
+    Task task,
+    int newStatusId,
+  ) async {
     final repo = ref.read(taskRepositoryProvider);
     task.idStatus = newStatusId;
     await repo.updateTask(task);
@@ -111,8 +122,8 @@ class KanbanView extends ConsumerWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final statusColor = StatusColors.getColor(status.idStatus);
-    final borderColor = isDark 
-        ? const Color(0xFF334155) 
+    final borderColor = isDark
+        ? const Color(0xFF334155)
         : const Color(0xFFE2E8F0);
 
     return DragTarget<int>(
@@ -122,8 +133,8 @@ class KanbanView extends ConsumerWidget {
             color: theme.cardColor,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: candidateData.isNotEmpty 
-                  ? statusColor 
+              color: candidateData.isNotEmpty
+                  ? statusColor
                   : borderColor.withOpacity(0.5),
               width: candidateData.isNotEmpty ? 2 : 1,
             ),
@@ -135,7 +146,9 @@ class KanbanView extends ConsumerWidget {
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: statusColor.withOpacity(0.1),
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(16),
+                  ),
                   border: Border(
                     bottom: BorderSide(color: statusColor.withOpacity(0.3)),
                   ),
@@ -161,7 +174,10 @@ class KanbanView extends ConsumerWidget {
                     ),
                     const Spacer(),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: statusColor,
                         borderRadius: BorderRadius.circular(12),
@@ -190,7 +206,7 @@ class KanbanView extends ConsumerWidget {
                   },
                   builder: (context, candidateData, rejectedData) {
                     return Container(
-                      color: candidateData.isNotEmpty 
+                      color: candidateData.isNotEmpty
                           ? statusColor.withOpacity(0.1)
                           : null,
                       child: ListView.builder(
@@ -233,12 +249,12 @@ class KanbanView extends ConsumerWidget {
   }) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final categoryColor = categoryColors[task.idCategory] ?? Colors.grey;
+    final categoryColor = Color(task.color);
     final categoryName = categoryNames[task.idCategory] ?? 'Catégorie';
     final priorityColor = PriorityColors.getColor(task.idPriority);
     final priorityLabel = PriorityColors.getLabel(task.idPriority);
-    final borderColor = isDark 
-        ? const Color(0xFF334155) 
+    final borderColor = isDark
+        ? const Color(0xFF334155)
         : const Color(0xFFE2E8F0);
 
     return Draggable<int>(
@@ -291,28 +307,28 @@ class KanbanView extends ConsumerWidget {
           );
         },
         child: Container(
-        margin: const EdgeInsets.only(bottom: 8),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: borderColor.withOpacity(0.5)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: _buildTaskCardContent(
-          context,
-          task: task,
-          categoryColor: categoryColor,
-          categoryName: categoryName,
-          priorityColor: priorityColor,
-          priorityLabel: priorityLabel,
-        ),
+          margin: const EdgeInsets.only(bottom: 8),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: borderColor.withOpacity(0.5)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: _buildTaskCardContent(
+            context,
+            task: task,
+            categoryColor: categoryColor,
+            categoryName: categoryName,
+            priorityColor: priorityColor,
+            priorityLabel: priorityLabel,
+          ),
         ),
       ),
     );
@@ -372,11 +388,7 @@ class KanbanView extends ConsumerWidget {
         // Priorité
         Row(
           children: [
-            Icon(
-              Icons.flag_rounded,
-              size: 12,
-              color: priorityColor,
-            ),
+            Icon(Icons.flag_rounded, size: 12, color: priorityColor),
             const SizedBox(width: 4),
             Text(
               priorityLabel,
