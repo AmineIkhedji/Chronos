@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:flutter/services.dart';
 
 import 'database/app_database.dart';
 import 'services/initialization_service.dart';
@@ -43,6 +44,12 @@ void main() async {
 
   // Initialiser le formatage des dates pour le français
   await initializeDateFormatting('fr_FR', null);
+
+  // L'application reste toujours en orientation portrait.
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
   
   runApp(const ProviderScope(child: ChronosApp()));
 }
