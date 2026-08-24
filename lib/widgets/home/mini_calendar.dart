@@ -5,9 +5,7 @@ import '../../providers/task_providers.dart';
 import '../bottom_navigation_bar.dart';
 import '../theme/theme_colors.dart';
 import '../theme/theme_provider.dart';
-import '../../providers/repository_providers.dart';
 import '../../models/task.dart';
-import '../../models/category.dart';
 
 class MiniCalendar extends ConsumerWidget {
   const MiniCalendar({super.key});
@@ -33,14 +31,6 @@ class MiniCalendar extends ConsumerWidget {
       },
       child: tasksAsync.when(
         data: (allTasks) {
-          return FutureBuilder<List<Category>>(
-            future: ref.read(categoryRepositoryProvider).getAllCategories(),
-            builder: (context, categorySnapshot) {
-              final categories = categorySnapshot.data ?? [];
-              final categoryColors = <int, Color>{
-                for (final cat in categories) cat.idCategory: Color(cat.color),
-              };
-
               // Générer les 7 jours à partir d'aujourd'hui
               final daysToShow = List.generate(7, (index) {
                 return DateTime(now.year, now.month, now.day + index);
@@ -93,13 +83,11 @@ class MiniCalendar extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      _buildTaskIndicators(dayTasks, categoryColors),
+                      _buildTaskIndicators(dayTasks),
                     ],
                   );
                 }).toList(),
               );
-            },
-          );
         },
         loading: () => Center(
           child: CircularProgressIndicator(color: theme.primaryColor),
@@ -116,7 +104,7 @@ class MiniCalendar extends ConsumerWidget {
     return days[weekday - 1];
   }
 
-  Widget _buildTaskIndicators(List<Task> tasks, Map<int, Color> categoryColors) {
+  Widget _buildTaskIndicators(List<Task> tasks) {
     if (tasks.isEmpty) return const SizedBox(height: 6);
 
     final visibleTasks = tasks.take(2).toList();
@@ -127,13 +115,12 @@ class MiniCalendar extends ConsumerWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         ...visibleTasks.map((task) {
-          final taskColor = categoryColors[task.idCategory] ?? Colors.grey;
           return Container(
             width: 6,
             height: 6,
             margin: const EdgeInsets.symmetric(horizontal: 1),
             decoration: BoxDecoration(
-              color: taskColor,
+              color: Color(task.color),
               shape: BoxShape.circle,
             ),
           );

@@ -272,4 +272,10 @@ class TaskRepository {
     
     return result;
   }
+  Future<Status?> getStatusByName(String name) async {
+    return await AppDatabase.isar.status
+      .filter()
+      .nameEqualTo(name)
+      .findFirst();
+  }
 }

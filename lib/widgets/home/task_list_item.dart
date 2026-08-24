@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:chronos/models/task.dart';
 import '../../utils/date_formatters.dart';
-import '../../utils/priority_colors.dart';
 
 class TaskListItem extends StatelessWidget {
   final Task task;
@@ -26,8 +25,11 @@ class TaskListItem extends StatelessWidget {
         ? const Color(0xFF94A3B8)
         : const Color(0xFF64748B);
     final isCompleted = task.isCompleted;
-    final priorityColor = PriorityColors.getColor(task.idPriority);
-    final timeRange = DateFormatters.formatTimeRange(task.startTime, task.endTime);
+    final taskColor = Color(task.color);
+    final timeRange = DateFormatters.formatTimeRange(
+      task.startTime,
+      task.endTime,
+    );
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -74,14 +76,14 @@ class TaskListItem extends StatelessWidget {
                           theme,
                           textColorSecondary,
                           isCompleted,
-                          priorityColor,
+                          taskColor,
                           timeRange,
                         )
                       : _buildRegularContent(
                           theme,
                           textColorSecondary,
                           isCompleted,
-                          priorityColor,
+                          taskColor,
                           timeRange,
                         ),
                 ),
@@ -97,7 +99,7 @@ class TaskListItem extends StatelessWidget {
     ThemeData theme,
     Color textColorSecondary,
     bool isCompleted,
-    Color priorityColor,
+    Color taskColor,
     String timeRange,
   ) {
     return Column(
@@ -113,8 +115,9 @@ class TaskListItem extends StatelessWidget {
             ),
             fontSize: 16,
             fontWeight: FontWeight.w500,
-            decoration:
-                isCompleted ? TextDecoration.lineThrough : TextDecoration.none,
+            decoration: isCompleted
+                ? TextDecoration.lineThrough
+                : TextDecoration.none,
           ),
         ),
         const SizedBox(height: 4),
@@ -124,7 +127,7 @@ class TaskListItem extends StatelessWidget {
               width: 8,
               height: 8,
               decoration: BoxDecoration(
-                color: priorityColor,
+                color: taskColor,
                 shape: BoxShape.circle,
               ),
             ),
@@ -152,7 +155,7 @@ class TaskListItem extends StatelessWidget {
     ThemeData theme,
     Color textColorSecondary,
     bool isCompleted,
-    Color priorityColor,
+    Color taskColor,
     String timeRange,
   ) {
     return Column(
@@ -168,8 +171,9 @@ class TaskListItem extends StatelessWidget {
             ),
             fontSize: 14,
             fontWeight: FontWeight.w500,
-            decoration:
-                isCompleted ? TextDecoration.lineThrough : TextDecoration.none,
+            decoration: isCompleted
+                ? TextDecoration.lineThrough
+                : TextDecoration.none,
           ),
         ),
         const SizedBox(height: 4),
@@ -181,16 +185,14 @@ class TaskListItem extends StatelessWidget {
               width: 8,
               height: 8,
               decoration: BoxDecoration(
-                color: priorityColor,
+                color: taskColor,
                 shape: BoxShape.circle,
               ),
             ),
             Text(
               timeRange,
               style: TextStyle(
-                color: textColorSecondary.withOpacity(
-                  isCompleted ? 0.5 : 1.0,
-                ),
+                color: textColorSecondary.withOpacity(isCompleted ? 0.5 : 1.0),
                 fontSize: 12,
               ),
             ),

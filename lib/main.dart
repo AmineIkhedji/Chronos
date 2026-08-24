@@ -18,6 +18,8 @@ import 'widgets/common/loading_indicator.dart';
 import 'views/home_screen.dart';
 import 'views/settings_screen.dart';
 import 'views/calendrier_screen.dart';
+import 'views/stats_screen.dart';
+
 Future<void> _initializeBackgroundServices() async {
   try {
     final notificationService = NotificationService();
@@ -50,7 +52,7 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  
+
   runApp(const ProviderScope(child: ChronosApp()));
 }
 
@@ -101,18 +103,30 @@ class _ChronosAppState extends ConsumerState<ChronosApp> {
 
 // ============ PAGE D'ACCUEIL (CONTENEUR UNIQUE) ============
 
-class HomePage extends ConsumerWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends ConsumerState<HomePage> {
+  static const _tabs = AppTab.values;
+
+  Future<void> _moveToTab(AppTab tab) async {
+    if (ref.read(navigationLoadingProvider)) return;
+    await navigateToTab(ref, tab);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final selectedTab = ref.watch(selectedTabProvider);
-    final theme = Theme.of(context);
+    final isLoading = ref.watch(navigationLoadingProvider);
 
     // Contenu différent selon l'onglet sélectionné
     Widget content;
     String title;
-    
+
     switch (selectedTab) {
       case AppTab.home:
         content = const HomeScreen();
@@ -123,12 +137,7 @@ class HomePage extends ConsumerWidget {
         title = ''; // CalendrierScreen gère son propre header
         break;
       case AppTab.stats:
-        content = Center(
-          child: Text(
-            'Statistiques',
-            style: TextStyle(color: theme.colorScheme.onBackground),
-          ),
-        );
+        content = const StatsScreen();
         title = 'Statistiques';
         break;
       case AppTab.settings:
@@ -141,18 +150,62 @@ class HomePage extends ConsumerWidget {
     final showAppBar = selectedTab == AppTab.stats;
 
     return AppScaffold(
-      appBar: showAppBar 
-        ? CustomAppBar(
-            title: title,
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.search_rounded),
-                onPressed: () {},
-              ),
-            ],
-          )
-        : null,
-      child: content,
+      appBar: showAppBar ? CustomAppBar(title: title) : null,
+      child: GestureDetector(
+        onHorizontalDragEnd: isLoading
+            ? null
+            : (details) {
+                final velocity = details.primaryVelocity ?? 0;
+                if (velocity.abs() < 250) return;
+
+                final currentIndex = _tabs.indexOf(selectedTab);
+                final nextIndex = velocity < 0
+                    ? currentIndex + 1
+                    : currentIndex - 1;
+                if (nextIndex >= 0 && nextIndex < _tabs.length) {
+                  _moveToTab(_tabs[nextIndex]);
+                }
+              },
+        child: isLoading
+            ? const _NavigationSkeleton()
+            : KeyedSubtree(key: ValueKey(selectedTab), child: content),
+      ),
+    );
+  }
+}
+
+class _NavigationSkeleton extends StatelessWidget {
+  const _NavigationSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    final color = Theme.of(context).dividerColor.withOpacity(0.2);
+
+    Widget block(double height, {double? width}) {
+      return Container(
+        width: width ?? double.infinity,
+        height: height,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(10),
+        ),
+      );
+    }
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          block(22, width: 180),
+          const SizedBox(height: 20),
+          block(110),
+          const SizedBox(height: 20),
+          block(180),
+          const SizedBox(height: 20),
+          block(120),
+        ],
+      ),
     );
   }
 }

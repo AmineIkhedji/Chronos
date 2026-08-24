@@ -22,6 +22,23 @@ class TaskDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final taskAsync = ref.watch(taskByIdProvider(task.idTasks));
+
+    return taskAsync.when(
+      data: (currentTask) {
+        if (currentTask == null) {
+          return const Scaffold(body: Center(child: Text('Tâche introuvable')));
+        }
+        return _buildDetails(context, ref, currentTask);
+      },
+      loading: () => _buildSkeleton(context),
+      error: (_, __) => const Scaffold(
+        body: Center(child: Text('Erreur de chargement de la tâche')),
+      ),
+    );
+  }
+
+  Widget _buildDetails(BuildContext context, WidgetRef ref, Task task) {
     final theme = Theme.of(context);
     final textColor = theme.colorScheme.onBackground;
     final textSecondary = theme.colorScheme.onBackground.withOpacity(0.6);
@@ -42,6 +59,8 @@ class TaskDetailScreen extends ConsumerWidget {
                 MaterialPageRoute(builder: (context) => TaskForm(task: task)),
               );
               invalidateTaskProviders(ref);
+              ref.invalidate(taskByIdProvider(task.idTasks));
+              await ref.read(taskByIdProvider(task.idTasks).future);
             },
           ),
           IconButton(
@@ -73,7 +92,9 @@ class TaskDetailScreen extends ConsumerWidget {
                 color: textColor.withOpacity(task.isCompleted ? 0.5 : 1.0),
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                decoration: task.isCompleted ? TextDecoration.lineThrough : null,
+                decoration: task.isCompleted
+                    ? TextDecoration.lineThrough
+                    : null,
               ),
             ),
             const SizedBox(height: 16),
@@ -124,28 +145,28 @@ class TaskDetailScreen extends ConsumerWidget {
                     label: 'Date',
                     value: DateFormatters.formatFullDate(task.date),
                   ),
-                  
+
                   if (task.startTime != null)
                     TaskInfoRow(
                       icon: Icons.access_time_rounded,
                       label: 'Heure de début',
                       value: DateFormatters.formatTime(task.startTime),
                     ),
-                  
+
                   if (task.endTime != null)
                     TaskInfoRow(
                       icon: Icons.access_time_rounded,
                       label: 'Heure de fin',
                       value: DateFormatters.formatTime(task.endTime),
                     ),
-                  
+
                   if (task.startTime == null && task.endTime == null)
                     const TaskInfoRow(
                       icon: Icons.access_time_rounded,
                       label: 'Heures',
                       value: 'Toute la journée',
                     ),
-                  
+
                   _buildCategoryInfoRow(context, ref, task.idCategory),
                   _buildPriorityInfoRow(context, ref, task.idPriority),
                   _buildStatusInfoRow(context, ref, task.idStatus),
@@ -175,12 +196,14 @@ class TaskDetailScreen extends ConsumerWidget {
             Container(
               width: double.infinity,
               decoration: BoxDecoration(
-                color: task.isCompleted ? Colors.green.withOpacity(0.15) : cardColor,
+                color: task.isCompleted
+                    ? Colors.green.withOpacity(0.15)
+                    : cardColor,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: task.isCompleted 
-                    ? Colors.green.withOpacity(0.5) 
-                    : borderColor.withOpacity(0.5),
+                  color: task.isCompleted
+                      ? Colors.green.withOpacity(0.5)
+                      : borderColor.withOpacity(0.5),
                 ),
               ),
               child: InkWell(
@@ -197,15 +220,21 @@ class TaskDetailScreen extends ConsumerWidget {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: task.isCompleted 
-                              ? Colors.green 
-                              : theme.colorScheme.onSurface.withOpacity(0.3),
+                            color: task.isCompleted
+                                ? Colors.green
+                                : theme.colorScheme.onSurface.withOpacity(0.3),
                             width: 2,
                           ),
-                          color: task.isCompleted ? Colors.green : Colors.transparent,
+                          color: task.isCompleted
+                              ? Colors.green
+                              : Colors.transparent,
                         ),
                         child: task.isCompleted
-                            ? const Icon(Icons.check, size: 18, color: Colors.white)
+                            ? const Icon(
+                                Icons.check,
+                                size: 18,
+                                color: Colors.white,
+                              )
                             : null,
                       ),
                       const SizedBox(width: 16),
@@ -214,18 +243,22 @@ class TaskDetailScreen extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              task.isCompleted ? 'Tâche terminée' : 'Marquer comme terminée',
+                              task.isCompleted
+                                  ? 'Tâche terminée'
+                                  : 'Marquer comme terminée',
                               style: TextStyle(
-                                color: task.isCompleted ? Colors.green : textColor,
+                                color: task.isCompleted
+                                    ? Colors.green
+                                    : textColor,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              task.isCompleted 
-                                ? 'Vous avez accompli cette tâche !' 
-                                : 'Cochez pour indiquer que la tâche est accomplie',
+                              task.isCompleted
+                                  ? 'Vous avez accompli cette tâche !'
+                                  : 'Cochez pour indiquer que la tâche est accomplie',
                               style: TextStyle(
                                 color: textSecondary,
                                 fontSize: 13,
@@ -247,11 +280,49 @@ class TaskDetailScreen extends ConsumerWidget {
     );
   }
 
+  Widget _buildSkeleton(BuildContext context) {
+    final color = Theme.of(context).dividerColor.withOpacity(0.2);
+
+    Widget block(double height, {double? width}) {
+      return Container(
+        width: width ?? double.infinity,
+        height: height,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(8),
+        ),
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Détails de la tâche')),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            block(24, width: 150),
+            const SizedBox(height: 24),
+            block(30, width: 260),
+            const SizedBox(height: 16),
+            block(100),
+            const SizedBox(height: 20),
+            block(180),
+          ],
+        ),
+      ),
+    );
+  }
+
   // ============ MÉTHODES D'AFFICHAGE DES RELATIONS ============
 
-  Widget _buildCategoryInfoRow(BuildContext context, WidgetRef ref, int categoryId) {
+  Widget _buildCategoryInfoRow(
+    BuildContext context,
+    WidgetRef ref,
+    int categoryId,
+  ) {
     final categoryRepo = ref.read(categoryRepositoryProvider);
-    
+
     return FutureBuilder<Category?>(
       future: categoryRepo.getCategoryById(categoryId),
       builder: (context, snapshot) {
@@ -265,9 +336,13 @@ class TaskDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildPriorityInfoRow(BuildContext context, WidgetRef ref, int priorityId) {
+  Widget _buildPriorityInfoRow(
+    BuildContext context,
+    WidgetRef ref,
+    int priorityId,
+  ) {
     final priorityRepo = ref.read(priorityRepositoryProvider);
-    
+
     return FutureBuilder<Priority?>(
       future: priorityRepo.getPriorityById(priorityId),
       builder: (context, snapshot) {
@@ -281,9 +356,13 @@ class TaskDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatusInfoRow(BuildContext context, WidgetRef ref, int statusId) {
+  Widget _buildStatusInfoRow(
+    BuildContext context,
+    WidgetRef ref,
+    int statusId,
+  ) {
     final statusRepo = ref.read(statusRepositoryProvider);
-    
+
     return FutureBuilder<Status?>(
       future: statusRepo.getStatusById(statusId),
       builder: (context, snapshot) {
@@ -299,35 +378,50 @@ class TaskDetailScreen extends ConsumerWidget {
 
   // ============ RAPPELS ============
 
-  Widget _buildRemindersSection(BuildContext context, WidgetRef ref, Task task) {
-    final notificationsProvider = ref.watch(notificationsForTaskProvider(task.idTasks));
-    
+  Widget _buildRemindersSection(
+    BuildContext context,
+    WidgetRef ref,
+    Task task,
+  ) {
+    final notificationsProvider = ref.watch(
+      notificationsForTaskProvider(task.idTasks),
+    );
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Theme.of(context).dividerColor.withOpacity(0.5)),
+        border: Border.all(
+          color: Theme.of(context).dividerColor.withOpacity(0.5),
+        ),
       ),
       child: notificationsProvider.when(
         data: (notifications) {
           if (notifications.isEmpty) {
             return Row(
               children: [
-                Icon(Icons.notifications_none_rounded, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
+                Icon(
+                  Icons.notifications_none_rounded,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withOpacity(0.6),
+                ),
                 const SizedBox(width: 12),
                 Text(
                   'Aucun rappel actif',
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onBackground.withOpacity(0.6),
                     fontSize: 14,
                   ),
                 ),
               ],
             );
           }
-          
+
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: notifications.map((notif) {
@@ -335,7 +429,11 @@ class TaskDetailScreen extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: Row(
                   children: [
-                    Icon(Icons.notifications_active_rounded, color: Theme.of(context).primaryColor, size: 20),
+                    Icon(
+                      Icons.notifications_active_rounded,
+                      color: Theme.of(context).primaryColor,
+                      size: 20,
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
@@ -351,7 +449,9 @@ class TaskDetailScreen extends ConsumerWidget {
                       onPressed: () async {
                         final controller = ref.read(taskControllerProvider);
                         await controller.cancelAllReminders(task.idTasks);
-                        ref.invalidate(notificationsForTaskProvider(task.idTasks));
+                        ref.invalidate(
+                          notificationsForTaskProvider(task.idTasks),
+                        );
                       },
                     ),
                   ],
@@ -363,7 +463,9 @@ class TaskDetailScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (_, __) => Text(
           'Erreur de chargement',
-          style: TextStyle(color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6)),
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+          ),
         ),
       ),
     );
@@ -384,9 +486,9 @@ class TaskDetailScreen extends ConsumerWidget {
       try {
         final controller = ref.read(taskControllerProvider);
         await controller.deleteTask(task.idTasks);
-        
+
         invalidateTaskProviders(ref);
-        
+
         if (context.mounted) {
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
