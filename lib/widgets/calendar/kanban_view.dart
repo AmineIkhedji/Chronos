@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/task_providers.dart' hide tasksForPeriodProvider;
 import '../../providers/calendar_providers.dart';
-import '../../providers/repository_providers.dart';
+import '../../controllers/task_controller.dart';
 import '../../models/task.dart';
 import '../../models/status.dart';
 import '../../utils/priority_colors.dart';
@@ -101,9 +101,9 @@ class KanbanView extends ConsumerWidget {
     Task task,
     int newStatusId,
   ) async {
-    final repo = ref.read(taskRepositoryProvider);
+    final controller = TaskController();
     task.idStatus = newStatusId;
-    await repo.updateTask(task);
+    await controller.updateTask(task);
     ref.invalidate(todayTasksProvider);
     ref.invalidate(todayTasksProvider);
     ref.invalidate(tasksForPeriodProvider);

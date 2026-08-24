@@ -63,7 +63,14 @@ class TaskController {
   }
 
   Future<void> updateTask(Task task) async {
+    final previousTask = await _taskRepo.getTaskById(task.idTasks);
     await _taskRepo.updateTask(task);
+
+    if (previousTask != null &&
+        !previousTask.isCompleted &&
+        task.isCompleted) {
+      await _notificationService.showTaskCompletedNotification(task.title);
+    }
   }
 
   Future<void> deleteTask(int id) async {

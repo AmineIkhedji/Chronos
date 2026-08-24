@@ -273,11 +273,12 @@ typedef ToggleTaskCompletion = Future<void> Function(Task task);
 
 final toggleTaskCompletionProvider = Provider<ToggleTaskCompletion>((ref) {
   return (Task task) async {
-    final repo = ref.read(taskRepositoryProvider);
     final controller = ref.read(taskControllerProvider);
 
     task.idStatus = task.isCompleted ? 1 : 3;
-    await repo.updateTask(task);
+    await controller.updateTask(task);
+    ref.invalidate(taskByIdProvider(task.idTasks));
+    await ref.read(taskByIdProvider(task.idTasks).future);
 
     if (task.isCompleted) {
       await controller.cancelAllReminders(task.idTasks);
