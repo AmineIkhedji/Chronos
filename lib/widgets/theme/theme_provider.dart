@@ -1,6 +1,7 @@
 // lib/widgets/theme/theme_provider.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../services/initialization_service.dart';
 import '../../repositories/settings_repository.dart';
 import 'theme_colors.dart';
 
@@ -20,6 +21,7 @@ final userColorProvider = StateProvider<String>((ref) {
 
 // Ce provider charge les données depuis la base et met à jour les providers UI
 final loadThemeProvider = FutureProvider<void>((ref) async {
+  await ref.watch(appInitializationProvider.future);
   final repo = SettingsRepository();
   final settings = await repo.getSettings();
   
