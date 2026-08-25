@@ -105,7 +105,6 @@ class KanbanView extends ConsumerWidget {
     task.idStatus = newStatusId;
     await controller.updateTask(task);
     ref.invalidate(todayTasksProvider);
-    ref.invalidate(todayTasksProvider);
     ref.invalidate(tasksForPeriodProvider);
     ref.invalidate(tasksForMonthProvider);
   }
@@ -126,7 +125,7 @@ class KanbanView extends ConsumerWidget {
         ? const Color(0xFF334155)
         : const Color(0xFFE2E8F0);
 
-    return DragTarget<int>(
+    return DragTarget<Task>(
       builder: (context, candidateData, rejectedData) {
         return Container(
           decoration: BoxDecoration(
@@ -196,13 +195,10 @@ class KanbanView extends ConsumerWidget {
               ),
               // Liste des tâches (zone de drop)
               Expanded(
-                child: DragTarget<int>(
+                child: DragTarget<Task>(
                   onWillAcceptWithDetails: (details) => true,
                   onAcceptWithDetails: (details) {
-                    onTaskDropped(
-                      _getTaskById(ref, details.data),
-                      status.idStatus,
-                    );
+                    onTaskDropped(details.data, status.idStatus);
                   },
                   builder: (context, candidateData, rejectedData) {
                     return Container(
@@ -234,12 +230,6 @@ class KanbanView extends ConsumerWidget {
     );
   }
 
-  Task _getTaskById(WidgetRef ref, int taskId) {
-    // Récupérer la tâche depuis le provider
-    final tasks = ref.read(todayTasksProvider).value ?? [];
-    return tasks.firstWhere((t) => t.idTasks == taskId);
-  }
-
   Widget _buildTaskCard(
     BuildContext context,
     WidgetRef ref, {
@@ -257,8 +247,8 @@ class KanbanView extends ConsumerWidget {
         ? const Color(0xFF334155)
         : const Color(0xFFE2E8F0);
 
-    return Draggable<int>(
-      data: task.idTasks,
+    return Draggable<Task>(
+      data: task,
       feedback: Material(
         color: Colors.transparent,
         child: Container(

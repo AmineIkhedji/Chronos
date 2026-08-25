@@ -34,6 +34,7 @@ class _HabitFormState extends ConsumerState<HabitForm> {
   // Mode de répétition : 'daily' = tous les jours, 'specific' = jours spécifiques
   String _repeatMode = 'daily';
   Set<int> _selectedDays = {};
+  Set<int> _specificDays = {};
 
   List<Category> _categories = [];
   bool _isLoading = false;
@@ -73,6 +74,7 @@ class _HabitFormState extends ConsumerState<HabitForm> {
     if (mounted) {
       setState(() {
         _selectedDays = Set.from(days);
+        _specificDays = Set.from(days);
         _repeatMode = days.length == 7 ? 'daily' : 'specific';
       });
     }
@@ -119,7 +121,8 @@ class _HabitFormState extends ConsumerState<HabitForm> {
                       controller: _titleController,
                       decoration: const InputDecoration(
                         labelText: 'Titre *',
-                        hintText: 'Entrez le titre de l\'habitude (3-100 caractères)',
+                        hintText:
+                            'Entrez le titre de l\'habitude (3-100 caractères)',
                         border: OutlineInputBorder(),
                         counterText: '',
                       ),
@@ -133,7 +136,8 @@ class _HabitFormState extends ConsumerState<HabitForm> {
                       controller: _descriptionController,
                       decoration: const InputDecoration(
                         labelText: 'Description',
-                        hintText: 'Décrivez l\'habitude (optionnel, max 500 caractères)',
+                        hintText:
+                            'Décrivez l\'habitude (optionnel, max 500 caractères)',
                         border: OutlineInputBorder(),
                         counterText: '',
                       ),
@@ -169,7 +173,8 @@ class _HabitFormState extends ConsumerState<HabitForm> {
                           ),
                         );
                       }).toList(),
-                      onChanged: (value) => setState(() => _selectedCategoryId = value),
+                      onChanged: (value) =>
+                          setState(() => _selectedCategoryId = value),
                       validator: Validators.validateCategory,
                     ),
                     const SizedBox(height: 16),
@@ -185,7 +190,8 @@ class _HabitFormState extends ConsumerState<HabitForm> {
                     const SizedBox(height: 8),
                     ColorSelector(
                       selectedColor: _color,
-                      onColorSelected: (color) => setState(() => _color = color),
+                      onColorSelected: (color) =>
+                          setState(() => _color = color),
                     ),
                     const SizedBox(height: 24),
 
@@ -204,10 +210,18 @@ class _HabitFormState extends ConsumerState<HabitForm> {
                       selectedDays: _selectedDays,
                       selectedColor: _color,
                       onRepeatModeChanged: (mode) {
+                        final previousMode = _repeatMode;
                         setState(() {
                           _repeatMode = mode;
                           if (mode == 'daily') {
+                            if (previousMode == 'specific') {
+                              _specificDays = Set.from(_selectedDays);
+                            }
                             _selectedDays = {1, 2, 3, 4, 5, 6, 7};
+                          } else {
+                            _selectedDays = _specificDays.isEmpty
+                                ? Set.from(_selectedDays)
+                                : Set.from(_specificDays);
                           }
                         });
                       },
@@ -217,6 +231,9 @@ class _HabitFormState extends ConsumerState<HabitForm> {
                             _selectedDays.remove(day);
                           } else {
                             _selectedDays.add(day);
+                          }
+                          if (_repeatMode == 'specific') {
+                            _specificDays = Set.from(_selectedDays);
                           }
                         });
                       },
@@ -235,9 +252,12 @@ class _HabitFormState extends ConsumerState<HabitForm> {
                     const SizedBox(height: 8),
                     SwitchListTile(
                       title: const Text('Activer le rappel'),
-                      subtitle: const Text('Recevez une notification à l\'heure de l\'habitude'),
+                      subtitle: const Text(
+                        'Recevez une notification à l\'heure de l\'habitude',
+                      ),
                       value: _enableReminder,
-                      onChanged: (value) => setState(() => _enableReminder = value),
+                      onChanged: (value) =>
+                          setState(() => _enableReminder = value),
                     ),
 
                     if (_enableReminder) ...[
@@ -245,7 +265,8 @@ class _HabitFormState extends ConsumerState<HabitForm> {
                       TimePickerField(
                         value: _reminderTime,
                         label: 'Heure du rappel',
-                        onTimeSelected: (time) => setState(() => _reminderTime = time),
+                        onTimeSelected: (time) =>
+                            setState(() => _reminderTime = time),
                       ),
                     ],
 
@@ -339,6 +360,10 @@ class _HabitFormState extends ConsumerState<HabitForm> {
           : _selectedDays.toList();
 
       await _habitController.saveHabitWithDays(habit, daysToSave);
+
+      if (widget.habit != null) {
+        await _habitController.cancelAllReminders(habit.idHabit);
+      }
 
       if (_enableReminder) {
         await _habitController.scheduleHabitReminders(

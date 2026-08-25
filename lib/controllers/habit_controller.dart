@@ -16,9 +16,11 @@ class HabitController {
 
   String? validateTitle(String? value) => Validators.validateTitle(value);
 
-  String? validateDescription(String? value) => Validators.validateDescription(value);
+  String? validateDescription(String? value) =>
+      Validators.validateDescription(value);
 
-  String? validateCategory(int? categoryId) => Validators.validateCategory(categoryId);
+  String? validateCategory(int? categoryId) =>
+      Validators.validateCategory(categoryId);
 
   String? validateDays(Set<int> days) => Validators.validateDays(days);
 
@@ -33,6 +35,7 @@ class HabitController {
   }
 
   Future<void> deleteHabit(int id) async {
+    await cancelAllReminders(id);
     await _habitRepo.deleteHabit(id);
   }
 
@@ -71,7 +74,9 @@ class HabitController {
   }
 
   Future<void> cancelAllReminders(int habitId) async {
-    final notifications = await _notificationService.getNotificationsForHabit(habitId);
+    final notifications = await _notificationService.getNotificationsForHabit(
+      habitId,
+    );
     for (final notif in notifications) {
       await _notificationService.cancelNotification(notif.idNotif);
     }

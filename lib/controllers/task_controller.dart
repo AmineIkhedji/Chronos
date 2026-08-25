@@ -22,11 +22,14 @@ class TaskController {
 
   String? validateTitle(String? value) => Validators.validateTitle(value);
 
-  String? validateDescription(String? value) => Validators.validateDescription(value);
+  String? validateDescription(String? value) =>
+      Validators.validateDescription(value);
 
-  String? validateCategory(int? categoryId) => Validators.validateCategory(categoryId);
+  String? validateCategory(int? categoryId) =>
+      Validators.validateCategory(categoryId);
 
-  String? validatePriority(int? priorityId) => Validators.validatePriority(priorityId);
+  String? validatePriority(int? priorityId) =>
+      Validators.validatePriority(priorityId);
 
   String? validateStatus(int? statusId) => Validators.validateStatus(statusId);
 
@@ -66,14 +69,13 @@ class TaskController {
     final previousTask = await _taskRepo.getTaskById(task.idTasks);
     await _taskRepo.updateTask(task);
 
-    if (previousTask != null &&
-        !previousTask.isCompleted &&
-        task.isCompleted) {
+    if (previousTask != null && !previousTask.isCompleted && task.isCompleted) {
       await _notificationService.showTaskCompletedNotification(task.title);
     }
   }
 
   Future<void> deleteTask(int id) async {
+    await cancelAllReminders(id);
     await _taskRepo.deleteTask(id);
   }
 
@@ -100,7 +102,7 @@ class TaskController {
     if (task.startTime == null) {
       throw Exception('Impossible de planifier un rappel sans heure de début');
     }
-    
+
     final remindAt = task.startTime!.subtract(Duration(minutes: minutesBefore));
     await _notificationService.scheduleTaskReminder(
       task.idTasks,

@@ -1,9 +1,9 @@
 // lib/views/habits_management_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../controllers/habit_controller.dart';
 import '../models/habit.dart';
 import '../providers/habit_providers.dart';
-import '../providers/repository_providers.dart';
 import '../views/habit_form.dart';
 import '../widgets/common/empty_state.dart';
 import '../widgets/common/loading_indicator.dart';
@@ -108,8 +108,7 @@ class HabitsManagementScreen extends ConsumerWidget {
     );
 
     if (confirmed) {
-      final repo = ref.read(habitRepositoryProvider);
-      await repo.deleteHabit(habit.idHabit);
+      await HabitController().deleteHabit(habit.idHabit);
       ref.invalidate(allHabitsManagementProvider);
       ref.invalidate(todayHabitsProvider);
     }

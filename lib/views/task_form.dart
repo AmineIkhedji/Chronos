@@ -27,7 +27,7 @@ class _TaskFormState extends ConsumerState<TaskForm> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _taskController = TaskController();
-  
+
   DateTime _date = DateTime.now();
   TimeOfDay? _startTime;
   TimeOfDay? _endTime;
@@ -35,10 +35,10 @@ class _TaskFormState extends ConsumerState<TaskForm> {
   int? _selectedCategoryId;
   int? _selectedPriorityId;
   int? _selectedStatusId;
-  
+
   bool _hasStartTime = false;
   bool _hasEndTime = false;
-  
+
   bool _enableReminder = false;
   int _reminderMinutesBefore = 15;
 
@@ -84,17 +84,17 @@ class _TaskFormState extends ConsumerState<TaskForm> {
     _titleController.text = task.title;
     _descriptionController.text = task.description;
     _date = task.date;
-    
+
     if (task.startTime != null) {
       _startTime = TimeOfDay.fromDateTime(task.startTime!);
       _hasStartTime = true;
     }
-    
+
     if (task.endTime != null) {
       _endTime = TimeOfDay.fromDateTime(task.endTime!);
       _hasEndTime = true;
     }
-    
+
     _color = task.color;
     _selectedCategoryId = task.idCategory;
     _selectedPriorityId = task.idPriority;
@@ -114,7 +114,9 @@ class _TaskFormState extends ConsumerState<TaskForm> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.task == null ? 'Nouvelle tâche' : 'Modifier la tâche'),
+        title: Text(
+          widget.task == null ? 'Nouvelle tâche' : 'Modifier la tâche',
+        ),
         actions: [
           if (widget.task != null)
             IconButton(
@@ -142,7 +144,8 @@ class _TaskFormState extends ConsumerState<TaskForm> {
                       controller: _titleController,
                       decoration: const InputDecoration(
                         labelText: 'Titre *',
-                        hintText: 'Entrez le titre de la tâche (3-100 caractères)',
+                        hintText:
+                            'Entrez le titre de la tâche (3-100 caractères)',
                         border: OutlineInputBorder(),
                         counterText: '',
                       ),
@@ -156,7 +159,8 @@ class _TaskFormState extends ConsumerState<TaskForm> {
                       controller: _descriptionController,
                       decoration: const InputDecoration(
                         labelText: 'Description',
-                        hintText: 'Décrivez la tâche (optionnel, max 500 caractères)',
+                        hintText:
+                            'Décrivez la tâche (optionnel, max 500 caractères)',
                         border: OutlineInputBorder(),
                         counterText: '',
                       ),
@@ -190,7 +194,8 @@ class _TaskFormState extends ConsumerState<TaskForm> {
                       TimePickerField(
                         value: _startTime,
                         label: 'Heure de début',
-                        onTimeSelected: (time) => setState(() => _startTime = time),
+                        onTimeSelected: (time) =>
+                            setState(() => _startTime = time),
                       ),
                     ],
                     const SizedBox(height: 16),
@@ -211,7 +216,8 @@ class _TaskFormState extends ConsumerState<TaskForm> {
                       TimePickerField(
                         value: _endTime,
                         label: 'Heure de fin',
-                        onTimeSelected: (time) => setState(() => _endTime = time),
+                        onTimeSelected: (time) =>
+                            setState(() => _endTime = time),
                       ),
                     ],
                     const SizedBox(height: 16),
@@ -242,7 +248,8 @@ class _TaskFormState extends ConsumerState<TaskForm> {
                           ),
                         );
                       }).toList(),
-                      onChanged: (value) => setState(() => _selectedCategoryId = value),
+                      onChanged: (value) =>
+                          setState(() => _selectedCategoryId = value),
                       validator: Validators.validateCategory,
                     ),
                     const SizedBox(height: 16),
@@ -273,7 +280,8 @@ class _TaskFormState extends ConsumerState<TaskForm> {
                           ),
                         );
                       }).toList(),
-                      onChanged: (value) => setState(() => _selectedPriorityId = value),
+                      onChanged: (value) =>
+                          setState(() => _selectedPriorityId = value),
                       validator: Validators.validatePriority,
                     ),
                     const SizedBox(height: 16),
@@ -304,7 +312,8 @@ class _TaskFormState extends ConsumerState<TaskForm> {
                           ),
                         );
                       }).toList(),
-                      onChanged: (value) => setState(() => _selectedStatusId = value),
+                      onChanged: (value) =>
+                          setState(() => _selectedStatusId = value),
                       validator: Validators.validateStatus,
                     ),
                     const SizedBox(height: 24),
@@ -320,7 +329,8 @@ class _TaskFormState extends ConsumerState<TaskForm> {
                     const SizedBox(height: 8),
                     ColorSelector(
                       selectedColor: _color,
-                      onColorSelected: (color) => setState(() => _color = color),
+                      onColorSelected: (color) =>
+                          setState(() => _color = color),
                     ),
                     const SizedBox(height: 24),
 
@@ -335,14 +345,18 @@ class _TaskFormState extends ConsumerState<TaskForm> {
                     const SizedBox(height: 8),
                     SwitchListTile(
                       title: const Text('Activer le rappel'),
-                      subtitle: const Text('Recevez une notification avant la tâche'),
+                      subtitle: const Text(
+                        'Recevez une notification avant la tâche',
+                      ),
                       value: _enableReminder,
                       onChanged: (value) {
                         setState(() {
                           _enableReminder = value;
                           if (value && !_hasStartTime) {
                             _hasStartTime = true;
-                            _startTime = _startTime ?? const TimeOfDay(hour: 9, minute: 0);
+                            _startTime =
+                                _startTime ??
+                                const TimeOfDay(hour: 9, minute: 0);
                           }
                         });
                       },
@@ -356,16 +370,24 @@ class _TaskFormState extends ConsumerState<TaskForm> {
                           decoration: BoxDecoration(
                             color: Colors.orange.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                            border: Border.all(
+                              color: Colors.orange.withOpacity(0.3),
+                            ),
                           ),
                           child: Row(
                             children: [
-                              Icon(Icons.warning_amber_rounded, color: Colors.orange),
+                              Icon(
+                                Icons.warning_amber_rounded,
+                                color: Colors.orange,
+                              ),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
                                   'Un rappel nécessite une heure de début',
-                                  style: TextStyle(color: Colors.orange[800], fontSize: 13),
+                                  style: TextStyle(
+                                    color: Colors.orange[800],
+                                    fontSize: 13,
+                                  ),
                                 ),
                               ),
                             ],
@@ -380,7 +402,8 @@ class _TaskFormState extends ConsumerState<TaskForm> {
                           prefixIcon: Icon(Icons.notifications_active_rounded),
                         ),
                         items: _taskController.getReminderOptions(),
-                        onChanged: (value) => setState(() => _reminderMinutesBefore = value!),
+                        onChanged: (value) =>
+                            setState(() => _reminderMinutesBefore = value!),
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -415,9 +438,9 @@ class _TaskFormState extends ConsumerState<TaskForm> {
     if (confirmed) {
       try {
         await _taskController.deleteTask(widget.task!.idTasks);
-        
+
         invalidateTaskProviders(ref);
-        
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -448,17 +471,29 @@ class _TaskFormState extends ConsumerState<TaskForm> {
 
     // Validation supplémentaire des heures
     final startDateTime = _hasStartTime && _startTime != null
-        ? DateTime(_date.year, _date.month, _date.day, _startTime!.hour, _startTime!.minute)
+        ? DateTime(
+            _date.year,
+            _date.month,
+            _date.day,
+            _startTime!.hour,
+            _startTime!.minute,
+          )
         : null;
     final endDateTime = _hasEndTime && _endTime != null
-        ? DateTime(_date.year, _date.month, _date.day, _endTime!.hour, _endTime!.minute)
+        ? DateTime(
+            _date.year,
+            _date.month,
+            _date.day,
+            _endTime!.hour,
+            _endTime!.minute,
+          )
         : null;
 
     // Vérifier que la tâche n'est pas dans le passé
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final taskDate = DateTime(_date.year, _date.month, _date.day);
-    
+
     if (taskDate.isBefore(today)) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -470,14 +505,16 @@ class _TaskFormState extends ConsumerState<TaskForm> {
       }
       return;
     }
-    
+
     // Si la tâche est aujourd'hui, vérifier que l'heure n'est pas passée
     if (taskDate == today) {
       if (startDateTime != null && startDateTime.isBefore(DateTime.now())) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('⚠️ Impossible de créer une tâche avec une heure passée'),
+              content: Text(
+                '⚠️ Impossible de créer une tâche avec une heure passée',
+              ),
               backgroundColor: Colors.orange,
             ),
           );
@@ -520,6 +557,10 @@ class _TaskFormState extends ConsumerState<TaskForm> {
         await _taskController.updateTask(task);
       }
 
+      if (widget.task != null) {
+        await _taskController.cancelAllReminders(task.idTasks);
+      }
+
       invalidateTaskProviders(ref);
 
       // Planifier le rappel si activé
@@ -533,9 +574,11 @@ class _TaskFormState extends ConsumerState<TaskForm> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(widget.task == null
-                ? '✅ Tâche créée avec succès'
-                : '✅ Tâche modifiée avec succès'),
+            content: Text(
+              widget.task == null
+                  ? '✅ Tâche créée avec succès'
+                  : '✅ Tâche modifiée avec succès',
+            ),
             backgroundColor: Colors.green,
           ),
         );
