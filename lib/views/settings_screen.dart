@@ -170,7 +170,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   leadingIcon: Icons.person_rounded,
                   title: 'Votre nom',
                   subtitle: _userName ?? 'Ajouter votre nom',
-                  leadingIconColor: const Color(0xFF1683F7),
+                  leadingIconColor: primaryColor,
+                  iconBgColor: primaryColor.withOpacity(0.15),
                   onTap: _editUserName,
                   trailing: const Icon(Icons.chevron_right_rounded, size: 20),
                 ),
@@ -178,6 +179,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 SettingsListTile(
                   leadingIcon: Icons.dark_mode_rounded,
                   title: 'Mode sombre',
+                  leadingIconColor: primaryColor,
+                  iconBgColor: primaryColor.withOpacity(0.15),
                   trailing: Switch(
                     value: isDark,
                     onChanged: (value) async {
@@ -204,6 +207,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   leadingIcon: Icons.color_lens_rounded,
                   title: 'Couleur principale',
                   subtitle: 'Personnalisez l\'accent de l\'app',
+                  leadingIconColor: primaryColor,
+                  iconBgColor: primaryColor.withOpacity(0.15),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -238,6 +243,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 SettingsListTile(
                   leadingIcon: Icons.calendar_today_rounded,
                   title: 'Premier jour de la semaine',
+                  leadingIconColor: primaryColor,
+                  iconBgColor: primaryColor.withOpacity(0.15),
                 ),
                 Divider(height: 1, color: theme.dividerColor.withOpacity(0.5)),
                 Padding(
@@ -261,6 +268,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 SettingsListTile(
                   leadingIcon: Icons.notifications_rounded,
                   title: 'Rappels activés',
+                  leadingIconColor: primaryColor,
+                  iconBgColor: primaryColor.withOpacity(0.15),
                   trailing: Switch(
                     value: _notificationsEnabled,
                     onChanged: _updateNotificationsEnabled,
