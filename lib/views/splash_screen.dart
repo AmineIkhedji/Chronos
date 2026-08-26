@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 import '../widgets/theme/theme_provider.dart';
 
@@ -130,7 +131,15 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       ),
     );
 
-    _controller.forward().then((_) => _finishSplash());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      FlutterNativeSplash.remove();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _controller.forward().then((_) => _finishSplash());
+      });
+    });
   }
 
   Future<void> _finishSplash() async {
@@ -219,4 +228,3 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     );
   }
 }
-

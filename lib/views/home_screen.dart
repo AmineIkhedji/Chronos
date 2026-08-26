@@ -1,4 +1,3 @@
-// lib/views/home_screen.dart (modification)
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -10,17 +9,34 @@ import '../widgets/home/home_greeting.dart';
 import '../providers/task_providers.dart';
 import '../providers/habit_providers.dart';
 import '../widgets/bottom_navigation_bar.dart';
+import '../widgets/onboarding_tutorial.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  // IMPORTANT : ces GlobalKey doivent être créées UNE SEULE FOIS et vivre
+  // dans le State. Avant, elles étaient créées à chaque build() de
+  // HomeScreen (widget "stateless"), donc à chaque rebuild (ex: refresh
+  // d'un provider) le tutoriel se retrouvait avec des clés obsolètes et ne
+  // savait plus retrouver les widgets à surligner.
+  final _welcomeKey = GlobalKey();
+  final _statsKey = GlobalKey();
+  final _calendarKey = GlobalKey();
+  final _tasksKey = GlobalKey();
+  final _habitsKey = GlobalKey();
+
+  @override
+  Widget build(BuildContext context) {
     final todayTasksAsync = ref.watch(todayTasksProvider);
     final todayHabitsAsync = ref.watch(todayHabitsProvider);
     final theme = Theme.of(context);
 
-    return Scaffold(
+    final homeContent = Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: Container(
         width: double.infinity,
@@ -41,26 +57,35 @@ class HomeScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const HomeGreeting(),
+                HomeGreeting(key: _welcomeKey),
                 const SizedBox(height: 20),
-                const HomeHeader(),
+                HomeHeader(key: _statsKey),
                 const SizedBox(height: 24),
-                // Mini calendrier avec navigation
                 GestureDetector(
+                  key: _calendarKey,
                   onTap: () {
                     ref.read(selectedTabProvider.notifier).state = AppTab.calendar;
                   },
                   child: const MiniCalendar(),
                 ),
                 const SizedBox(height: 24),
-                TaskList(tasksAsync: todayTasksAsync),
+                TaskList(key: _tasksKey, tasksAsync: todayTasksAsync),
                 const SizedBox(height: 24),
-                HabitList(habitsAsync: todayHabitsAsync),
+                HabitList(key: _habitsKey, habitsAsync: todayHabitsAsync),
               ],
             ),
           ),
         ),
       ),
+    );
+
+    return OnboardingTutorial(
+      welcomeKey: _welcomeKey,
+      statsKey: _statsKey,
+      calendarKey: _calendarKey,
+      tasksKey: _tasksKey,
+      habitsKey: _habitsKey,
+      child: homeContent,
     );
   }
 }

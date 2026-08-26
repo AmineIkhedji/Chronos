@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'views/splash_screen.dart';
 import 'services/notification_service.dart';
 import 'widgets/theme/theme_provider.dart';
@@ -29,7 +30,9 @@ Future<void> _initializeBackgroundServices() async {
 }
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
+  final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+
   runApp(const ProviderScope(child: ChronosApp()));
 }
 
@@ -134,9 +137,17 @@ class _HomePageState extends ConsumerState<HomePage> {
                   _moveToTab(_tabs[nextIndex]);
                 }
               },
-        child: isLoading
-            ? const _NavigationSkeleton()
-            : KeyedSubtree(key: ValueKey(selectedTab), child: content),
+        child: IgnorePointer(
+          // Pendant le remplacement du contenu par le squelette de
+          // chargement, on ignore les pointeurs le temps d'une frame pour
+          // éviter qu'un doigt encore posé sur l'écran ne hit-teste un
+          // RenderBox en cours de destruction/layout ("Cannot hit test a
+          // render box with no size").
+          ignoring: isLoading,
+          child: isLoading
+              ? const _NavigationSkeleton()
+              : KeyedSubtree(key: ValueKey(selectedTab), child: content),
+        ),
       ),
     );
   }
