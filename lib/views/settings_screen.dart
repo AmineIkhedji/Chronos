@@ -11,6 +11,7 @@ import '../widgets/bottom_navigation_bar.dart';
 import '../providers/calendar_providers.dart';
 import '../repositories/settings_repository.dart';
 import '../services/notification_service.dart';
+import '../providers/settings_providers.dart';
 import 'customization_screen.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -23,6 +24,7 @@ class SettingsScreen extends ConsumerStatefulWidget {
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   int _firstDayOfWeek = DateTime.monday;
   bool _notificationsEnabled = true;
+  String? _userName;
   bool _isLoading = false;
 
   @override
@@ -41,6 +43,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       setState(() {
         _firstDayOfWeek = settings?.firstDayWeek ?? DateTime.monday;
         _notificationsEnabled = settings?.notificationsEnabled ?? true;
+        final userName = settings?.userName.trim();
+        _userName = userName == null || userName.isEmpty ? null : userName;
       });
     } catch (e) {
       print('Erreur lors du chargement des paramètres: $e');
@@ -162,6 +166,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             const SizedBox(height: 12),
             SettingsCard(
               children: [
+                SettingsListTile(
+                  leadingIcon: Icons.person_rounded,
+                  title: 'Votre nom',
+                  subtitle: _userName ?? 'Ajouter votre nom',
+                  leadingIconColor: const Color(0xFF1683F7),
+                  onTap: _editUserName,
+                  trailing: const Icon(Icons.chevron_right_rounded, size: 20),
+                ),
+                Divider(height: 1, color: theme.dividerColor.withOpacity(0.5)),
                 SettingsListTile(
                   leadingIcon: Icons.dark_mode_rounded,
                   title: 'Mode sombre',
@@ -310,6 +323,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   // ============ NAVIGATION ============
 
+  Future<void> _editUserName() async {
+    final name = await showDialog<String>(
+      context: context,
+      builder: (_) => _UserNameEditDialog(initialName: _userName),
+    );
+
+    if (name == null || name.trim().isEmpty) return;
+    await SettingsRepository().setUserName(name);
+    if (!mounted) return;
+    setState(() => _userName = name.trim());
+    ref.read(userNameProvider.notifier).state = name.trim();
+  }
+
   void _openCustomization(CustomizationKind kind) {
     Navigator.push(
       context,
@@ -411,6 +437,54 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _UserNameEditDialog extends StatefulWidget {
+  const _UserNameEditDialog({this.initialName});
+
+  final String? initialName;
+
+  @override
+  State<_UserNameEditDialog> createState() => _UserNameEditDialogState();
+}
+
+class _UserNameEditDialogState extends State<_UserNameEditDialog> {
+  late final TextEditingController _controller = TextEditingController(
+    text: widget.initialName,
+  );
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    final name = _controller.text.trim();
+    if (name.isEmpty || !mounted) return;
+    Navigator.of(context).pop(name);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Votre nom'),
+      content: TextField(
+        controller: _controller,
+        autofocus: true,
+        textCapitalization: TextCapitalization.words,
+        decoration: const InputDecoration(labelText: 'Nom'),
+        onSubmitted: (_) => _submit(),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Annuler'),
+        ),
+        FilledButton(onPressed: _submit, child: const Text('Enregistrer')),
+      ],
     );
   }
 }

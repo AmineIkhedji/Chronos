@@ -14,4 +14,5 @@ class Settings {
   int accentColor = 0xFFFF6D00;
   int backgroundColor = 0xFFFFFFFF;
   int surfaceColor = 0xFFF5F5F5;
+  String userName = '';
 }

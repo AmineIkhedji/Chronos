@@ -10,6 +10,12 @@ class SettingsRepository {
     return await AppDatabase.isar.settings.where().findFirst();
   }
 
+  Future<String?> getUserName() async {
+    final settings = await getSettings();
+    final userName = settings?.userName.trim();
+    return userName == null || userName.isEmpty ? null : userName;
+  }
+
   Future<void> saveSettings(Settings settings) async {
     await AppDatabase.isar.writeTxn(() async {
       final existing = await getSettings();
@@ -76,6 +82,12 @@ class SettingsRepository {
   Future<void> setNotificationsEnabled(bool value) async {
     final settings = await _getOrCreateSettings();
     settings.notificationsEnabled = value;
+    await saveSettings(settings);
+  }
+
+  Future<void> setUserName(String value) async {
+    final settings = await _getOrCreateSettings();
+    settings.userName = value.trim();
     await saveSettings(settings);
   }
 

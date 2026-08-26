@@ -16,6 +16,8 @@ final settingsProvider = FutureProvider<Settings?>((ref) async {
   return await repo.getSettings();
 });
 
+final userNameProvider = StateProvider<String?>((ref) => null);
+
 // ============ ÉCRITURE (POST/PUT) ============
 
 // Basculer le mode sombre (écriture en base + rafraîchissement UI)

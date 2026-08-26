@@ -15,6 +15,10 @@ import 'views/home_screen.dart';
 import 'views/settings_screen.dart';
 import 'views/calendrier_screen.dart';
 import 'views/stats_screen.dart';
+import 'providers/settings_providers.dart';
+import 'repositories/settings_repository.dart';
+import 'services/user_profile_service.dart';
+import 'widgets/dialogs/user_name_dialog.dart';
 
 Future<void> _initializeBackgroundServices() async {
   try {
@@ -65,9 +69,7 @@ class _ChronosAppState extends ConsumerState<ChronosApp> {
       title: 'Chronos',
       debugShowCheckedModeBanner: false,
       theme: themeData,
-      home: SplashScreen(
-        nextPageBuilder: (_) => const HomePage(),
-      ),
+      home: SplashScreen(nextPageBuilder: (_) => const HomePage()),
     );
   }
 }
@@ -83,6 +85,40 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomePageState extends ConsumerState<HomePage> {
   static const _tabs = AppTab.values;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await WidgetsBinding.instance.endOfFrame;
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+      if (mounted) await _requestUserName();
+    });
+  }
+
+  Future<void> _requestUserName() async {
+    final settingsRepository = SettingsRepository();
+    final userName = kIsWeb
+        ? await UserProfileService.getUserName()
+        : await settingsRepository.getUserName();
+    if (!mounted) return;
+    ref.read(userNameProvider.notifier).state = userName;
+    if (userName != null) return;
+
+    final name = await showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const UserNameDialog(),
+    );
+
+    if (name == null || name.trim().isEmpty) return;
+    if (kIsWeb) {
+      await UserProfileService.saveUserName(name);
+    } else {
+      await settingsRepository.setUserName(name);
+    }
+    if (mounted) ref.read(userNameProvider.notifier).state = name.trim();
+  }
 
   Future<void> _moveToTab(AppTab tab) async {
     if (ref.read(navigationLoadingProvider)) return;

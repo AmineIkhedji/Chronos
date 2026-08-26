@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../theme/theme_provider.dart';
+import '../../providers/settings_providers.dart';
 
 class HomeGreeting extends ConsumerWidget {
   const HomeGreeting({super.key});
@@ -31,6 +32,7 @@ class HomeGreeting extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isDark = ref.watch(darkModeProvider);
+    final userName = ref.watch(userNameProvider);
     final textColor = theme.colorScheme.onBackground;
     final textColorSecondary = isDark
         ? const Color(0xFF94A3B8)
@@ -40,7 +42,9 @@ class HomeGreeting extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '${_getGreeting()}, Amine ${_getEmoji()}',
+          userName == null
+              ? '${_getGreeting()} ${_getEmoji()}'
+              : '${_getGreeting()}, $userName ${_getEmoji()}',
           style: TextStyle(
             color: textColorSecondary,
             fontSize: 16,
@@ -59,10 +63,7 @@ class HomeGreeting extends ConsumerWidget {
         const SizedBox(height: 2),
         Text(
           _getFormattedDate(),
-          style: TextStyle(
-            color: textColorSecondary,
-            fontSize: 14,
-          ),
+          style: TextStyle(color: textColorSecondary, fontSize: 14),
         ),
       ],
     );

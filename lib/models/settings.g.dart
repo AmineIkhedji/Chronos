@@ -53,6 +53,11 @@ const SettingsSchema = CollectionSchema(
       name: r'surfaceColor',
       type: IsarType.long,
     ),
+    r'userName': PropertySchema(
+      id: 8,
+      name: r'userName',
+      type: IsarType.string,
+    ),
   },
 
   estimateSize: _settingsEstimateSize,
@@ -76,6 +81,7 @@ int _settingsEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.userName.length * 3;
   return bytesCount;
 }
 
@@ -93,6 +99,7 @@ void _settingsSerialize(
   writer.writeLong(offsets[5], object.primaryColor);
   writer.writeLong(offsets[6], object.secondaryColor);
   writer.writeLong(offsets[7], object.surfaceColor);
+  writer.writeString(offsets[8], object.userName);
 }
 
 Settings _settingsDeserialize(
@@ -111,6 +118,7 @@ Settings _settingsDeserialize(
   object.primaryColor = reader.readLong(offsets[5]);
   object.secondaryColor = reader.readLong(offsets[6]);
   object.surfaceColor = reader.readLong(offsets[7]);
+  object.userName = reader.readString(offsets[8]);
   return object;
 }
 
@@ -137,6 +145,8 @@ P _settingsDeserializeProp<P>(
       return (reader.readLong(offset)) as P;
     case 7:
       return (reader.readLong(offset)) as P;
+    case 8:
+      return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -658,6 +668,152 @@ extension SettingsQueryFilter
       );
     });
   }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> userNameEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'userName',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> userNameGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'userName',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> userNameLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'userName',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> userNameBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'userName',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> userNameStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'userName',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> userNameEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'userName',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> userNameContains(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'userName',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> userNameMatches(
+    String pattern, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'userName',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> userNameIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'userName', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterFilterCondition> userNameIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'userName', value: ''),
+      );
+    });
+  }
 }
 
 extension SettingsQueryObject
@@ -761,6 +917,18 @@ extension SettingsQuerySortBy on QueryBuilder<Settings, Settings, QSortBy> {
   QueryBuilder<Settings, Settings, QAfterSortBy> sortBySurfaceColorDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'surfaceColor', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByUserName() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'userName', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> sortByUserNameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'userName', Sort.desc);
     });
   }
 }
@@ -875,6 +1043,18 @@ extension SettingsQuerySortThenBy
       return query.addSortBy(r'surfaceColor', Sort.desc);
     });
   }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByUserName() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'userName', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QAfterSortBy> thenByUserNameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'userName', Sort.desc);
+    });
+  }
 }
 
 extension SettingsQueryWhereDistinct
@@ -924,6 +1104,14 @@ extension SettingsQueryWhereDistinct
   QueryBuilder<Settings, Settings, QDistinct> distinctBySurfaceColor() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'surfaceColor');
+    });
+  }
+
+  QueryBuilder<Settings, Settings, QDistinct> distinctByUserName({
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'userName', caseSensitive: caseSensitive);
     });
   }
 }
@@ -982,6 +1170,12 @@ extension SettingsQueryProperty
   QueryBuilder<Settings, int, QQueryOperations> surfaceColorProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'surfaceColor');
+    });
+  }
+
+  QueryBuilder<Settings, String, QQueryOperations> userNameProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'userName');
     });
   }
 }

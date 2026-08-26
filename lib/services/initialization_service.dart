@@ -9,6 +9,7 @@ import '../repositories/category_repository.dart';
 import '../repositories/priority_repository.dart';
 import '../repositories/status_repository.dart';
 import '../repositories/settings_repository.dart';
+import 'user_profile_service.dart';
 
 final appInitializationProvider = FutureProvider<void>((ref) async {
   await InitializationService.initializeApp();
@@ -25,6 +26,14 @@ class InitializationService {
     await priorityRepo.createDefaultPriorities();
     await statusRepo.createDefaultStatus();
     await settingsRepo.createDefaultSettings();
+
+    final settings = await settingsRepo.getSettings();
+    if (settings != null && settings.userName.trim().isEmpty) {
+      final legacyUserName = await UserProfileService.getUserName();
+      if (legacyUserName != null) {
+        await settingsRepo.setUserName(legacyUserName);
+      }
+    }
   }
 
   static Future<void> initializeApp() async {
