@@ -10,6 +10,7 @@ import '../widgets/form/color_selector.dart';
 import '../widgets/form/time_picker_field.dart';
 import '../widgets/habits/habit_day_selector.dart';
 import '../widgets/common/confirmation_dialog.dart';
+import '../widgets/common/custom_snackbar.dart';
 
 class HabitForm extends ConsumerStatefulWidget {
   final Habit? habit;
@@ -295,22 +296,12 @@ class _HabitFormState extends ConsumerState<HabitForm> {
         ref.invalidate(todayHabitsProvider);
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('✅ Habitude supprimée'),
-              backgroundColor: Colors.green,
-            ),
-          );
+          CustomSnackbar.success(context, 'Habitude supprimée');
           Navigator.pop(context);
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('❌ Erreur: ${e.toString()}'),
-              backgroundColor: Colors.red,
-            ),
-          );
+          CustomSnackbar.error(context, 'Erreur : ${e.toString()}');
         }
       }
     }
@@ -323,12 +314,7 @@ class _HabitFormState extends ConsumerState<HabitForm> {
     // Validation de la catégorie
     if (_selectedCategoryId == null) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('⚠️ Veuillez sélectionner une catégorie'),
-            backgroundColor: Colors.orange,
-          ),
-        );
+        CustomSnackbar.warning(context, 'Veuillez sélectionner une catégorie');
       }
       return;
     }
@@ -336,12 +322,7 @@ class _HabitFormState extends ConsumerState<HabitForm> {
     // Validation des jours selon le mode
     if (_repeatMode == 'specific' && _selectedDays.isEmpty) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('⚠️ Veuillez sélectionner au moins un jour'),
-            backgroundColor: Colors.orange,
-          ),
-        );
+        CustomSnackbar.warning(context, 'Veuillez sélectionner au moins un jour');
       }
       return;
     }
@@ -378,26 +359,17 @@ class _HabitFormState extends ConsumerState<HabitForm> {
       ref.invalidate(habitDaysProvider(habit.idHabit));
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              widget.habit == null
-                  ? '✅ Habitude créée avec succès'
-                  : '✅ Habitude modifiée avec succès',
-            ),
-            backgroundColor: Colors.green,
-          ),
+        CustomSnackbar.success(
+          context,
+          widget.habit == null
+              ? 'Habitude créée avec succès'
+              : 'Habitude modifiée avec succès',
         );
         Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('❌ Erreur: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        CustomSnackbar.error(context, 'Erreur : ${e.toString()}');
       }
     }
   }

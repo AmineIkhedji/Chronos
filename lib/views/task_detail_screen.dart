@@ -13,6 +13,7 @@ import '../widgets/task/priority_badge.dart';
 import '../widgets/task/status_badge.dart';
 import '../widgets/task/task_info_row.dart';
 import '../widgets/common/confirmation_dialog.dart';
+import '../widgets/common/custom_snackbar.dart';
 import 'task_form.dart';
 
 class TaskDetailScreen extends ConsumerWidget {
@@ -491,21 +492,11 @@ class TaskDetailScreen extends ConsumerWidget {
 
         if (context.mounted) {
           Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('✅ Tâche supprimée'),
-              backgroundColor: Colors.green,
-            ),
-          );
+          CustomSnackbar.success(context, 'Tâche supprimée');
         }
       } catch (e) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('❌ Erreur: ${e.toString()}'),
-              backgroundColor: Colors.red,
-            ),
-          );
+          CustomSnackbar.error(context, 'Erreur : ${e.toString()}');
         }
       }
     }

@@ -12,6 +12,7 @@ import '../widgets/form/color_selector.dart';
 import '../widgets/form/time_picker_field.dart';
 import '../widgets/form/date_picker_field.dart';
 import '../widgets/common/confirmation_dialog.dart';
+import '../widgets/common/custom_snackbar.dart';
 
 class TaskForm extends ConsumerStatefulWidget {
   final Task? task;
@@ -442,22 +443,12 @@ class _TaskFormState extends ConsumerState<TaskForm> {
         invalidateTaskProviders(ref);
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('✅ Tâche supprimée'),
-              backgroundColor: Colors.green,
-            ),
-          );
+          CustomSnackbar.success(context, 'Tâche supprimée');
           Navigator.pop(context);
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('❌ Erreur: ${e.toString()}'),
-              backgroundColor: Colors.red,
-            ),
-          );
+          CustomSnackbar.error(context, 'Erreur : ${e.toString()}');
         }
       }
     }
@@ -496,11 +487,9 @@ class _TaskFormState extends ConsumerState<TaskForm> {
 
     if (taskDate.isBefore(today)) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('⚠️ Impossible de créer une tâche dans le passé'),
-            backgroundColor: Colors.orange,
-          ),
+        CustomSnackbar.warning(
+          context,
+          'Impossible de créer une tâche dans le passé',
         );
       }
       return;
@@ -510,13 +499,9 @@ class _TaskFormState extends ConsumerState<TaskForm> {
     if (taskDate == today) {
       if (startDateTime != null && startDateTime.isBefore(DateTime.now())) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                '⚠️ Impossible de créer une tâche avec une heure passée',
-              ),
-              backgroundColor: Colors.orange,
-            ),
+          CustomSnackbar.warning(
+            context,
+            'Impossible de créer une tâche avec une heure passée',
           );
         }
         return;
@@ -527,12 +512,7 @@ class _TaskFormState extends ConsumerState<TaskForm> {
     final timeError = _taskController.validateTimes(startDateTime, endDateTime);
     if (timeError != null) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('⚠️ $timeError'),
-            backgroundColor: Colors.orange,
-          ),
-        );
+        CustomSnackbar.warning(context, timeError);
       }
       return;
     }
@@ -572,26 +552,17 @@ class _TaskFormState extends ConsumerState<TaskForm> {
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              widget.task == null
-                  ? '✅ Tâche créée avec succès'
-                  : '✅ Tâche modifiée avec succès',
-            ),
-            backgroundColor: Colors.green,
-          ),
+        CustomSnackbar.success(
+          context,
+          widget.task == null
+              ? 'Tâche créée avec succès'
+              : 'Tâche modifiée avec succès',
         );
         Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('❌ Erreur: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        CustomSnackbar.error(context, 'Erreur : ${e.toString()}');
       }
     }
   }
