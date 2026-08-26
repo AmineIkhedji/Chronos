@@ -17,6 +17,13 @@ class ThemeColors {
     'green': 0xFF22C55E,
     'orange': 0xFFF59E0B,
     'red': 0xFFEF4444,
+    'pink': 0xFFF44343,
+    'magenta': 0xFFE633A4,
+    'indigo': 0xFF8513C3,
+    'periwinkle': 0xFF9EA1FF,
+    'cyan': 0xFF47CEF0,
+    'emerald': 0xFF099533,
+    'deepOrange': 0xFFE96D07,
   };
   
   // Valeurs par défaut
