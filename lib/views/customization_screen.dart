@@ -1,5 +1,6 @@
 // lib/views/customization_screen.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import '../models/category.dart';
 import '../models/priority.dart';
 import '../models/status.dart';
@@ -30,15 +31,58 @@ class _CustomizationScreenState extends State<CustomizationScreen> {
     0xFF06B6D4,
   ];
 
-  static const icons = {
-    'category': Icons.category_rounded,
-    'work': Icons.work_rounded,
-    'person': Icons.person_rounded,
-    'home': Icons.home_rounded,
-    'flag': Icons.flag_rounded,
-    'check_circle': Icons.check_circle_rounded,
-    'star': Icons.star_rounded,
-    'bookmark': Icons.bookmark_rounded,
+  static const icons = <String, IconData>{
+    'layers': LucideIcons.layers,
+    'briefcase': LucideIcons.briefcase,
+    'user': LucideIcons.user,
+    'house': LucideIcons.house,
+    'flag': LucideIcons.flag,
+    'circle_check': LucideIcons.circle_check,
+    'star': LucideIcons.star,
+    'bookmark': LucideIcons.bookmark,
+    'heart': LucideIcons.heart,
+    'target': LucideIcons.target,
+    'zap': LucideIcons.zap,
+    'bell': LucideIcons.bell,
+    'calendar': LucideIcons.calendar,
+    'clock': LucideIcons.clock,
+    'coffee': LucideIcons.coffee,
+    'book_open': LucideIcons.book_open,
+    'graduation_cap': LucideIcons.graduation_cap,
+    'shopping_cart': LucideIcons.shopping_cart,
+    'dumbbell': LucideIcons.dumbbell,
+    'music': LucideIcons.music,
+    'message_circle': LucideIcons.message_circle,
+    'info': LucideIcons.info,
+    'settings': LucideIcons.settings,
+    'archive': LucideIcons.archive,
+    'award': LucideIcons.award,
+    'bike': LucideIcons.bike,
+    'cake': LucideIcons.cake,
+    'camera': LucideIcons.camera,
+    'car': LucideIcons.car,
+    'circle': LucideIcons.circle,
+    'code': LucideIcons.code,
+    'compass': LucideIcons.compass,
+    'crown': LucideIcons.crown,
+    'file_text': LucideIcons.file_text,
+    'gift': LucideIcons.gift,
+    'globe': LucideIcons.globe,
+    'hammer': LucideIcons.hammer,
+    'key': LucideIcons.key,
+    'mail': LucideIcons.mail,
+    'map_pin': LucideIcons.map_pin,
+    'monitor': LucideIcons.monitor,
+    'package': LucideIcons.package,
+    'phone': LucideIcons.phone,
+    'play': LucideIcons.play,
+    'rocket': LucideIcons.rocket,
+    'search': LucideIcons.search,
+    'shield': LucideIcons.shield,
+    'sun': LucideIcons.sun,
+    'trophy': LucideIcons.trophy,
+    'wallet': LucideIcons.wallet,
+    'wifi': LucideIcons.wifi,
   };
 
   late Future<List<dynamic>> _itemsFuture;
@@ -166,7 +210,7 @@ class _CustomizationScreenState extends State<CustomizationScreen> {
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: color,
-          child: Icon(icons[iconName] ?? Icons.label, color: Colors.white),
+          child: Icon(icons[iconName] ?? LucideIcons.tag, color: Colors.white),
         ),
         title: Text(name),
         trailing: PopupMenuButton<String>(
@@ -184,6 +228,9 @@ class _CustomizationScreenState extends State<CustomizationScreen> {
   }
 
   Future<void> _editItem([dynamic item]) async {
+    final existingNames = (await _itemsFuture)
+        .map((existingItem) => existingItem.name as String)
+        .toList();
     final result = await showDialog<bool>(
       context: context,
       builder: (_) => _CustomizationEditDialog(
@@ -192,6 +239,8 @@ class _CustomizationScreenState extends State<CustomizationScreen> {
         item: item,
         colors: colors,
         icons: icons,
+        existingNames: existingNames,
+        currentName: item?.name as String?,
         onSave: (name, color, icon) => _saveItem(item, name, color, icon),
       ),
     );
@@ -283,6 +332,8 @@ class _CustomizationEditDialog extends StatefulWidget {
     required this.item,
     required this.colors,
     required this.icons,
+    required this.existingNames,
+    required this.currentName,
     required this.onSave,
   });
 
@@ -291,6 +342,8 @@ class _CustomizationEditDialog extends StatefulWidget {
   final dynamic item;
   final List<int> colors;
   final Map<String, IconData> icons;
+  final List<String> existingNames;
+  final String? currentName;
   final Future<void> Function(String name, int color, String icon) onSave;
 
   @override
@@ -349,57 +402,135 @@ class _CustomizationEditDialogState extends State<_CustomizationEditDialog> {
     }
   }
 
+  String? _validateName(String? value) {
+    final validationError = Validators.validateCustomizationName(
+      value,
+      widget.itemType,
+    );
+    if (validationError != null) return validationError;
+
+    final normalizedName = value!.trim().toLowerCase();
+    final normalizedCurrentName = widget.currentName?.trim().toLowerCase();
+    final isDuplicate = widget.existingNames.any(
+      (existingName) =>
+          existingName.trim().toLowerCase() == normalizedName &&
+          normalizedName != normalizedCurrentName,
+    );
+    if (isDuplicate) return 'Ce nom de ${widget.itemType} existe déjà';
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
       title: Text(widget.title),
-      content: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextFormField(
-              controller: _nameController,
-              autofocus: true,
-              maxLength: 50,
-              decoration: InputDecoration(
-                labelText: 'Nom de ${widget.itemType}',
-              ),
-              validator: (value) =>
-                  Validators.validateCustomizationName(value, widget.itemType),
-            ),
-            const SizedBox(height: 20),
-            Wrap(
-              spacing: 10,
-              children: widget.colors.map((color) {
-                return GestureDetector(
-                  onTap: () => setState(() => _selectedColor = color),
-                  child: CircleAvatar(
-                    backgroundColor: Color(color),
-                    child: _selectedColor == color
-                        ? const Icon(Icons.check, color: Colors.white)
-                        : null,
+      content: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: 420,
+          maxHeight: MediaQuery.sizeOf(context).height * 0.55,
+        ),
+        child: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: _nameController,
+                  autofocus: true,
+                  maxLength: 50,
+                  decoration: InputDecoration(
+                    labelText: 'Nom de ${widget.itemType}',
                   ),
-                );
-              }).toList(),
+                  validator: _validateName,
+                ),
+                const SizedBox(height: 20),
+                Wrap(
+                  spacing: 10,
+                  children: widget.colors.map((color) {
+                    return GestureDetector(
+                      onTap: () => setState(() => _selectedColor = color),
+                      child: CircleAvatar(
+                        backgroundColor: Color(color),
+                        child: _selectedColor == color
+                            ? const Icon(Icons.check, color: Colors.white)
+                            : null,
+                      ),
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 16),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Icône',
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: widget.icons.entries.map((entry) {
+                    final isSelected = _selectedIcon == entry.key;
+                    return SizedBox(
+                      width: 44,
+                      height: 44,
+                      child: Tooltip(
+                        message: entry.key,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(10),
+                          onTap: _isSaving
+                              ? null
+                              : () => setState(() => _selectedIcon = entry.key),
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? Colors.transparent
+                                  : Theme.of(
+                                      context,
+                                    ).colorScheme.surfaceContainerHighest,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: isSelected
+                                    ? Theme.of(context).colorScheme.primary
+                                    : Colors.transparent,
+                                width: 2,
+                              ),
+                            ),
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                Icon(
+                                  entry.value,
+                                  color: isSelected
+                                      ? Theme.of(context).colorScheme.primary
+                                      : null,
+                                ),
+                                if (isSelected)
+                                  Positioned(
+                                    right: 2,
+                                    top: 2,
+                                    child: Icon(
+                                      LucideIcons.check,
+                                      size: 12,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.primary,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              initialValue: _selectedIcon,
-              decoration: const InputDecoration(labelText: 'Icône'),
-              items: widget.icons.entries
-                  .map(
-                    (entry) => DropdownMenuItem(
-                      value: entry.key,
-                      child: Icon(entry.value),
-                    ),
-                  )
-                  .toList(),
-              onChanged: _isSaving
-                  ? null
-                  : (value) => setState(() => _selectedIcon = value!),
-            ),
-          ],
+          ),
         ),
       ),
       actions: [

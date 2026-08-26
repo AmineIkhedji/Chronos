@@ -460,6 +460,7 @@ class _UserNameEditDialog extends StatefulWidget {
 }
 
 class _UserNameEditDialogState extends State<_UserNameEditDialog> {
+  final _formKey = GlobalKey<FormState>();
   late final TextEditingController _controller = TextEditingController(
     text: widget.initialName,
   );
@@ -471,8 +472,9 @@ class _UserNameEditDialogState extends State<_UserNameEditDialog> {
   }
 
   void _submit() {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
     final name = _controller.text.trim();
-    if (name.isEmpty || !mounted) return;
+    if (!mounted) return;
     Navigator.of(context).pop(name);
   }
 
@@ -480,12 +482,21 @@ class _UserNameEditDialogState extends State<_UserNameEditDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('Votre nom'),
-      content: TextField(
-        controller: _controller,
-        autofocus: true,
-        textCapitalization: TextCapitalization.words,
-        decoration: const InputDecoration(labelText: 'Nom'),
-        onSubmitted: (_) => _submit(),
+      content: Form(
+        key: _formKey,
+        child: TextFormField(
+          controller: _controller,
+          autofocus: true,
+          textCapitalization: TextCapitalization.words,
+          decoration: const InputDecoration(labelText: 'Nom'),
+          validator: (value) {
+            if (value == null || value.trim().isEmpty) {
+              return 'Votre nom est obligatoire';
+            }
+            return null;
+          },
+          onFieldSubmitted: (_) => _submit(),
+        ),
       ),
       actions: [
         TextButton(

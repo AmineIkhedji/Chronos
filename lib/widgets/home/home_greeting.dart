@@ -1,22 +1,70 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../theme/theme_provider.dart';
 import '../../providers/settings_providers.dart';
 
-class HomeGreeting extends ConsumerWidget {
+class HomeGreeting extends ConsumerStatefulWidget {
   const HomeGreeting({super.key});
 
-  String _getGreeting() {
-    final hour = DateTime.now().hour;
-    if (hour < 12) return 'Bonjour';
-    return 'Bonsoir';
+  @override
+  ConsumerState<HomeGreeting> createState() => _HomeGreetingState();
+}
+
+class _HomeGreetingState extends ConsumerState<HomeGreeting> {
+  late final int _greetingIndex;
+  late final String _emoji;
+
+  @override
+  void initState() {
+    super.initState();
+    final random = Random();
+    _greetingIndex = random.nextInt(3);
+    final emojis = switch (DateTime.now().hour) {
+      < 7 => ['😴', '💤', '🛏️'],
+      < 12 => ['☀️', '🌞', '🌅'],
+      < 16 => ['🥐', '📖', '🤓'],
+      _ => ['🌉', '🌚', '✨'],
+    };
+    _emoji = emojis[random.nextInt(emojis.length)];
   }
 
-  String _getEmoji() {
+  String _getGreeting(String? userName) {
     final hour = DateTime.now().hour;
-    if (hour < 12) return '🌅';
-    return '🌙';
+    final phrases = switch (hour) {
+      < 7 => <String>[
+        'Zzz',
+        userName == null ? 'Chut dors' : 'Chut $userName dors',
+        userName == null
+            ? 'Fais de beaux rêves'
+            : 'Fais de beaux rêves $userName',
+      ],
+      < 12 => <String>[
+        'Bonjour',
+        userName == null ? 'Au travail' : 'Au travail $userName',
+        userName == null
+            ? 'On finit une tâche ?'
+            : 'On finit une tâche $userName ?',
+      ],
+      < 16 => <String>[
+        userName == null ? 'Bon après-midi' : 'Bon après-midi $userName',
+        'Miam',
+        userName == null ? 'Petite sieste ?' : 'Petite sieste $userName ?',
+      ],
+      _ => <String>[
+        userName == null ? 'Bonsoir' : 'Bonsoir $userName',
+        userName == null
+            ? 'Une dernière tâche ?'
+            : 'Une dernière tâche $userName ?',
+            userName == null
+            ? 'On se prépare pour demain ?'
+            : 'On se prépare pour demain $userName ?',
+      ],
+    };
+
+    return phrases[_greetingIndex];
   }
 
   String _getFormattedDate() {
@@ -29,7 +77,7 @@ class HomeGreeting extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = ref.watch(darkModeProvider);
     final userName = ref.watch(userNameProvider);
@@ -42,9 +90,7 @@ class HomeGreeting extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          userName == null
-              ? '${_getGreeting()} ${_getEmoji()}'
-              : '${_getGreeting()}, $userName ${_getEmoji()}',
+          '${_getGreeting(userName)} $_emoji',
           style: TextStyle(
             color: textColorSecondary,
             fontSize: 16,
