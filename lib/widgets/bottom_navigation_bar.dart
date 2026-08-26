@@ -1,4 +1,5 @@
 // lib/widgets/bottom_navigation_bar.dart
+import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -52,48 +53,47 @@ final selectedTabProvider = StateProvider<AppTab>((ref) {
 final navigationLoadingProvider = StateProvider<bool>((ref) => false);
 
 Future<void> navigateToTab(WidgetRef ref, AppTab tab) async {
-  ref.read(navigationLoadingProvider.notifier).state = true;
   ref.read(selectedTabProvider.notifier).state = tab;
 
-  try {
-    switch (tab) {
-      case AppTab.home:
-        ref.invalidate(todayTasksProvider);
-        ref.invalidate(todayHabitsProvider);
-        await Future.wait([
-          ref.read(todayTasksProvider.future),
-          ref.read(todayHabitsProvider.future),
-        ]);
-        break;
-      case AppTab.calendar:
-        ref.invalidate(firstDayOfWeekProvider);
-        ref.invalidate(allCategoriesProvider);
-        ref.invalidate(allStatusesProvider);
-        await Future.wait([
-          ref.read(firstDayOfWeekProvider.future),
-          ref.read(allCategoriesProvider.future),
-          ref.read(allStatusesProvider.future),
-        ]);
-        break;
-      case AppTab.stats:
-        ref.invalidate(globalStatisticsProvider);
-        ref.invalidate(weeklyStatisticsProvider);
-        ref.invalidate(todayDetailedStatsProvider);
-        ref.invalidate(firstDayOfWeekProvider);
-        await Future.wait([
-          ref.read(globalStatisticsProvider.future),
-          ref.read(weeklyStatisticsProvider.future),
-          ref.read(todayDetailedStatsProvider.future),
-          ref.read(firstDayOfWeekProvider.future),
-        ]);
-        break;
-      case AppTab.settings:
-        ref.invalidate(settingsProvider);
-        await ref.read(settingsProvider.future);
-        break;
-    }
-  } finally {
-    ref.read(navigationLoadingProvider.notifier).state = false;
+  unawaited(_refreshTabData(ref, tab));
+}
+
+Future<void> _refreshTabData(WidgetRef ref, AppTab tab) async {
+  switch (tab) {
+    case AppTab.home:
+      ref.invalidate(todayTasksProvider);
+      ref.invalidate(todayHabitsProvider);
+      await Future.wait([
+        ref.read(todayTasksProvider.future),
+        ref.read(todayHabitsProvider.future),
+      ]);
+      break;
+    case AppTab.calendar:
+      ref.invalidate(firstDayOfWeekProvider);
+      ref.invalidate(allCategoriesProvider);
+      ref.invalidate(allStatusesProvider);
+      await Future.wait([
+        ref.read(firstDayOfWeekProvider.future),
+        ref.read(allCategoriesProvider.future),
+        ref.read(allStatusesProvider.future),
+      ]);
+      break;
+    case AppTab.stats:
+      ref.invalidate(globalStatisticsProvider);
+      ref.invalidate(weeklyStatisticsProvider);
+      ref.invalidate(todayDetailedStatsProvider);
+      ref.invalidate(firstDayOfWeekProvider);
+      await Future.wait([
+        ref.read(globalStatisticsProvider.future),
+        ref.read(weeklyStatisticsProvider.future),
+        ref.read(todayDetailedStatsProvider.future),
+        ref.read(firstDayOfWeekProvider.future),
+      ]);
+      break;
+    case AppTab.settings:
+      ref.invalidate(settingsProvider);
+      await ref.read(settingsProvider.future);
+      break;
   }
 }
 
