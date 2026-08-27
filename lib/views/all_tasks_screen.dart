@@ -131,8 +131,9 @@ class _AllTasksScreenState extends ConsumerState<AllTasksScreen> {
                               message: tasks.isEmpty
                                   ? 'Créez votre première tâche pour commencer.'
                                   : 'Aucune tâche ne correspond à ce filtre.',
-                              actionText:
-                                  tasks.isEmpty ? 'Créer une tâche' : null,
+                              actionText: tasks.isEmpty
+                                  ? 'Créer une tâche'
+                                  : null,
                               onActionPressed: tasks.isEmpty
                                   ? () => _openTaskForm(context, ref)
                                   : null,
@@ -181,18 +182,14 @@ class _AllTasksScreenState extends ConsumerState<AllTasksScreen> {
                                             left: 2,
                                           ),
                                           child: _DateHeaderChip(
-                                            label: _formatDateHeader(
-                                              task.date,
-                                            ),
+                                            label: _formatDateHeader(task.date),
                                           ),
                                         ),
                                       ] else
                                         const SizedBox(height: 8),
                                       Material(
                                         color: colorScheme.surfaceContainer,
-                                        borderRadius: BorderRadius.circular(
-                                          16,
-                                        ),
+                                        borderRadius: BorderRadius.circular(16),
                                         clipBehavior: Clip.antiAlias,
                                         child: TaskListItem(
                                           task: task,
@@ -269,9 +266,7 @@ class _AllTasksScreenState extends ConsumerState<AllTasksScreen> {
       icon: const Icon(Icons.expand_more_rounded),
       decoration: _filterFieldDecoration(colorScheme, 'Filtrer par'),
       items: _TaskFilterType.values
-          .map(
-            (type) => DropdownMenuItem(value: type, child: Text(type.label)),
-          )
+          .map((type) => DropdownMenuItem(value: type, child: Text(type.label)))
           .toList(),
       onChanged: (type) {
         if (type == null) return;
@@ -297,7 +292,9 @@ class _AllTasksScreenState extends ConsumerState<AllTasksScreen> {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.4)),
+        border: Border.all(
+          color: colorScheme.outlineVariant.withValues(alpha: 0.4),
+        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -330,7 +327,10 @@ class _AllTasksScreenState extends ConsumerState<AllTasksScreen> {
     );
   }
 
-  InputDecoration _filterFieldDecoration(ColorScheme colorScheme, String label) {
+  InputDecoration _filterFieldDecoration(
+    ColorScheme colorScheme,
+    String label,
+  ) {
     return InputDecoration(
       labelText: label,
       isDense: true,
