@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/task.dart';
 import '../models/notification.dart';
 import 'repository_providers.dart';
+import 'calendar_providers.dart';
 
 // ============ LECTURE (GET) ============
 
@@ -224,27 +225,21 @@ final completedTasksPerDayProvider =
 final addTaskProvider = FutureProvider.family<void, Task>((ref, task) async {
   final repo = ref.read(taskRepositoryProvider);
   await repo.saveTask(task);
-  ref.invalidate(allTasksProvider);
-  ref.invalidate(todayTasksProvider);
-  ref.invalidate(statisticsProvider);
+  invalidateTaskProviders(ref);
 });
 
 // Mettre à jour une tâche
 final updateTaskProvider = FutureProvider.family<void, Task>((ref, task) async {
   final repo = ref.read(taskRepositoryProvider);
   await repo.updateTask(task);
-  ref.invalidate(allTasksProvider);
-  ref.invalidate(todayTasksProvider);
-  ref.invalidate(statisticsProvider);
+  invalidateTaskProviders(ref);
 });
 
 // Supprimer une tâche
 final deleteTaskProvider = FutureProvider.family<void, int>((ref, id) async {
   final repo = ref.read(taskRepositoryProvider);
   await repo.deleteTask(id);
-  ref.invalidate(allTasksProvider);
-  ref.invalidate(todayTasksProvider);
-  ref.invalidate(statisticsProvider);
+  invalidateTaskProviders(ref);
 });
 
 // ============ RAPPELS (NOTIFICATIONS) ============
@@ -288,16 +283,18 @@ final toggleTaskCompletionProvider = Provider<ToggleTaskCompletion>((ref) {
     ref.invalidate(todayTasksProvider);
     ref.invalidate(statisticsProvider);
     ref.invalidate(todayStatisticsProvider);
+    invalidateTaskProviders(ref);
     ref.invalidate(notificationsForTaskProvider(task.idTasks));
     ref.invalidate(taskWithRelationsProvider(task.idTasks));
   };
 });
 
-void invalidateTaskProviders(WidgetRef ref) {
+void invalidateTaskProviders(dynamic ref) {
   ref.invalidate(allTasksProvider);
   ref.invalidate(todayTasksProvider);
   ref.invalidate(statisticsProvider);
   ref.invalidate(todayStatisticsProvider);
+  ref.read(calendarRefreshProvider.notifier).state++;
 }
 
 // Statistiques globales complètes

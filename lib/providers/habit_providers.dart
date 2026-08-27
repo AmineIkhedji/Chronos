@@ -51,8 +51,7 @@ final habitDaysProvider = FutureProvider.family<List<int>, int>((
 final addHabitProvider = FutureProvider.family<void, Habit>((ref, habit) async {
   final repo = ref.read(habitRepositoryProvider);
   await repo.saveHabit(habit);
-  ref.invalidate(allHabitsProvider);
-  ref.invalidate(todayHabitsProvider);
+  invalidateHabitProviders(ref);
 });
 
 // Mettre à jour une habitude
@@ -62,16 +61,14 @@ final updateHabitProvider = FutureProvider.family<void, Habit>((
 ) async {
   final repo = ref.read(habitRepositoryProvider);
   await repo.saveHabit(habit);
-  ref.invalidate(allHabitsProvider);
-  ref.invalidate(todayHabitsProvider);
+  invalidateHabitProviders(ref);
 });
 
 // Supprimer une habitude
 final deleteHabitProvider = FutureProvider.family<void, int>((ref, id) async {
   final repo = ref.read(habitRepositoryProvider);
   await repo.deleteHabit(id);
-  ref.invalidate(allHabitsProvider);
-  ref.invalidate(todayHabitsProvider);
+  invalidateHabitProviders(ref);
 });
 
 // Ajouter des jours à une habitude (paramétré)
@@ -83,5 +80,13 @@ final addDaysToHabitProvider = FutureProvider.family<void, (int, List<int>)>((
   final (habitId, daysOfWeek) = params;
   await repo.addDaysToHabit(habitId, daysOfWeek);
   ref.invalidate(habitDaysProvider(habitId));
-  ref.invalidate(todayHabitsProvider);
+  invalidateHabitProviders(ref);
 });
+
+void invalidateHabitProviders(Ref ref) {
+  ref.invalidate(allHabitsProvider);
+  ref.invalidate(allHabitsManagementProvider);
+  ref.invalidate(todayHabitsProvider);
+  ref.invalidate(dailyHabitsProvider);
+  ref.invalidate(habitsForDayProvider);
+}

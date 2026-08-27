@@ -113,6 +113,7 @@ class NotificationService {
     if (!await areNotificationsEnabled() || remindAt.isBefore(DateTime.now())) {
       return;
     }
+    await initialize();
     final existing = await _notifRepo.getNotificationsForTask(taskId);
     for (final notification in existing) {
       await cancelNotification(notification.idNotif, logCancellation: false);
@@ -149,6 +150,7 @@ class NotificationService {
         scheduledTime.isBefore(DateTime.now())) {
       return;
     }
+    await initialize();
     final id = await _getNextAvailableId();
     await _notifRepo.saveNotification(
       notif_model.Notification()
@@ -207,7 +209,7 @@ class NotificationService {
       details,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       payload: payload,
     );
   }

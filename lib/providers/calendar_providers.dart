@@ -6,6 +6,8 @@ import '../models/status.dart';
 import '../models/priority.dart';
 import 'repository_providers.dart';
 
+final calendarRefreshProvider = StateProvider<int>((ref) => 0);
+
 // Provider pour le premier jour de la semaine
 final firstDayOfWeekProvider = FutureProvider<int>((ref) async {
   final repo = ref.read(settingsRepositoryProvider);
@@ -19,6 +21,7 @@ final tasksForPeriodProvider =
       ref,
       period,
     ) async {
+      ref.watch(calendarRefreshProvider);
       final repo = ref.read(taskRepositoryProvider);
       final (start, end) = period;
       return await repo.getTasksForPeriod(start, end);
@@ -29,6 +32,7 @@ final tasksForMonthProvider = FutureProvider.family<List<Task>, DateTime>((
   ref,
   month,
 ) async {
+  ref.watch(calendarRefreshProvider);
   final repo = ref.read(taskRepositoryProvider);
   final start = DateTime(month.year, month.month, 1);
   final end = DateTime(month.year, month.month + 1, 0, 23, 59, 59);
@@ -40,6 +44,7 @@ final tasksByDateProvider = FutureProvider.family<List<Task>, DateTime>((
   ref,
   date,
 ) async {
+  ref.watch(calendarRefreshProvider);
   final repo = ref.read(taskRepositoryProvider);
   return await repo.getTasksForDate(date);
 });
