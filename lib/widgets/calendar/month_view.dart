@@ -24,7 +24,7 @@ class MonthView extends ConsumerWidget {
     final categoriesAsync = ref.watch(allCategoriesProvider);
     final theme = Theme.of(context);
     final isDark = ref.watch(darkModeProvider);
-    final textColor = theme.colorScheme.onBackground;
+    final textColor = theme.colorScheme.onSurface;
     final textColorSecondary = isDark
         ? const Color(0xFF94A3B8)
         : const Color(0xFF64748B);
@@ -64,9 +64,7 @@ class MonthView extends ConsumerWidget {
                 },
               ),
               Text(
-                _getMonthName(selectedDate.month) +
-                    ' ' +
-                    selectedDate.year.toString(),
+                '${_getMonthName(selectedDate.month)} ${selectedDate.year}',
                 style: TextStyle(
                   color: textColor,
                   fontSize: 18,
@@ -171,7 +169,7 @@ class MonthView extends ConsumerWidget {
                               padding: const EdgeInsets.all(4),
                               decoration: BoxDecoration(
                                 color: isSelected
-                                    ? primaryColor.withOpacity(0.2)
+                                    ? primaryColor.withValues(alpha: 0.2)
                                     : null,
                                 borderRadius: BorderRadius.circular(8),
                                 border: isSelected
@@ -248,11 +246,11 @@ class MonthView extends ConsumerWidget {
                   );
                 },
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (_, __) => const Center(child: Text('Erreur')),
+                error: (_, _) => const Center(child: Text('Erreur')),
               );
             },
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (_, __) => const Center(child: Text('Erreur')),
+            error: (_, _) => const Center(child: Text('Erreur')),
           ),
         ),
       ],

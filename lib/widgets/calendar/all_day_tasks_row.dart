@@ -34,7 +34,9 @@ class AllDayTasksRow extends StatelessWidget {
     return Container(
       height: rowHeight,
       decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: borderColor.withOpacity(0.5))),
+        border: Border(
+          bottom: BorderSide(color: borderColor.withValues(alpha: 0.5)),
+        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -62,7 +64,7 @@ class AllDayTasksRow extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(3, 4, 3, 4),
                 decoration: BoxDecoration(
                   border: Border(
-                    left: BorderSide(color: borderColor.withOpacity(0.4)),
+                    left: BorderSide(color: borderColor.withValues(alpha: 0.4)),
                   ),
                 ),
                 child: Column(

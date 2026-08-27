@@ -28,7 +28,7 @@ class HabitList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isDark = ref.watch(darkModeProvider);
-    final textColor = theme.colorScheme.onBackground;
+    final textColor = theme.colorScheme.onSurface;
     final textColorSecondary = isDark
         ? const Color(0xFF94A3B8)
         : const Color(0xFF64748B);
@@ -87,7 +87,7 @@ class HabitList extends ConsumerWidget {
                   child: ListView.separated(
                     scrollDirection: Axis.horizontal,
                     itemCount: habits.length,
-                    separatorBuilder: (_, __) => const SizedBox(width: 12),
+                    separatorBuilder: (_, _) => const SizedBox(width: 12),
                     itemBuilder: (context, index) {
                       final habit = habits[index];
                       return HabitChip(
@@ -105,7 +105,7 @@ class HabitList extends ConsumerWidget {
           loading: () => Center(
             child: CircularProgressIndicator(color: theme.primaryColor),
           ),
-          error: (_, __) => Center(
+          error: (_, _) => Center(
             child: Text(
               'Erreur habitudes',
               style: TextStyle(color: textColorSecondary),

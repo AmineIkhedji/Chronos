@@ -53,7 +53,7 @@ class _ThreeDaysViewState extends ConsumerState<ThreeDaysView> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = ref.watch(darkModeProvider);
-    final textColor = theme.colorScheme.onBackground;
+    final textColor = theme.colorScheme.onSurface;
     final textColorSecondary = isDark
         ? const Color(0xFF94A3B8)
         : const Color(0xFF64748B);
@@ -112,7 +112,7 @@ class _ThreeDaysViewState extends ConsumerState<ThreeDaysView> {
           textColorSecondary: textColorSecondary,
           primaryColor: theme.primaryColor,
         ),
-        Container(height: 1, color: borderColor.withOpacity(0.5)),
+        Container(height: 1, color: borderColor.withValues(alpha: 0.5)),
 
         // Grille horaire (00h -> 23h), même système que la vue Semaine,
         // simplement avec moins de colonnes.
@@ -223,7 +223,9 @@ class _ThreeDaysViewState extends ConsumerState<ThreeDaysView> {
                                       decoration: BoxDecoration(
                                         border: Border(
                                           left: BorderSide(
-                                            color: borderColor.withOpacity(0.4),
+                                            color: borderColor.withValues(
+                                              alpha: 0.4,
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -308,7 +310,7 @@ class _ThreeDaysViewState extends ConsumerState<ThreeDaysView> {
               );
             },
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (_, __) => const Center(child: Text('Erreur')),
+            error: (_, _) => const Center(child: Text('Erreur')),
           ),
         ),
       ],

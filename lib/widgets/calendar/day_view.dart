@@ -43,12 +43,12 @@ class DayView extends ConsumerWidget {
                   );
                 },
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (_, __) =>
+                error: (_, _) =>
                     const Center(child: Text('Erreur de chargement')),
               );
             },
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (_, __) => const Center(child: Text('Erreur')),
+            error: (_, _) => const Center(child: Text('Erreur')),
           ),
         ),
       ],
@@ -58,7 +58,7 @@ class DayView extends ConsumerWidget {
   Widget _buildDateHeader(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isDark = ref.watch(darkModeProvider);
-    final textColor = theme.colorScheme.onBackground;
+    final textColor = theme.colorScheme.onSurface;
     final textColorSecondary = isDark
         ? const Color(0xFF94A3B8)
         : const Color(0xFF64748B);
@@ -138,7 +138,7 @@ class DayView extends ConsumerWidget {
   }) {
     final theme = Theme.of(context);
     final isDark = ref.watch(darkModeProvider);
-    final textColor = theme.colorScheme.onBackground;
+    final textColor = theme.colorScheme.onSurface;
     final lineColor = isDark
         ? const Color(0xFF1E293B)
         : const Color(0xFFF1F5F9);
@@ -191,7 +191,7 @@ class DayView extends ConsumerWidget {
           days: [date],
           tasksByDay: allDayTasksByDay,
           hourLabelWidth: 56,
-          textColorSecondary: textColor.withOpacity(0.5),
+          textColorSecondary: textColor.withValues(alpha: 0.5),
           borderColor: lineColor,
           onTaskTap: (task) {
             Navigator.push(
@@ -224,7 +224,7 @@ class DayView extends ConsumerWidget {
                                   '${hour.toString().padLeft(2, '0')}:00',
                                   textAlign: TextAlign.right,
                                   style: TextStyle(
-                                    color: textColor.withOpacity(0.5),
+                                    color: textColor.withValues(alpha: 0.5),
                                     fontSize: 11,
                                   ),
                                 ),
@@ -300,7 +300,7 @@ class DayView extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(6),
                             boxShadow: [
                               BoxShadow(
-                                color: color.withOpacity(0.3),
+                                color: color.withValues(alpha: 0.3),
                                 blurRadius: 4,
                                 offset: const Offset(0, 2),
                               ),
@@ -324,7 +324,7 @@ class DayView extends ConsumerWidget {
                                 Text(
                                   '${_formatTime(task.startTime)} - ${_formatTime(task.endTime)}',
                                   style: TextStyle(
-                                    color: Colors.white.withOpacity(0.9),
+                                    color: Colors.white.withValues(alpha: 0.9),
                                     fontSize: 10,
                                   ),
                                 ),

@@ -81,7 +81,7 @@ class _HomeGreetingState extends ConsumerState<HomeGreeting> {
     final theme = Theme.of(context);
     final isDark = ref.watch(darkModeProvider);
     final userName = ref.watch(userNameProvider);
-    final textColor = theme.colorScheme.onBackground;
+    final textColor = theme.colorScheme.onSurface;
     final textColorSecondary = isDark
         ? const Color(0xFF94A3B8)
         : const Color(0xFF64748B);

@@ -21,7 +21,7 @@ class MiniCalendar extends ConsumerWidget {
       ThemeColors.userColors[userColor] ?? ThemeColors.defaultPrimary,
     );
 
-    final textColor = theme.colorScheme.onBackground;
+    final textColor = theme.colorScheme.onSurface;
     final textColorSecondary = isDark
         ? const Color(0xFF94A3B8)
         : const Color(0xFF64748B);
@@ -95,7 +95,7 @@ class MiniCalendar extends ConsumerWidget {
         },
         loading: () =>
             Center(child: CircularProgressIndicator(color: theme.primaryColor)),
-        error: (_, __) => Center(
+        error: (_, _) => Center(
           child: Text(
             'Erreur calendrier',
             style: TextStyle(color: textColorSecondary),

@@ -33,7 +33,7 @@ class TaskDetailScreen extends ConsumerWidget {
         return _buildDetails(context, ref, currentTask);
       },
       loading: () => _buildSkeleton(context),
-      error: (_, __) => const Scaffold(
+      error: (_, _) => const Scaffold(
         body: Center(child: Text('Erreur de chargement de la tâche')),
       ),
     );
@@ -41,8 +41,8 @@ class TaskDetailScreen extends ConsumerWidget {
 
   Widget _buildDetails(BuildContext context, WidgetRef ref, Task task) {
     final theme = Theme.of(context);
-    final textColor = theme.colorScheme.onBackground;
-    final textSecondary = theme.colorScheme.onBackground.withOpacity(0.6);
+    final textColor = theme.colorScheme.onSurface;
+    final textSecondary = theme.colorScheme.onSurface.withValues(alpha: 0.6);
     final cardColor = theme.cardColor;
     final borderColor = theme.dividerColor;
     final toggleCompletion = ref.read(toggleTaskCompletionProvider);
@@ -90,7 +90,9 @@ class TaskDetailScreen extends ConsumerWidget {
             Text(
               task.title,
               style: TextStyle(
-                color: textColor.withOpacity(task.isCompleted ? 0.5 : 1.0),
+                color: textColor.withValues(
+                  alpha: task.isCompleted ? 0.5 : 1.0,
+                ),
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
                 decoration: task.isCompleted
@@ -117,12 +119,14 @@ class TaskDetailScreen extends ConsumerWidget {
                 decoration: BoxDecoration(
                   color: cardColor,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: borderColor.withOpacity(0.5)),
+                  border: Border.all(color: borderColor.withValues(alpha: 0.5)),
                 ),
                 child: Text(
                   task.description,
                   style: TextStyle(
-                    color: textColor.withOpacity(task.isCompleted ? 0.5 : 1.0),
+                    color: textColor.withValues(
+                      alpha: task.isCompleted ? 0.5 : 1.0,
+                    ),
                     fontSize: 14,
                     height: 1.5,
                   ),
@@ -137,7 +141,7 @@ class TaskDetailScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 color: cardColor,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: borderColor.withOpacity(0.5)),
+                border: Border.all(color: borderColor.withValues(alpha: 0.5)),
               ),
               child: Column(
                 children: [
@@ -198,13 +202,13 @@ class TaskDetailScreen extends ConsumerWidget {
               width: double.infinity,
               decoration: BoxDecoration(
                 color: task.isCompleted
-                    ? Colors.green.withOpacity(0.15)
+                    ? Colors.green.withValues(alpha: 0.15)
                     : cardColor,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: task.isCompleted
-                      ? Colors.green.withOpacity(0.5)
-                      : borderColor.withOpacity(0.5),
+                      ? Colors.green.withValues(alpha: 0.5)
+                      : borderColor.withValues(alpha: 0.5),
                 ),
               ),
               child: InkWell(
@@ -223,7 +227,9 @@ class TaskDetailScreen extends ConsumerWidget {
                           border: Border.all(
                             color: task.isCompleted
                                 ? Colors.green
-                                : theme.colorScheme.onSurface.withOpacity(0.3),
+                                : theme.colorScheme.onSurface.withValues(
+                                    alpha: 0.3,
+                                  ),
                             width: 2,
                           ),
                           color: task.isCompleted
@@ -282,7 +288,7 @@ class TaskDetailScreen extends ConsumerWidget {
   }
 
   Widget _buildSkeleton(BuildContext context) {
-    final color = Theme.of(context).dividerColor.withOpacity(0.2);
+    final color = Theme.of(context).dividerColor.withValues(alpha: 0.2);
 
     Widget block(double height, {double? width}) {
       return Container(
@@ -395,7 +401,7 @@ class TaskDetailScreen extends ConsumerWidget {
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Theme.of(context).dividerColor.withOpacity(0.5),
+          color: Theme.of(context).dividerColor.withValues(alpha: 0.5),
         ),
       ),
       child: notificationsProvider.when(
@@ -407,7 +413,7 @@ class TaskDetailScreen extends ConsumerWidget {
                   Icons.notifications_none_rounded,
                   color: Theme.of(
                     context,
-                  ).colorScheme.onSurface.withOpacity(0.6),
+                  ).colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
                 const SizedBox(width: 12),
                 Text(
@@ -415,7 +421,7 @@ class TaskDetailScreen extends ConsumerWidget {
                   style: TextStyle(
                     color: Theme.of(
                       context,
-                    ).colorScheme.onBackground.withOpacity(0.6),
+                    ).colorScheme.onSurface.withValues(alpha: 0.6),
                     fontSize: 14,
                   ),
                 ),
@@ -440,7 +446,7 @@ class TaskDetailScreen extends ConsumerWidget {
                       child: Text(
                         'Rappel le ${DateFormat('dd/MM/yyyy à HH:mm', 'fr_FR').format(notif.remindAt)}',
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.onBackground,
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontSize: 14,
                         ),
                       ),
@@ -462,10 +468,12 @@ class TaskDetailScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (_, __) => Text(
+        error: (_, _) => Text(
           'Erreur de chargement',
           style: TextStyle(
-            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.6),
           ),
         ),
       ),

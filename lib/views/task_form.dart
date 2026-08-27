@@ -75,7 +75,7 @@ class _TaskFormState extends ConsumerState<TaskForm> {
         _selectedStatusId = _statuses[0].idStatus;
       }
     } catch (e) {
-      print('Erreur lors du chargement des données: $e');
+      debugPrint('Erreur lors du chargement des données: $e');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -225,7 +225,7 @@ class _TaskFormState extends ConsumerState<TaskForm> {
 
                     // ============ CATÉGORIE ============
                     DropdownButtonFormField<int>(
-                      value: _selectedCategoryId,
+                      initialValue: _selectedCategoryId,
                       decoration: const InputDecoration(
                         labelText: 'Catégorie *',
                         border: OutlineInputBorder(),
@@ -257,7 +257,7 @@ class _TaskFormState extends ConsumerState<TaskForm> {
 
                     // ============ PRIORITÉ ============
                     DropdownButtonFormField<int>(
-                      value: _selectedPriorityId,
+                      initialValue: _selectedPriorityId,
                       decoration: const InputDecoration(
                         labelText: 'Priorité *',
                         border: OutlineInputBorder(),
@@ -289,7 +289,7 @@ class _TaskFormState extends ConsumerState<TaskForm> {
 
                     // ============ STATUT ============
                     DropdownButtonFormField<int>(
-                      value: _selectedStatusId,
+                      initialValue: _selectedStatusId,
                       decoration: const InputDecoration(
                         labelText: 'Statut *',
                         border: OutlineInputBorder(),
@@ -369,10 +369,10 @@ class _TaskFormState extends ConsumerState<TaskForm> {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: Colors.orange.withOpacity(0.1),
+                            color: Colors.orange.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                              color: Colors.orange.withOpacity(0.3),
+                              color: Colors.orange.withValues(alpha: 0.3),
                             ),
                           ),
                           child: Row(
@@ -396,7 +396,7 @@ class _TaskFormState extends ConsumerState<TaskForm> {
                         ),
                       const SizedBox(height: 16),
                       DropdownButtonFormField<int>(
-                        value: _reminderMinutesBefore,
+                        initialValue: _reminderMinutesBefore,
                         decoration: const InputDecoration(
                           labelText: 'Délai du rappel',
                           border: OutlineInputBorder(),
@@ -410,7 +410,9 @@ class _TaskFormState extends ConsumerState<TaskForm> {
                       Text(
                         'Vous serez notifié ${_taskController.formatReminderTime(_reminderMinutesBefore)} avant la tâche',
                         style: TextStyle(
-                          color: theme.colorScheme.onSurface.withOpacity(0.6),
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.6,
+                          ),
                           fontSize: 12,
                           fontStyle: FontStyle.italic,
                         ),

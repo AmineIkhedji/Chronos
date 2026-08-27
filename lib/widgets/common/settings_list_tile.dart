@@ -36,7 +36,9 @@ class SettingsListTile extends StatelessWidget {
         : const Color(0xFF475569);
     final effectiveIconColor = leadingIconColor ?? neutralIconColor;
     final effectiveBgColor =
-        iconBgColor ?? leadingIconColor?.withOpacity(0.15) ?? neutralIconBg;
+        iconBgColor ??
+        leadingIconColor?.withValues(alpha: 0.15) ??
+        neutralIconBg;
 
     return InkWell(
       onTap: onTap,
@@ -77,7 +79,7 @@ class SettingsListTile extends StatelessWidget {
                 ],
               ),
             ),
-            if (trailing != null) trailing!,
+            ?trailing,
           ],
         ),
       ),

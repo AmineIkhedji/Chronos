@@ -71,7 +71,7 @@ class HabitsManagementScreen extends ConsumerWidget {
             child: ListView.separated(
               padding: const EdgeInsets.all(16),
               itemCount: habitsData.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 8),
+              separatorBuilder: (_, _) => const SizedBox(height: 8),
               itemBuilder: (context, index) {
                 final habit = habitsData[index];
 
@@ -86,7 +86,7 @@ class HabitsManagementScreen extends ConsumerWidget {
           );
         },
         loading: () => const LoadingIndicator(),
-        error: (_, __) => ErrorState(
+        error: (_, _) => ErrorState(
           message: 'Impossible de charger les habitudes',
           onRetry: () => ref.invalidate(allHabitsManagementProvider),
         ),
@@ -139,7 +139,7 @@ class _HabitManagementTile extends ConsumerWidget {
       child: ListTile(
         onTap: onTap,
         leading: CircleAvatar(
-          backgroundColor: theme.primaryColor.withOpacity(0.15),
+          backgroundColor: theme.primaryColor.withValues(alpha: 0.15),
           child: Icon(Icons.bolt_rounded, color: theme.primaryColor, size: 20),
         ),
         title: Text(
@@ -156,7 +156,7 @@ class _HabitManagementTile extends ConsumerWidget {
             return Text(label);
           },
           loading: () => const Text('Chargement...'),
-          error: (_, __) => const Text('Erreur jours'),
+          error: (_, _) => const Text('Erreur jours'),
         ),
         trailing: IconButton(
           icon: const Icon(Icons.delete_outline_rounded, color: Colors.red),

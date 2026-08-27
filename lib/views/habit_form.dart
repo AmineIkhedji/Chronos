@@ -59,7 +59,7 @@ class _HabitFormState extends ConsumerState<HabitForm> {
         _selectedCategoryId = _categories[0].idCategory;
       }
     } catch (e) {
-      print('Erreur lors du chargement des données: $e');
+      debugPrint('Erreur lors du chargement des données: $e');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -150,7 +150,7 @@ class _HabitFormState extends ConsumerState<HabitForm> {
 
                     // ============ CATÉGORIE ============
                     DropdownButtonFormField<int>(
-                      value: _selectedCategoryId,
+                      initialValue: _selectedCategoryId,
                       decoration: const InputDecoration(
                         labelText: 'Catégorie *',
                         border: OutlineInputBorder(),

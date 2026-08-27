@@ -47,21 +47,23 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         _userName = userName == null || userName.isEmpty ? null : userName;
       });
     } catch (e) {
-      print('Erreur lors du chargement des paramètres: $e');
+      debugPrint('Erreur lors du chargement des paramètres: $e');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
 
   Future<void> _updateNotificationsEnabled(bool value) async {
+    final messenger = ScaffoldMessenger.of(context);
     try {
       await SettingsRepository().setNotificationsEnabled(value);
       await NotificationService().handleNotificationsEnabledChange(value);
 
-      if (mounted) {
+      if (!mounted) return;
+      {
         setState(() => _notificationsEnabled = value);
 
-        ScaffoldMessenger.of(context).showSnackBar(
+        messenger.showSnackBar(
           SnackBar(
             content: Text(
               value
@@ -73,14 +75,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         );
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('❌ Erreur lors de la mise à jour'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      if (!context.mounted) return;
+      messenger.showSnackBar(
+        SnackBar(
+          content: const Text('❌ Erreur lors de la mise à jour'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -88,6 +89,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     BuildContext context,
     Color currentColor,
   ) async {
+    final messenger = ScaffoldMessenger.of(this.context);
     final result = await showDialog<int>(
       context: context,
       builder: (context) => ColorPickerDialog(currentColor: currentColor),
@@ -111,7 +113,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+          messenger.showSnackBar(
             const SnackBar(
               content: Text('❌ Erreur lors du changement de couleur'),
               backgroundColor: Colors.red,
@@ -131,7 +133,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       ThemeColors.userColors[userColorKey] ?? ThemeColors.defaultPrimary,
     );
 
-    final textColor = theme.colorScheme.onBackground;
+    final textColor = theme.colorScheme.onSurface;
     final textSecondary = isDark
         ? const Color(0xFF94A3B8)
         : const Color(0xFF64748B);
@@ -171,25 +173,30 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   title: 'Votre nom',
                   subtitle: _userName ?? 'Ajouter votre nom',
                   leadingIconColor: primaryColor,
-                  iconBgColor: primaryColor.withOpacity(0.15),
+                  iconBgColor: primaryColor.withValues(alpha: 0.15),
                   onTap: _editUserName,
                   trailing: const Icon(Icons.chevron_right_rounded, size: 20),
                 ),
-                Divider(height: 1, color: theme.dividerColor.withOpacity(0.5)),
+                Divider(
+                  height: 1,
+                  color: theme.dividerColor.withValues(alpha: 0.5),
+                ),
                 SettingsListTile(
                   leadingIcon: Icons.dark_mode_rounded,
                   title: 'Mode sombre',
                   leadingIconColor: primaryColor,
-                  iconBgColor: primaryColor.withOpacity(0.15),
+                  iconBgColor: primaryColor.withValues(alpha: 0.15),
                   trailing: Switch(
                     value: isDark,
                     onChanged: (value) async {
+                      final messenger = ScaffoldMessenger.of(context);
                       try {
                         final repo = SettingsRepository();
                         await repo.setDarkMode(value);
                         ref.read(darkModeProvider.notifier).state = value;
                       } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
+                        if (!mounted) return;
+                        messenger.showSnackBar(
                           const SnackBar(
                             content: Text(
                               '❌ Erreur lors du changement de mode',
@@ -202,13 +209,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     activeThumbColor: primaryColor,
                   ),
                 ),
-                Divider(height: 1, color: theme.dividerColor.withOpacity(0.5)),
+                Divider(
+                  height: 1,
+                  color: theme.dividerColor.withValues(alpha: 0.5),
+                ),
                 SettingsListTile(
                   leadingIcon: Icons.color_lens_rounded,
                   title: 'Couleur principale',
                   subtitle: 'Personnalisez l\'accent de l\'app',
                   leadingIconColor: primaryColor,
-                  iconBgColor: primaryColor.withOpacity(0.15),
+                  iconBgColor: primaryColor.withValues(alpha: 0.15),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -244,9 +254,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   leadingIcon: Icons.calendar_today_rounded,
                   title: 'Premier jour de la semaine',
                   leadingIconColor: primaryColor,
-                  iconBgColor: primaryColor.withOpacity(0.15),
+                  iconBgColor: primaryColor.withValues(alpha: 0.15),
                 ),
-                Divider(height: 1, color: theme.dividerColor.withOpacity(0.5)),
+                Divider(
+                  height: 1,
+                  color: theme.dividerColor.withValues(alpha: 0.5),
+                ),
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: _buildWeekdayToggle(
@@ -269,7 +282,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   leadingIcon: Icons.notifications_rounded,
                   title: 'Rappels activés',
                   leadingIconColor: primaryColor,
-                  iconBgColor: primaryColor.withOpacity(0.15),
+                  iconBgColor: primaryColor.withValues(alpha: 0.15),
                   trailing: Switch(
                     value: _notificationsEnabled,
                     onChanged: _updateNotificationsEnabled,
@@ -279,7 +292,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 if (!_notificationsEnabled) ...[
                   Divider(
                     height: 1,
-                    color: theme.dividerColor.withOpacity(0.5),
+                    color: theme.dividerColor.withValues(alpha: 0.5),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(16),
@@ -303,17 +316,23 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   leadingIcon: Icons.sell_rounded,
                   title: 'Catégories',
                   leadingIconColor: const Color(0xFF6366F1),
-                  iconBgColor: const Color(0xFF6366F1).withOpacity(0.15),
+                  iconBgColor: const Color(0xFF6366F1).withValues(alpha: 0.15),
                   onTap: () => _openCustomization(CustomizationKind.categories),
                 ),
-                Divider(height: 1, color: theme.dividerColor.withOpacity(0.5)),
+                Divider(
+                  height: 1,
+                  color: theme.dividerColor.withValues(alpha: 0.5),
+                ),
                 SettingsListTile(
                   leadingIcon: Icons.flag_rounded,
                   title: 'Priorités',
                   leadingIconColor: const Color(0xFFEF4444),
                   onTap: () => _openCustomization(CustomizationKind.priorities),
                 ),
-                Divider(height: 1, color: theme.dividerColor.withOpacity(0.5)),
+                Divider(
+                  height: 1,
+                  color: theme.dividerColor.withValues(alpha: 0.5),
+                ),
                 SettingsListTile(
                   leadingIcon: Icons.check_circle_rounded,
                   title: 'Statuts',

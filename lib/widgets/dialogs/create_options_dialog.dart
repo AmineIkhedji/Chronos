@@ -33,7 +33,7 @@ class CreateOptionsDialog extends ConsumerWidget {
               ref: ref,
               icon: LucideIcons.plus,
               iconColor: theme.primaryColor,
-              iconBgColor: theme.primaryColor.withOpacity(0.1),
+              iconBgColor: theme.primaryColor.withValues(alpha: 0.1),
               title: 'Nouvelle tâche',
               onTap: () async {
                 Navigator.pop(context);
@@ -52,7 +52,7 @@ class CreateOptionsDialog extends ConsumerWidget {
               ref: ref,
               icon: LucideIcons.bolt,
               iconColor: Colors.orange,
-              iconBgColor: Colors.orange.withOpacity(0.1),
+              iconBgColor: Colors.orange.withValues(alpha: 0.1),
               title: 'Nouvelle habitude',
               onTap: () async {
                 Navigator.pop(context);
@@ -74,7 +74,7 @@ class CreateOptionsDialog extends ConsumerWidget {
               child: TextButton(
                 onPressed: () => Navigator.pop(context),
                 style: TextButton.styleFrom(
-                  backgroundColor: theme.dividerColor.withOpacity(0.1),
+                  backgroundColor: theme.dividerColor.withValues(alpha: 0.1),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -115,7 +115,7 @@ class CreateOptionsDialog extends ConsumerWidget {
         decoration: BoxDecoration(
           color: theme.cardColor,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: theme.dividerColor.withOpacity(0.5)),
+          border: Border.all(color: theme.dividerColor.withValues(alpha: 0.5)),
         ),
         child: Row(
           children: [
@@ -145,7 +145,7 @@ class CreateOptionsDialog extends ConsumerWidget {
             ),
             Icon(
               Icons.chevron_right_rounded,
-              color: theme.colorScheme.onSurface.withOpacity(0.4),
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
             ),
           ],
         ),

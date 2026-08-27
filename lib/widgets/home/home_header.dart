@@ -33,7 +33,7 @@ class HomeHeader extends ConsumerWidget {
                   child: _buildStatCard(
                     title: '$remaining',
                     subtitle: 'Tâches aujourd\'hui',
-                    color: primaryColor.withOpacity(0.8),
+                    color: primaryColor.withValues(alpha: 0.8),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -42,7 +42,7 @@ class HomeHeader extends ConsumerWidget {
                   child: _buildStatCard(
                     title: '${successRate.toStringAsFixed(0)}%',
                     subtitle: 'Réussite du jour',
-                    color: primaryColor.withOpacity(0.6),
+                    color: primaryColor.withValues(alpha: 0.6),
                   ),
                 ),
               ],
@@ -51,11 +51,11 @@ class HomeHeader extends ConsumerWidget {
           loading: () => Center(
             child: CircularProgressIndicator(color: theme.primaryColor),
           ),
-          error: (_, __) => Center(
+          error: (_, _) => Center(
             child: Text(
               'Erreur stats',
               style: TextStyle(
-                color: theme.colorScheme.onBackground.withOpacity(0.6),
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
           ),

@@ -113,12 +113,12 @@ class ChronosBottomNavigationBar extends ConsumerWidget {
 
     // ============ GLASSMORPHISM ============
     final glassColor = isDark
-        ? const Color(0xFF1E293B).withOpacity(0.55)
-        : const Color(0xFFFFFFFF).withOpacity(0.65);
+        ? const Color(0xFF1E293B).withValues(alpha: 0.55)
+        : const Color(0xFFFFFFFF).withValues(alpha: 0.65);
 
     final glassBorderColor = isDark
-        ? Colors.white.withOpacity(0.08)
-        : Colors.white.withOpacity(0.5);
+        ? Colors.white.withValues(alpha: 0.08)
+        : Colors.white.withValues(alpha: 0.5);
 
     final inactiveColor = isDark
         ? const Color(0xFF64748B)
@@ -134,7 +134,7 @@ class ChronosBottomNavigationBar extends ConsumerWidget {
             border: Border(top: BorderSide(color: glassBorderColor, width: 1)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(isDark ? 0.25 : 0.08),
+                color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.08),
                 blurRadius: 20,
                 offset: const Offset(0, -4),
               ),
@@ -186,7 +186,7 @@ class ChronosBottomNavigationBar extends ConsumerWidget {
                             color: primaryColor,
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: Colors.white.withOpacity(0.35),
+                              color: Colors.white.withValues(alpha: 0.35),
                               width: 1.5,
                             ),
                           ),

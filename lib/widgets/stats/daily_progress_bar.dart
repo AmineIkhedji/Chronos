@@ -28,7 +28,7 @@ class DailyProgressBar extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                color: Theme.of(context).colorScheme.onBackground,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),

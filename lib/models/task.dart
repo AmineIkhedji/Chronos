@@ -95,7 +95,7 @@ extension TaskExtension on Task {
     final reminderDateTime = getReminderTime(minutesBefore);
     // S'assurer que le rappel n'est pas dans le passé
     if (reminderDateTime.isBefore(DateTime.now())) {
-      print('⚠️ Le rappel serait dans le passé, ignoré');
+      debugPrint('Le rappel serait dans le passé, ignoré');
       return;
     }
 
@@ -147,10 +147,12 @@ extension TaskExtension on Task {
   /// Formate la plage horaire complète
   String formatTimeRange() {
     if (startTime == null && endTime == null) return 'Toute la journée';
-    if (startTime != null && endTime == null)
+    if (startTime != null && endTime == null) {
       return 'À partir de ${formatStartTime()}';
-    if (startTime == null && endTime != null)
+    }
+    if (startTime == null && endTime != null) {
       return 'Jusqu\'à ${formatEndTime()}';
+    }
     return '${formatStartTime()} - ${formatEndTime()}';
   }
 }

@@ -156,8 +156,9 @@ class _CustomizationScreenState extends State<CustomizationScreen> {
           if (!snapshot.hasData) {
             return const _CustomizationSkeletonLoader();
           }
-          if (snapshot.data!.isEmpty)
+          if (snapshot.data!.isEmpty) {
             return Center(child: Text('Aucun élément dans $_title'));
+          }
           return ListView.separated(
             padding: const EdgeInsets.all(20),
             itemCount: snapshot.data!.length,
@@ -231,6 +232,7 @@ class _CustomizationScreenState extends State<CustomizationScreen> {
     final existingNames = (await _itemsFuture)
         .map((existingItem) => existingItem.name as String)
         .toList();
+    if (!mounted) return;
     final result = await showDialog<bool>(
       context: context,
       builder: (_) => _CustomizationEditDialog(
@@ -636,7 +638,7 @@ class _SkeletonBox extends StatelessWidget {
             : null,
       ),
       foregroundDecoration: BoxDecoration(
-        color: highlightColor.withOpacity(0.25),
+        color: highlightColor.withValues(alpha: 0.25),
         shape: shape,
         borderRadius: shape == BoxShape.rectangle
             ? BorderRadius.circular(6)

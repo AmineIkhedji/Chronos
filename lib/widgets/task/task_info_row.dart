@@ -16,8 +16,8 @@ class TaskInfoRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final textColor = theme.colorScheme.onBackground;
-    final textSecondary = theme.colorScheme.onBackground.withOpacity(0.6);
+    final textColor = theme.colorScheme.onSurface;
+    final textSecondary = theme.colorScheme.onSurface.withValues(alpha: 0.6);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),

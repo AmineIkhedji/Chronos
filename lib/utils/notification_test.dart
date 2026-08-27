@@ -1,4 +1,5 @@
 // lib/utils/notification_test.dart (optionnel pour tester)
+import 'package:flutter/foundation.dart';
 import '../services/notification_service.dart';
 
 class NotificationTest {
@@ -14,6 +15,6 @@ class NotificationTest {
       'Ceci est une notification de test',
       testTime,
     );
-    print('✅ Notification de test planifiée pour ${testTime.toLocal()}');
+    debugPrint('Notification de test planifiée pour ${testTime.toLocal()}');
   }
 }

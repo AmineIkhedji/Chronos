@@ -59,7 +59,9 @@ class TaskListItem extends StatelessWidget {
                       border: Border.all(
                         color: isCompleted
                             ? Colors.green
-                            : theme.colorScheme.onSurface.withOpacity(0.3),
+                            : theme.colorScheme.onSurface.withValues(
+                                alpha: 0.3,
+                              ),
                         width: 2,
                       ),
                       color: isCompleted ? Colors.green : Colors.transparent,
@@ -110,8 +112,8 @@ class TaskListItem extends StatelessWidget {
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            color: theme.colorScheme.onSurface.withOpacity(
-              isCompleted ? 0.5 : 1.0,
+            color: theme.colorScheme.onSurface.withValues(
+              alpha: isCompleted ? 0.5 : 1.0,
             ),
             fontSize: 16,
             fontWeight: FontWeight.w500,
@@ -138,8 +140,8 @@ class TaskListItem extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: textColorSecondary.withOpacity(
-                    isCompleted ? 0.5 : 1.0,
+                  color: textColorSecondary.withValues(
+                    alpha: isCompleted ? 0.5 : 1.0,
                   ),
                   fontSize: 13,
                 ),
@@ -166,8 +168,8 @@ class TaskListItem extends StatelessWidget {
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            color: theme.colorScheme.onSurface.withOpacity(
-              isCompleted ? 0.5 : 1.0,
+            color: theme.colorScheme.onSurface.withValues(
+              alpha: isCompleted ? 0.5 : 1.0,
             ),
             fontSize: 14,
             fontWeight: FontWeight.w500,
@@ -192,7 +194,9 @@ class TaskListItem extends StatelessWidget {
             Text(
               timeRange,
               style: TextStyle(
-                color: textColorSecondary.withOpacity(isCompleted ? 0.5 : 1.0),
+                color: textColorSecondary.withValues(
+                  alpha: isCompleted ? 0.5 : 1.0,
+                ),
                 fontSize: 12,
               ),
             ),

@@ -119,8 +119,7 @@ class _AllTasksScreenState extends ConsumerState<AllTasksScreen> {
                         child: ListView.separated(
                           padding: const EdgeInsets.all(16),
                           itemCount: filteredTasks.length,
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(height: 8),
+                          separatorBuilder: (_, _) => const SizedBox(height: 8),
                           itemBuilder: (context, index) {
                             final task = filteredTasks[index];
                             final showDateHeader =
@@ -144,7 +143,7 @@ class _AllTasksScreenState extends ConsumerState<AllTasksScreen> {
                                       _formatDateHeader(task.date),
                                       style: TextStyle(
                                         color: theme.colorScheme.onSurface
-                                            .withOpacity(0.6),
+                                            .withValues(alpha: 0.6),
                                         fontSize: 13,
                                         fontWeight: FontWeight.w600,
                                       ),
@@ -212,7 +211,7 @@ class _AllTasksScreenState extends ConsumerState<AllTasksScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           DropdownButtonFormField<_TaskFilterType>(
-            value: _filterType,
+            initialValue: _filterType,
             decoration: const InputDecoration(labelText: 'Filtrer par'),
             items: _TaskFilterType.values
                 .map(
@@ -230,7 +229,7 @@ class _AllTasksScreenState extends ConsumerState<AllTasksScreen> {
           ),
           const SizedBox(width: 12),
           DropdownButtonFormField<String>(
-            value: selectedValue,
+            initialValue: selectedValue,
             decoration: InputDecoration(labelText: _filterType.label),
             items: options,
             onChanged: (value) {

@@ -98,7 +98,7 @@ class _SnackbarWidgetState extends State<_SnackbarWidget>
       case SnackType.info:
         return _SnackStyle(
           color: colorScheme.primary,
-          bgColor: colorScheme.primary.withOpacity(0.12),
+          bgColor: colorScheme.primary.withValues(alpha: 0.12),
           icon: widget.type == SnackType.success
               ? Icons.check_circle_rounded
               : Icons.info_rounded,
@@ -106,7 +106,7 @@ class _SnackbarWidgetState extends State<_SnackbarWidget>
       case SnackType.error:
         return _SnackStyle(
           color: colorScheme.error,
-          bgColor: colorScheme.error.withOpacity(0.12),
+          bgColor: colorScheme.error.withValues(alpha: 0.12),
           icon: Icons.error_rounded,
         );
       case SnackType.warning:
@@ -115,7 +115,7 @@ class _SnackbarWidgetState extends State<_SnackbarWidget>
             : Colors.orange.shade800;
         return _SnackStyle(
           color: warningColor,
-          bgColor: warningColor.withOpacity(0.12),
+          bgColor: warningColor.withValues(alpha: 0.12),
           icon: Icons.warning_rounded,
         );
     }
@@ -150,10 +150,12 @@ class _SnackbarWidgetState extends State<_SnackbarWidget>
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surface,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: style.color.withOpacity(0.15)),
+                  border: Border.all(
+                    color: style.color.withValues(alpha: 0.15),
+                  ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
+                      color: Colors.black.withValues(alpha: 0.08),
                       blurRadius: 20,
                       offset: const Offset(0, 8),
                     ),
@@ -183,7 +185,7 @@ class _SnackbarWidgetState extends State<_SnackbarWidget>
                     Icon(
                       Icons.close_rounded,
                       size: 18,
-                      color: theme.colorScheme.onSurface.withOpacity(0.6),
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
                   ],
                 ),

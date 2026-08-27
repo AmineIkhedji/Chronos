@@ -49,7 +49,7 @@ class CustomAppBar extends ConsumerWidget implements PreferredSizeWidget {
     // Maintenant : fond = fond du thème, texte/icônes = couleur de texte
     // du thème → épuré, et 100% synchro avec dark/light mode.
     final bgColor = backgroundColor ?? theme.scaffoldBackgroundColor;
-    final fgColor = foregroundColor ?? theme.colorScheme.onBackground;
+    final fgColor = foregroundColor ?? theme.colorScheme.onSurface;
 
     return AppBar(
       backgroundColor: bgColor,

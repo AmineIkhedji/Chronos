@@ -84,15 +84,15 @@ class KanbanView extends ConsumerWidget {
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (_, __) => const Center(child: Text('Erreur')),
+              error: (_, _) => const Center(child: Text('Erreur')),
             );
           },
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, __) => const Center(child: Text('Erreur')),
+          error: (_, _) => const Center(child: Text('Erreur')),
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (_, __) => const Center(child: Text('Erreur')),
+      error: (_, _) => const Center(child: Text('Erreur')),
     );
   }
 
@@ -134,7 +134,7 @@ class KanbanView extends ConsumerWidget {
             border: Border.all(
               color: candidateData.isNotEmpty
                   ? statusColor
-                  : borderColor.withOpacity(0.5),
+                  : borderColor.withValues(alpha: 0.5),
               width: candidateData.isNotEmpty ? 2 : 1,
             ),
           ),
@@ -144,12 +144,14 @@ class KanbanView extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.1),
+                  color: statusColor.withValues(alpha: 0.1),
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(16),
                   ),
                   border: Border(
-                    bottom: BorderSide(color: statusColor.withOpacity(0.3)),
+                    bottom: BorderSide(
+                      color: statusColor.withValues(alpha: 0.3),
+                    ),
                   ),
                 ),
                 child: Row(
@@ -203,7 +205,7 @@ class KanbanView extends ConsumerWidget {
                   builder: (context, candidateData, rejectedData) {
                     return Container(
                       color: candidateData.isNotEmpty
-                          ? statusColor.withOpacity(0.1)
+                          ? statusColor.withValues(alpha: 0.1)
                           : null,
                       child: ListView.builder(
                         padding: const EdgeInsets.all(8),
@@ -260,7 +262,7 @@ class KanbanView extends ConsumerWidget {
             border: Border.all(color: categoryColor, width: 2),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.3),
+                color: Colors.black.withValues(alpha: 0.3),
                 blurRadius: 8,
                 offset: const Offset(0, 4),
               ),
@@ -302,10 +304,10 @@ class KanbanView extends ConsumerWidget {
           decoration: BoxDecoration(
             color: theme.colorScheme.surface,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: borderColor.withOpacity(0.5)),
+            border: Border.all(color: borderColor.withValues(alpha: 0.5)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 4,
                 offset: const Offset(0, 2),
               ),
@@ -365,7 +367,7 @@ class KanbanView extends ConsumerWidget {
               child: Text(
                 categoryName,
                 style: TextStyle(
-                  color: theme.colorScheme.onSurface.withOpacity(0.6),
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                   fontSize: 11,
                 ),
                 maxLines: 1,

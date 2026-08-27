@@ -104,12 +104,14 @@ class HabitDaySelector extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
         decoration: BoxDecoration(
-          color: isSelected ? primaryColor.withOpacity(0.15) : theme.cardColor,
+          color: isSelected
+              ? primaryColor.withValues(alpha: 0.15)
+              : theme.cardColor,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected
-                ? primaryColor.withOpacity(0.5)
-                : theme.dividerColor.withOpacity(0.5),
+                ? primaryColor.withValues(alpha: 0.5)
+                : theme.dividerColor.withValues(alpha: 0.5),
           ),
         ),
         child: Column(
@@ -118,7 +120,7 @@ class HabitDaySelector extends StatelessWidget {
               icon,
               color: isSelected
                   ? primaryColor
-                  : theme.colorScheme.onSurface.withOpacity(0.6),
+                  : theme.colorScheme.onSurface.withValues(alpha: 0.6),
               size: 24,
             ),
             const SizedBox(height: 8),
@@ -154,11 +156,13 @@ class HabitDaySelector extends StatelessWidget {
         height: 48,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: isSelected ? primaryColor.withOpacity(0.2) : theme.cardColor,
+          color: isSelected
+              ? primaryColor.withValues(alpha: 0.2)
+              : theme.cardColor,
           border: Border.all(
             color: isSelected
                 ? primaryColor
-                : theme.dividerColor.withOpacity(0.5),
+                : theme.dividerColor.withValues(alpha: 0.5),
             width: 2,
           ),
         ),

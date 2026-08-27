@@ -22,7 +22,7 @@ class StatsScreen extends ConsumerWidget {
       ThemeColors.userColors[userColor] ?? ThemeColors.defaultPrimary,
     );
 
-    final textColor = theme.colorScheme.onBackground;
+    final textColor = theme.colorScheme.onSurface;
     final textColorSecondary = isDark
         ? const Color(0xFF94A3B8)
         : const Color(0xFF64748B);
@@ -88,7 +88,7 @@ class StatsScreen extends ConsumerWidget {
                   cardColor: cardColor,
                   borderColor: borderColor,
                 ),
-                error: (_, __) => ErrorState(
+                error: (_, _) => ErrorState(
                   message: 'Impossible de charger les statistiques globales',
                   onRetry: () => ref.invalidate(globalStatisticsProvider),
                 ),
@@ -127,7 +127,7 @@ class StatsScreen extends ConsumerWidget {
                       cardColor: cardColor,
                       borderColor: borderColor,
                     ),
-                    error: (_, __) => ErrorState(
+                    error: (_, _) => ErrorState(
                       message:
                           'Impossible de charger la progression hebdomadaire',
                       onRetry: () => ref.invalidate(weeklyStatisticsProvider),
@@ -139,7 +139,7 @@ class StatsScreen extends ConsumerWidget {
                   cardColor: cardColor,
                   borderColor: borderColor,
                 ),
-                error: (_, __) => _buildSkeletonCard(
+                error: (_, _) => _buildSkeletonCard(
                   height: 200,
                   cardColor: cardColor,
                   borderColor: borderColor,
@@ -176,7 +176,7 @@ class StatsScreen extends ConsumerWidget {
                   cardColor: cardColor,
                   borderColor: borderColor,
                 ),
-                error: (_, __) => ErrorState(
+                error: (_, _) => ErrorState(
                   message: 'Impossible de charger les statistiques du jour',
                   onRetry: () => ref.invalidate(todayDetailedStatsProvider),
                 ),
@@ -208,7 +208,7 @@ class StatsScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: borderColor.withOpacity(0.5)),
+        border: Border.all(color: borderColor.withValues(alpha: 0.5)),
       ),
       child: Column(
         children: [
@@ -254,7 +254,7 @@ class StatsScreen extends ConsumerWidget {
           const SizedBox(height: 24),
 
           // Séparateur
-          Divider(color: borderColor.withOpacity(0.5), height: 1),
+          Divider(color: borderColor.withValues(alpha: 0.5), height: 1),
 
           const SizedBox(height: 20),
 
@@ -320,7 +320,11 @@ class StatsScreen extends ConsumerWidget {
   }
 
   Widget _buildVerticalDivider(Color borderColor) {
-    return Container(width: 1, height: 40, color: borderColor.withOpacity(0.5));
+    return Container(
+      width: 1,
+      height: 40,
+      color: borderColor.withValues(alpha: 0.5),
+    );
   }
 
   // ============ CARTE GRAPHE HEBDOMADAIRE ============
@@ -341,7 +345,7 @@ class StatsScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: borderColor.withOpacity(0.5)),
+        border: Border.all(color: borderColor.withValues(alpha: 0.5)),
       ),
       child: WeeklyChart(
         data: data,
@@ -369,12 +373,12 @@ class StatsScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: borderColor.withOpacity(0.5)),
+        border: Border.all(color: borderColor.withValues(alpha: 0.5)),
       ),
       child: DailyProgressBar(
         progress: stats.total > 0 ? stats.completed / stats.total : 0.0,
         color: primaryColor,
-        trackColor: primaryColor.withOpacity(0.15),
+        trackColor: primaryColor.withValues(alpha: 0.15),
         label: '${stats.completed} sur ${stats.total} tâches',
         percentageLabel: '${stats.successRate.toStringAsFixed(0)}%',
       ),
@@ -394,7 +398,7 @@ class StatsScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: borderColor.withOpacity(0.5)),
+        border: Border.all(color: borderColor.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -461,7 +465,7 @@ class _SkeletonBlock extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: Theme.of(context).dividerColor.withOpacity(0.22),
+        color: Theme.of(context).dividerColor.withValues(alpha: 0.22),
         borderRadius: BorderRadius.circular(6),
       ),
     );

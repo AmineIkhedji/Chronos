@@ -52,7 +52,7 @@ class _CalendrierScreenState extends ConsumerState<CalendrierScreen> {
               title: 'Calendrier',
               showBackButton: false,
               backgroundColor: theme.scaffoldBackgroundColor,
-              foregroundColor: theme.colorScheme.onBackground,
+              foregroundColor: theme.colorScheme.onSurface,
               elevation: 0,
             ),
 
@@ -80,7 +80,7 @@ class _CalendrierScreenState extends ConsumerState<CalendrierScreen> {
       decoration: BoxDecoration(
         color: theme.cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: borderColor.withOpacity(0.5)),
+        border: Border.all(color: borderColor.withValues(alpha: 0.5)),
       ),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -110,7 +110,7 @@ class _CalendrierScreenState extends ConsumerState<CalendrierScreen> {
                     style: TextStyle(
                       color: isSelected
                           ? Colors.white
-                          : theme.colorScheme.onSurface.withOpacity(0.6),
+                          : theme.colorScheme.onSurface.withValues(alpha: 0.6),
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                     ),

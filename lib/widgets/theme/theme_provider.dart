@@ -82,14 +82,12 @@ ThemeData buildTheme(WidgetRef ref) {
       primary: primaryColor,
       secondary: primaryColor,
       surface: surfaceColor,
-      background: backgroundColor,
       error: const Color(0xFFEF4444),
       onPrimary: Colors.white,
       onSecondary: Colors.white,
       onSurface: textColor,
-      onBackground: textColor,
       onError: Colors.white,
-      tertiary: primaryColor.withOpacity(0.8),
+      tertiary: primaryColor.withValues(alpha: 0.8),
     ),
 
     // ============ APP BAR ============
@@ -150,7 +148,7 @@ ThemeData buildTheme(WidgetRef ref) {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: borderColor.withOpacity(0.5)),
+        side: BorderSide(color: borderColor.withValues(alpha: 0.5)),
       ),
     ),
 
@@ -205,7 +203,7 @@ ThemeData buildTheme(WidgetRef ref) {
       }),
       trackColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
-          return primaryColor.withOpacity(0.5);
+          return primaryColor.withValues(alpha: 0.5);
         }
         return isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0);
       }),

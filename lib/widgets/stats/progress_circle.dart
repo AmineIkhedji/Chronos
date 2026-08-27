@@ -20,8 +20,7 @@ class ProgressCircle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final effectiveTrackColor = trackColor ?? color.withOpacity(0.15);
+    final effectiveTrackColor = trackColor ?? color.withValues(alpha: 0.15);
 
     return SizedBox(
       width: size,

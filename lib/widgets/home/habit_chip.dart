@@ -20,7 +20,7 @@ class HabitChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isCompleted =
-        habit.color == Colors.green.value; // Vérification simplifiée
+        habit.color == Colors.green.toARGB32(); // Vérification simplifiée
 
     return GestureDetector(
       onTap: onTap,
@@ -28,9 +28,9 @@ class HabitChip extends StatelessWidget {
         constraints: const BoxConstraints(maxWidth: 200),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: Color(habit.color).withOpacity(0.1),
+          color: Color(habit.color).withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: Color(habit.color).withOpacity(0.3)),
+          border: Border.all(color: Color(habit.color).withValues(alpha: 0.3)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

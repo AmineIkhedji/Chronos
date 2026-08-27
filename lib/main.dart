@@ -194,7 +194,7 @@ class _NavigationSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = Theme.of(context).dividerColor.withOpacity(0.2);
+    final color = Theme.of(context).dividerColor.withValues(alpha: 0.2);
 
     Widget block(double height, {double? width}) {
       return Container(

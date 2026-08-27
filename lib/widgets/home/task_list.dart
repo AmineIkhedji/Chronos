@@ -50,7 +50,7 @@ class TaskList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isDark = ref.watch(darkModeProvider);
-    final textColor = theme.colorScheme.onBackground;
+    final textColor = theme.colorScheme.onSurface;
     final textColorSecondary = isDark
         ? const Color(0xFF94A3B8)
         : const Color(0xFF64748B);
@@ -109,7 +109,9 @@ class TaskList extends ConsumerWidget {
                   decoration: BoxDecoration(
                     color: cardColor,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: borderColor.withOpacity(0.5)),
+                    border: Border.all(
+                      color: borderColor.withValues(alpha: 0.5),
+                    ),
                   ),
                   padding: const EdgeInsets.all(4),
                   child: Column(
@@ -133,7 +135,7 @@ class TaskList extends ConsumerWidget {
               loading: () => Center(
                 child: CircularProgressIndicator(color: theme.primaryColor),
               ),
-              error: (_, __) => Center(
+              error: (_, _) => Center(
                 child: Text(
                   'Erreur tâches',
                   style: TextStyle(color: textColorSecondary),
