@@ -23,9 +23,35 @@ android {
         versionName = flutter.versionName
     }
 
+    // ---- AJOUT : configuration de signature release ----
+    // Les valeurs sont lues depuis des variables d'environnement.
+    // En CI (GitHub Actions), elles sont injectées à partir des Secrets.
+    // En local, si ces variables n'existent pas, ça retombe sur la
+    // signature "debug" par défaut (donc ça ne casse rien si vous
+    // buildez en release sur votre PC sans avoir tout configuré).
+    signingConfigs {
+        create("release") {
+            val keystorePath = System.getenv("CHRONOS_KEYSTORE_PATH")
+            if (keystorePath != null) {
+                storeFile = file(keystorePath)
+                storePassword = System.getenv("CHRONOS_KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("CHRONOS_KEY_ALIAS")
+                keyPassword = System.getenv("CHRONOS_KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            signingConfig = signingConfigs.getByName("debug")
+            // Si la variable d'environnement du keystore existe (donc en CI),
+            // on utilise la vraie signature "release".
+            // Sinon (en local, sans rien configurer), on garde "debug"
+            // pour que vous puissiez toujours builder facilement sur votre PC.
+            signingConfig = if (System.getenv("CHRONOS_KEYSTORE_PATH") != null) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
     }
 }
