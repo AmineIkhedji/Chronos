@@ -22,7 +22,11 @@ class TaskList extends ConsumerWidget {
     invalidateTaskProviders(ref);
   }
 
-  Future<void> _openTaskDetail(BuildContext context, WidgetRef ref, Task task) async {
+  Future<void> _openTaskDetail(
+    BuildContext context,
+    WidgetRef ref,
+    Task task,
+  ) async {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => TaskDetailScreen(task: task)),
@@ -30,7 +34,11 @@ class TaskList extends ConsumerWidget {
     invalidateTaskProviders(ref);
   }
 
-  Future<void> _openTaskForm(BuildContext context, WidgetRef ref, Task task) async {
+  Future<void> _openTaskForm(
+    BuildContext context,
+    WidgetRef ref,
+    Task task,
+  ) async {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => TaskForm(task: task)),
@@ -108,16 +116,14 @@ class TaskList extends ConsumerWidget {
                     children: [
                       for (var index = 0; index < tasks.length; index++) ...[
                         if (index > 0)
-                          Divider(
-                            color: borderColor,
-                            height: 1,
-                            thickness: 1,
-                          ),
+                          Divider(color: borderColor, height: 1, thickness: 1),
                         TaskListItem(
                           task: tasks[index],
                           onToggle: () => toggleCompletion(tasks[index]),
-                          onTap: () => _openTaskDetail(context, ref, tasks[index]),
-                          onLongPress: () => _openTaskForm(context, ref, tasks[index]),
+                          onTap: () =>
+                              _openTaskDetail(context, ref, tasks[index]),
+                          onLongPress: () =>
+                              _openTaskForm(context, ref, tasks[index]),
                         ),
                       ],
                     ],

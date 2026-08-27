@@ -58,7 +58,7 @@ class _HomeGreetingState extends ConsumerState<HomeGreeting> {
         userName == null
             ? 'Une dernière tâche ?'
             : 'Une dernière tâche $userName ?',
-            userName == null
+        userName == null
             ? 'On se prépare pour demain ?'
             : 'On se prépare pour demain $userName ?',
       ],

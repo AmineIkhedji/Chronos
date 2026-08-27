@@ -25,11 +25,18 @@ class SettingsListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final textSecondary = isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
-    final neutralIconBg = isDark ? const Color(0xFF334155) : const Color(0xFFF1F5F9);
-    final neutralIconColor = isDark ? const Color(0xFFCBD5E1) : const Color(0xFF475569);
+    final textSecondary = isDark
+        ? const Color(0xFF94A3B8)
+        : const Color(0xFF64748B);
+    final neutralIconBg = isDark
+        ? const Color(0xFF334155)
+        : const Color(0xFFF1F5F9);
+    final neutralIconColor = isDark
+        ? const Color(0xFFCBD5E1)
+        : const Color(0xFF475569);
     final effectiveIconColor = leadingIconColor ?? neutralIconColor;
-    final effectiveBgColor = iconBgColor ?? leadingIconColor?.withOpacity(0.15) ?? neutralIconBg;
+    final effectiveBgColor =
+        iconBgColor ?? leadingIconColor?.withOpacity(0.15) ?? neutralIconBg;
 
     return InkWell(
       onTap: onTap,

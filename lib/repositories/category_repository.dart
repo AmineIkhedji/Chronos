@@ -31,11 +31,13 @@ class CategoryRepository {
           .filter()
           .idCategoryEqualTo(id)
           .count();
-      
+
       if (tasksCount > 0) {
-        throw Exception('Cette catégorie est utilisée par $tasksCount tâche(s)');
+        throw Exception(
+          'Cette catégorie est utilisée par $tasksCount tâche(s)',
+        );
       }
-      
+
       await AppDatabase.isar.categorys.delete(id);
     });
   }
@@ -50,7 +52,7 @@ class CategoryRepository {
   Future<void> createDefaultCategories() async {
     final count = await AppDatabase.isar.categorys.count();
     if (count > 0) return;
-    
+
     final defaultCategories = [
       {'name': 'Travail', 'color': 0xFF4CAF50, 'icon': 'work'},
       {'name': 'Personnel', 'color': 0xFF2196F3, 'icon': 'person'},
@@ -58,7 +60,7 @@ class CategoryRepository {
       {'name': 'Sport', 'color': 0xFFF44336, 'icon': 'fitness_center'},
       {'name': 'Études', 'color': 0xFF9C27B0, 'icon': 'school'},
     ];
-    
+
     await AppDatabase.isar.writeTxn(() async {
       for (var data in defaultCategories) {
         final category = Category()

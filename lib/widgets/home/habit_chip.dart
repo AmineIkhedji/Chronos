@@ -19,7 +19,8 @@ class HabitChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isCompleted = habit.color == Colors.green.value; // Vérification simplifiée
+    final isCompleted =
+        habit.color == Colors.green.value; // Vérification simplifiée
 
     return GestureDetector(
       onTap: onTap,

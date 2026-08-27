@@ -4,11 +4,8 @@ import '../theme/theme_colors.dart';
 
 class ColorPickerDialog extends StatefulWidget {
   final Color currentColor;
-  
-  const ColorPickerDialog({
-    super.key,
-    required this.currentColor,
-  });
+
+  const ColorPickerDialog({super.key, required this.currentColor});
 
   @override
   State<ColorPickerDialog> createState() => _ColorPickerDialogState();
@@ -52,7 +49,9 @@ class _ColorPickerDialogState extends State<ColorPickerDialog> {
             Text(
               'Sélectionnez la couleur principale de l\'application',
               style: TextStyle(
-                color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                color: isDark
+                    ? const Color(0xFF94A3B8)
+                    : const Color(0xFF64748B),
                 fontSize: 14,
               ),
             ),
@@ -80,11 +79,20 @@ class _ColorPickerDialogState extends State<ColorPickerDialog> {
                           ? Border.all(color: Colors.white, width: 3)
                           : null,
                       boxShadow: isSelected
-                          ? [BoxShadow(color: color.withOpacity(0.4), blurRadius: 8)]
+                          ? [
+                              BoxShadow(
+                                color: color.withOpacity(0.4),
+                                blurRadius: 8,
+                              ),
+                            ]
                           : null,
                     ),
                     child: isSelected
-                        ? const Icon(Icons.check_rounded, color: Colors.white, size: 32)
+                        ? const Icon(
+                            Icons.check_rounded,
+                            color: Colors.white,
+                            size: 32,
+                          )
                         : null,
                   ),
                 );

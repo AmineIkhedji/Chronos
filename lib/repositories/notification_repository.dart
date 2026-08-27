@@ -31,12 +31,12 @@ class NotificationRepository {
         .findAll();
   }
 
-        Future<List<Notification>> getNotificationsForHabit(int habitId) async {
-          return await AppDatabase.isar.notifications
-          .filter()
-          .idHabitEqualTo(habitId)
-          .findAll();
-        }
+  Future<List<Notification>> getNotificationsForHabit(int habitId) async {
+    return await AppDatabase.isar.notifications
+        .filter()
+        .idHabitEqualTo(habitId)
+        .findAll();
+  }
 
   Future<List<Notification>> getEnabledNotifications() async {
     return await AppDatabase.isar.notifications
@@ -48,7 +48,7 @@ class NotificationRepository {
   Future<List<Notification>> getPendingNotifications() async {
     final now = DateTime.now();
     final fiveMinutesAgo = now.subtract(const Duration(minutes: 5));
-    
+
     return await AppDatabase.isar.notifications
         .filter()
         .enabledEqualTo(true)
@@ -76,7 +76,9 @@ class NotificationRepository {
 
   Future<void> disableAllNotifications() async {
     await AppDatabase.isar.writeTxn(() async {
-      final notifications = await AppDatabase.isar.notifications.where().findAll();
+      final notifications = await AppDatabase.isar.notifications
+          .where()
+          .findAll();
       for (var notif in notifications) {
         notif.enabled = false;
         await AppDatabase.isar.notifications.put(notif);

@@ -49,8 +49,7 @@ class ProgressCircle extends StatelessWidget {
             ),
           ),
           // Contenu central
-          if (centerChild != null)
-            Center(child: centerChild),
+          if (centerChild != null) Center(child: centerChild),
         ],
       ),
     );
@@ -85,13 +84,7 @@ class _CirclePainter extends CustomPainter {
       size.height - strokeWidth,
     );
 
-    canvas.drawArc(
-      rect,
-      startAngle,
-      2 * pi * progress,
-      false,
-      paint,
-    );
+    canvas.drawArc(rect, startAngle, 2 * pi * progress, false, paint);
   }
 
   @override

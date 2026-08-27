@@ -13,7 +13,9 @@ class HomeHeader extends ConsumerWidget {
     final todayStatsAsync = ref.watch(todayStatisticsProvider);
     final theme = Theme.of(context);
     final userColor = ref.watch(userColorProvider);
-    final primaryColor = Color(ThemeColors.userColors[userColor] ?? ThemeColors.defaultPrimary);
+    final primaryColor = Color(
+      ThemeColors.userColors[userColor] ?? ThemeColors.defaultPrimary,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -21,7 +23,8 @@ class HomeHeader extends ConsumerWidget {
         todayStatsAsync.when(
           data: (stats) {
             final remaining = stats['remaining'] as int? ?? 0;
-            final successRate = (stats['successRate'] as num?)?.toDouble() ?? 0.0;
+            final successRate =
+                (stats['successRate'] as num?)?.toDouble() ?? 0.0;
 
             return Row(
               children: [
@@ -49,7 +52,12 @@ class HomeHeader extends ConsumerWidget {
             child: CircularProgressIndicator(color: theme.primaryColor),
           ),
           error: (_, __) => Center(
-            child: Text('Erreur stats', style: TextStyle(color: theme.colorScheme.onBackground.withOpacity(0.6))),
+            child: Text(
+              'Erreur stats',
+              style: TextStyle(
+                color: theme.colorScheme.onBackground.withOpacity(0.6),
+              ),
+            ),
           ),
         ),
       ],
@@ -81,10 +89,7 @@ class HomeHeader extends ConsumerWidget {
           const SizedBox(height: 4),
           Text(
             subtitle,
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 12,
-            ),
+            style: const TextStyle(color: Colors.white70, fontSize: 12),
           ),
         ],
       ),

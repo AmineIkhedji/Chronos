@@ -31,11 +31,11 @@ class StatusRepository {
           .filter()
           .idStatusEqualTo(id)
           .count();
-      
+
       if (tasksCount > 0) {
         throw Exception('Ce statut est utilisé par $tasksCount tâche(s)');
       }
-      
+
       await AppDatabase.isar.status.delete(id);
     });
   }
@@ -50,13 +50,13 @@ class StatusRepository {
   Future<void> createDefaultStatus() async {
     final count = await AppDatabase.isar.status.count();
     if (count > 0) return;
-    
+
     final defaultStatus = [
       {'name': 'À faire', 'color': 0xFF2196F3},
       {'name': 'En cours', 'color': 0xFFFF9800},
       {'name': 'Terminé', 'color': 0xFF4CAF50},
     ];
-    
+
     await AppDatabase.isar.writeTxn(() async {
       for (var data in defaultStatus) {
         final status = Status()

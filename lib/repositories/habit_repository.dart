@@ -6,7 +6,7 @@ import '../models/days.dart';
 
 class HabitRepository {
   // ============ CRUD DE BASE ============
-  
+
   Future<List<Habit>> getAllHabits() async {
     return await AppDatabase.isar.habits.where().findAll();
   }
@@ -49,16 +49,13 @@ class HabitRepository {
   }
 
   // ============ GESTION DES JOURS ============
-  
+
   Future<void> addDaysToHabit(int habitId, List<int> daysOfWeek) async {
     await AppDatabase.isar.writeTxn(() async {
       final habit = await getHabitById(habitId);
       if (habit == null) throw Exception('Habitude non trouvée');
-      
-      await AppDatabase.isar.days
-          .filter()
-          .idHabitEqualTo(habitId)
-          .deleteAll();
+
+      await AppDatabase.isar.days.filter().idHabitEqualTo(habitId).deleteAll();
       await _saveDays(habitId, daysOfWeek);
     });
   }
@@ -66,7 +63,7 @@ class HabitRepository {
   Future<List<int>> getDaysForHabit(int habitId) async {
     final habit = await getHabitById(habitId);
     if (habit == null) return [];
-    
+
     final days = await AppDatabase.isar.days
         .filter()
         .idHabitEqualTo(habitId)
@@ -77,29 +74,29 @@ class HabitRepository {
   Future<bool> isHabitForDay(int habitId, int dayOfWeek) async {
     final habit = await getHabitById(habitId);
     if (habit == null) return false;
-    
+
     final days = await AppDatabase.isar.days
         .filter()
-      .idHabitEqualTo(habitId)
+        .idHabitEqualTo(habitId)
         .dayOfWeekEqualTo(dayOfWeek)
         .findAll();
-    
+
     return days.isNotEmpty;
   }
 
   // ============ RECHERCHES SPÉCIFIQUES ============
-  
+
   Future<List<Habit>> getHabitsForToday() async {
     final now = DateTime.now();
     final today = now.weekday;
-    
+
     final days = await AppDatabase.isar.days
         .filter()
         .dayOfWeekEqualTo(today)
         .findAll();
-    
+
     if (days.isEmpty) return [];
-    
+
     final List<Habit> result = [];
     for (var day in days) {
       final habit = await getHabitById(day.idHabit);
@@ -107,7 +104,7 @@ class HabitRepository {
         result.add(habit);
       }
     }
-    
+
     return result;
   }
 
@@ -116,9 +113,9 @@ class HabitRepository {
         .filter()
         .dayOfWeekEqualTo(dayOfWeek)
         .findAll();
-    
+
     if (days.isEmpty) return [];
-    
+
     final List<Habit> habits = [];
     for (var day in days) {
       final habit = await getHabitById(day.idHabit);
@@ -126,22 +123,21 @@ class HabitRepository {
         habits.add(habit);
       }
     }
-    
+
     return habits;
   }
 
   Future<List<Habit>> getDailyHabits() async {
     final allHabits = await getAllHabits();
     final dailyHabits = <Habit>[];
-    
+
     for (var habit in allHabits) {
       final days = await getDaysForHabit(habit.idHabit);
       if (days.length == 7) {
         dailyHabits.add(habit);
       }
     }
-    
+
     return dailyHabits;
   }
-
 }

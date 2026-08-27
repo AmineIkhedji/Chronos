@@ -21,7 +21,7 @@ class InitializationService {
     final priorityRepo = PriorityRepository();
     final statusRepo = StatusRepository();
     final settingsRepo = SettingsRepository();
-    
+
     await categoryRepo.createDefaultCategories();
     await priorityRepo.createDefaultPriorities();
     await statusRepo.createDefaultStatus();

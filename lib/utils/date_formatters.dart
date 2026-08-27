@@ -13,8 +13,10 @@ class DateFormatters {
 
   static String formatTimeRange(DateTime? startTime, DateTime? endTime) {
     if (startTime == null && endTime == null) return 'Toute la journée';
-    if (startTime != null && endTime == null) return 'À partir de ${formatTime(startTime)}';
-    if (startTime == null && endTime != null) return 'Jusqu\'à ${formatTime(endTime)}';
+    if (startTime != null && endTime == null)
+      return 'À partir de ${formatTime(startTime)}';
+    if (startTime == null && endTime != null)
+      return 'Jusqu\'à ${formatTime(endTime)}';
     return '${formatTime(startTime)} - ${formatTime(endTime)}';
   }
 

@@ -146,7 +146,7 @@ class NotificationService {
     DateTime scheduledTime,
   ) async {
     if (!await areNotificationsEnabled() ||
-      scheduledTime.isBefore(DateTime.now())) {
+        scheduledTime.isBefore(DateTime.now())) {
       return;
     }
     final id = await _getNextAvailableId();

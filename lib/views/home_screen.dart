@@ -64,7 +64,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 GestureDetector(
                   key: _calendarKey,
                   onTap: () {
-                    ref.read(selectedTabProvider.notifier).state = AppTab.calendar;
+                    ref.read(selectedTabProvider.notifier).state =
+                        AppTab.calendar;
                   },
                   child: const MiniCalendar(),
                 ),

@@ -44,7 +44,11 @@ class DatePickerField extends StatelessWidget {
           children: [
             const Icon(Icons.calendar_today_rounded),
             const SizedBox(width: 8),
-            Text(value != null ? DateFormatters.formatFullDate(value!) : 'Sélectionner'),
+            Text(
+              value != null
+                  ? DateFormatters.formatFullDate(value!)
+                  : 'Sélectionner',
+            ),
           ],
         ),
       ),

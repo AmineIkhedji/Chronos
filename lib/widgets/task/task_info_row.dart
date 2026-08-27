@@ -25,10 +25,7 @@ class TaskInfoRow extends StatelessWidget {
         children: [
           Icon(icon, size: 20, color: theme.primaryColor),
           const SizedBox(width: 12),
-          Text(
-            label,
-            style: TextStyle(color: textSecondary, fontSize: 14),
-          ),
+          Text(label, style: TextStyle(color: textSecondary, fontSize: 14)),
           const Spacer(),
           Text(
             value,

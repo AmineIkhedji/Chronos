@@ -17,11 +17,13 @@ class MiniCalendar extends ConsumerWidget {
     final theme = Theme.of(context);
     final isDark = ref.watch(darkModeProvider);
     final userColor = ref.watch(userColorProvider);
-    final primaryColor = Color(ThemeColors.userColors[userColor] ?? ThemeColors.defaultPrimary);
+    final primaryColor = Color(
+      ThemeColors.userColors[userColor] ?? ThemeColors.defaultPrimary,
+    );
 
     final textColor = theme.colorScheme.onBackground;
-    final textColorSecondary = isDark 
-        ? const Color(0xFF94A3B8) 
+    final textColorSecondary = isDark
+        ? const Color(0xFF94A3B8)
         : const Color(0xFF64748B);
 
     return GestureDetector(
@@ -31,69 +33,73 @@ class MiniCalendar extends ConsumerWidget {
       },
       child: tasksAsync.when(
         data: (allTasks) {
-              // Générer les 7 jours à partir d'aujourd'hui
-              final daysToShow = List.generate(7, (index) {
-                return DateTime(now.year, now.month, now.day + index);
-              });
+          // Générer les 7 jours à partir d'aujourd'hui
+          final daysToShow = List.generate(7, (index) {
+            return DateTime(now.year, now.month, now.day + index);
+          });
 
-              // Grouper les tâches par jour (clé : année*10000 + mois*100 + jour)
-              final tasksByDay = <int, List<Task>>{};
-              for (final task in allTasks) {
-                final dateKey = task.date.year * 10000 + task.date.month * 100 + task.date.day;
-                if (!tasksByDay.containsKey(dateKey)) {
-                  tasksByDay[dateKey] = [];
-                }
-                tasksByDay[dateKey]!.add(task);
-              }
+          // Grouper les tâches par jour (clé : année*10000 + mois*100 + jour)
+          final tasksByDay = <int, List<Task>>{};
+          for (final task in allTasks) {
+            final dateKey =
+                task.date.year * 10000 + task.date.month * 100 + task.date.day;
+            if (!tasksByDay.containsKey(dateKey)) {
+              tasksByDay[dateKey] = [];
+            }
+            tasksByDay[dateKey]!.add(task);
+          }
 
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: daysToShow.map((day) {
-                  final isToday = day.day == now.day && 
-                                  day.month == now.month && 
-                                  day.year == now.year;
-                  final dateKey = day.year * 10000 + day.month * 100 + day.day;
-                  final dayTasks = tasksByDay[dateKey] ?? [];
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: daysToShow.map((day) {
+              final isToday =
+                  day.day == now.day &&
+                  day.month == now.month &&
+                  day.year == now.year;
+              final dateKey = day.year * 10000 + day.month * 100 + day.day;
+              final dayTasks = tasksByDay[dateKey] ?? [];
 
-                  return Column(
-                    children: [
-                      Text(
-                        _getDayLetter(day.weekday),
-                        style: TextStyle(
-                          color: isToday ? textColor : textColorSecondary,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
+              return Column(
+                children: [
+                  Text(
+                    _getDayLetter(day.weekday),
+                    style: TextStyle(
+                      color: isToday ? textColor : textColorSecondary,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: isToday ? primaryColor : Colors.transparent,
+                      shape: BoxShape.circle,
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      '${day.day}',
+                      style: TextStyle(
+                        color: isToday ? Colors.white : textColor,
+                        fontWeight: FontWeight.bold,
                       ),
-                      const SizedBox(height: 4),
-                      Container(
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                          color: isToday ? primaryColor : Colors.transparent,
-                          shape: BoxShape.circle,
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          '${day.day}',
-                          style: TextStyle(
-                            color: isToday ? Colors.white : textColor,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      _buildTaskIndicators(dayTasks),
-                    ],
-                  );
-                }).toList(),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  _buildTaskIndicators(dayTasks),
+                ],
               );
+            }).toList(),
+          );
         },
-        loading: () => Center(
-          child: CircularProgressIndicator(color: theme.primaryColor),
-        ),
+        loading: () =>
+            Center(child: CircularProgressIndicator(color: theme.primaryColor)),
         error: (_, __) => Center(
-          child: Text('Erreur calendrier', style: TextStyle(color: textColorSecondary)),
+          child: Text(
+            'Erreur calendrier',
+            style: TextStyle(color: textColorSecondary),
+          ),
         ),
       ),
     );

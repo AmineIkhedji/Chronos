@@ -12,12 +12,13 @@ class HabitList extends ConsumerWidget {
 
   const HabitList({super.key, required this.habitsAsync});
 
-  Future<void> _openHabitsManagement(BuildContext context, WidgetRef ref) async {
+  Future<void> _openHabitsManagement(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => const HabitsManagementScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const HabitsManagementScreen()),
     );
     ref.invalidate(todayHabitsProvider);
     ref.invalidate(allHabitsManagementProvider);

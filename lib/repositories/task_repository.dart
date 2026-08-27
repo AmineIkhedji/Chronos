@@ -9,7 +9,7 @@ import '../models/status.dart';
 
 class TaskRepository {
   // ============ CRUD DE BASE ============
-  
+
   Future<List<Task>> getAllTasks() async {
     return await AppDatabase.isar.tasks.where().findAll();
   }
@@ -22,7 +22,7 @@ class TaskRepository {
   Future<Map<String, dynamic>?> getTaskWithRelations(int id) async {
     final task = await getTaskById(id);
     if (task == null) return null;
-    
+
     final category = await AppDatabase.isar.categorys.get(task.idCategory);
     final priority = await AppDatabase.isar.prioritys.get(task.idPriority);
     final status = await AppDatabase.isar.status.get(task.idStatus);
@@ -30,7 +30,7 @@ class TaskRepository {
         .filter()
         .idTaskEqualTo(id)
         .findAll();
-    
+
     return {
       'task': task,
       'category': category,
@@ -56,19 +56,19 @@ class TaskRepository {
     await AppDatabase.isar.writeTxn(() async {
       await AppDatabase.isar.notifications
           .filter()
-           .idTaskEqualTo(id)
+          .idTaskEqualTo(id)
           .deleteAll();
       await AppDatabase.isar.tasks.delete(id);
     });
   }
 
   // ============ RECHERCHES PAR DATE ============
-  
+
   Future<List<Task>> getTodayTasks() async {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final tomorrow = today.add(const Duration(days: 1));
-    
+
     return await AppDatabase.isar.tasks
         .filter()
         .dateBetween(today, tomorrow, includeUpper: false)
@@ -78,7 +78,7 @@ class TaskRepository {
   Future<List<Task>> getTasksForDate(DateTime date) async {
     final start = DateTime(date.year, date.month, date.day);
     final end = start.add(const Duration(days: 1));
-    
+
     return await AppDatabase.isar.tasks
         .filter()
         .dateBetween(start, end, includeUpper: false)
@@ -95,7 +95,7 @@ class TaskRepository {
   }
 
   // ============ RECHERCHES AVEC RELATIONS ============
-  
+
   Future<List<Task>> getTasksByStatus(int statusId) async {
     return await AppDatabase.isar.tasks
         .filter()
@@ -121,12 +121,12 @@ class TaskRepository {
   Future<List<Map<String, dynamic>>> getAllTasksWithRelations() async {
     final tasks = await getAllTasks();
     final List<Map<String, dynamic>> result = [];
-    
+
     for (var task in tasks) {
       final category = await AppDatabase.isar.categorys.get(task.idCategory);
       final priority = await AppDatabase.isar.prioritys.get(task.idPriority);
       final status = await AppDatabase.isar.status.get(task.idStatus);
-      
+
       result.add({
         'task': task,
         'category': category,
@@ -134,12 +134,12 @@ class TaskRepository {
         'status': status,
       });
     }
-    
+
     return result;
   }
 
   // ============ STATISTIQUES ============
-  
+
   Future<int> getTotalTasksCount() async {
     return await AppDatabase.isar.tasks.count();
   }
@@ -147,7 +147,7 @@ class TaskRepository {
   Future<int> getCompletedTasksCount() async {
     final statusTermine = await _getStatusIdByName('Terminé');
     if (statusTermine == null) return 0;
-    
+
     return await AppDatabase.isar.tasks
         .filter()
         .idStatusEqualTo(statusTermine)
@@ -158,12 +158,12 @@ class TaskRepository {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final statusTermine = await _getStatusIdByName('Terminé');
-    
+
     final allLate = await AppDatabase.isar.tasks
         .filter()
         .dateLessThan(today)
         .findAll();
-    
+
     if (statusTermine == null) return allLate;
     return allLate.where((task) => task.idStatus != statusTermine).toList();
   }
@@ -177,53 +177,59 @@ class TaskRepository {
   Future<double> getSuccessRateForPeriod(DateTime start, DateTime end) async {
     final tasks = await getTasksForPeriod(start, end);
     if (tasks.isEmpty) return 0.0;
-    
+
     final statusTermine = await _getStatusIdByName('Terminé');
     if (statusTermine == null) return 0.0;
-    
+
     int completed = 0;
     for (var task in tasks) {
       if (task.idStatus == statusTermine) {
         completed++;
       }
     }
-    
+
     return (completed / tasks.length) * 100;
   }
 
-  Future<Map<DateTime, int>> getTasksPerDay(DateTime start, DateTime end) async {
+  Future<Map<DateTime, int>> getTasksPerDay(
+    DateTime start,
+    DateTime end,
+  ) async {
     final tasks = await getTasksForPeriod(start, end);
     final Map<DateTime, int> stats = {};
-    
+
     for (var task in tasks) {
       final date = DateTime(task.date.year, task.date.month, task.date.day);
       stats[date] = (stats[date] ?? 0) + 1;
     }
-    
+
     return stats;
   }
 
-  Future<Map<DateTime, int>> getCompletedTasksPerDay(DateTime start, DateTime end) async {
+  Future<Map<DateTime, int>> getCompletedTasksPerDay(
+    DateTime start,
+    DateTime end,
+  ) async {
     final statusTermine = await _getStatusIdByName('Terminé');
     if (statusTermine == null) return {};
-    
+
     final tasks = await AppDatabase.isar.tasks
         .filter()
         .idStatusEqualTo(statusTermine)
         .dateBetween(start, end, includeUpper: true)
         .findAll();
-    
+
     final Map<DateTime, int> stats = {};
     for (var task in tasks) {
       final date = DateTime(task.date.year, task.date.month, task.date.day);
       stats[date] = (stats[date] ?? 0) + 1;
     }
-    
+
     return stats;
   }
 
   // ============ METHODES UTILITAIRES ============
-  
+
   Future<int?> _getStatusIdByName(String name) async {
     final status = await AppDatabase.isar.status
         .filter()
@@ -242,7 +248,7 @@ class TaskRepository {
   Future<List<Notification>> getNotificationsForTask(int taskId) async {
     return await AppDatabase.isar.notifications
         .filter()
-         .idTaskEqualTo(taskId)
+        .idTaskEqualTo(taskId)
         .findAll();
   }
 
@@ -250,17 +256,17 @@ class TaskRepository {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final tomorrow = today.add(const Duration(days: 1));
-    
+
     final notifications = await AppDatabase.isar.notifications
         .filter()
         .enabledEqualTo(true)
         .findAll();
-    
+
     if (notifications.isEmpty) return [];
-    
+
     final List<Task> result = [];
     for (var notif in notifications) {
-        final task = notif.idTask == null
+      final task = notif.idTask == null
           ? null
           : await AppDatabase.isar.tasks.get(notif.idTask!);
       if (task != null &&
@@ -269,13 +275,11 @@ class TaskRepository {
         result.add(task);
       }
     }
-    
+
     return result;
   }
+
   Future<Status?> getStatusByName(String name) async {
-    return await AppDatabase.isar.status
-      .filter()
-      .nameEqualTo(name)
-      .findFirst();
+    return await AppDatabase.isar.status.filter().nameEqualTo(name).findFirst();
   }
 }

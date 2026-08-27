@@ -5,7 +5,7 @@ class NotificationTest {
   static Future<void> testNotification() async {
     final service = NotificationService();
     await service.initialize();
-    
+
     // Tester une notification dans 10 secondes
     final testTime = DateTime.now().add(const Duration(seconds: 10));
     await service.scheduleTaskReminder(

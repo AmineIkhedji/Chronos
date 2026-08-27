@@ -104,9 +104,7 @@ class HabitDaySelector extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
         decoration: BoxDecoration(
-          color: isSelected
-              ? primaryColor.withOpacity(0.15)
-              : theme.cardColor,
+          color: isSelected ? primaryColor.withOpacity(0.15) : theme.cardColor,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected
@@ -127,9 +125,7 @@ class HabitDaySelector extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                color: isSelected
-                    ? primaryColor
-                    : theme.colorScheme.onSurface,
+                color: isSelected ? primaryColor : theme.colorScheme.onSurface,
                 fontSize: 13,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
               ),

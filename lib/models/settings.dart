@@ -5,7 +5,7 @@ part 'settings.g.dart';
 @collection
 class Settings {
   Id idSettings = Isar.autoIncrement;
-  
+
   bool darkMode = false;
   int firstDayWeek = 1;
   bool notificationsEnabled = true;

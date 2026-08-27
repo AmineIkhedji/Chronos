@@ -8,13 +8,13 @@ class ThemeService {
   /// Récupère le thème actuel
   Future<ThemeData> getTheme() async {
     final settings = await _settingsRepo.getSettings();
-    
+
     if (settings == null) {
       return ThemeData.light();
     }
 
     final isDark = settings.darkMode;
-    
+
     return ThemeData(
       brightness: isDark ? Brightness.dark : Brightness.light,
       primaryColor: Color(settings.primaryColor),

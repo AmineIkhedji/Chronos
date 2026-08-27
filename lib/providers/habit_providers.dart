@@ -16,7 +16,10 @@ final todayHabitsProvider = FutureProvider<List<Habit>>((ref) async {
 });
 
 // Habitudes pour un jour spécifique (paramétré)
-final habitsForDayProvider = FutureProvider.family<List<Habit>, int>((ref, dayOfWeek) async {
+final habitsForDayProvider = FutureProvider.family<List<Habit>, int>((
+  ref,
+  dayOfWeek,
+) async {
   final repo = ref.read(habitRepositoryProvider);
   return await repo.getHabitsForDay(dayOfWeek);
 });
@@ -34,7 +37,10 @@ final allHabitsManagementProvider = FutureProvider<List<Habit>>((ref) async {
 });
 
 // Jours d'une habitude (paramétré)
-final habitDaysProvider = FutureProvider.family<List<int>, int>((ref, habitId) async {
+final habitDaysProvider = FutureProvider.family<List<int>, int>((
+  ref,
+  habitId,
+) async {
   final repo = ref.read(habitRepositoryProvider);
   return await repo.getDaysForHabit(habitId);
 });
@@ -50,7 +56,10 @@ final addHabitProvider = FutureProvider.family<void, Habit>((ref, habit) async {
 });
 
 // Mettre à jour une habitude
-final updateHabitProvider = FutureProvider.family<void, Habit>((ref, habit) async {
+final updateHabitProvider = FutureProvider.family<void, Habit>((
+  ref,
+  habit,
+) async {
   final repo = ref.read(habitRepositoryProvider);
   await repo.saveHabit(habit);
   ref.invalidate(allHabitsProvider);
@@ -66,7 +75,10 @@ final deleteHabitProvider = FutureProvider.family<void, int>((ref, id) async {
 });
 
 // Ajouter des jours à une habitude (paramétré)
-final addDaysToHabitProvider = FutureProvider.family<void, (int, List<int>)>((ref, params) async {
+final addDaysToHabitProvider = FutureProvider.family<void, (int, List<int>)>((
+  ref,
+  params,
+) async {
   final repo = ref.read(habitRepositoryProvider);
   final (habitId, daysOfWeek) = params;
   await repo.addDaysToHabit(habitId, daysOfWeek);

@@ -40,61 +40,34 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
     // Le logo roule plusieurs fois avant d'arriver
     // au centre.
-    _logoRotation = Tween<double>(
-      begin: -2.5,
-      end: 0.0,
-    ).animate(
+    _logoRotation = Tween<double>(begin: -2.5, end: 0.0).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(
-          0.0,
-          0.62,
-          curve: Curves.easeOutCubic,
-        ),
+        curve: const Interval(0.0, 0.62, curve: Curves.easeOutCubic),
       ),
     );
 
     // Arrive depuis la gauche
-    _logoPosition = Tween<Offset>(
-      begin: const Offset(-1.8, 0),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(
-          0.0,
-          0.62,
-          curve: Curves.easeOutCubic,
-        ),
-      ),
-    );
+    _logoPosition =
+        Tween<Offset>(begin: const Offset(-1.8, 0), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _controller,
+            curve: const Interval(0.0, 0.62, curve: Curves.easeOutCubic),
+          ),
+        );
 
     // Petit effet de zoom pendant l'arrivée
-    _logoScale = Tween<double>(
-      begin: 0.65,
-      end: 1.0,
-    ).animate(
+    _logoScale = Tween<double>(begin: 0.65, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(
-          0.0,
-          0.62,
-          curve: Curves.easeOutBack,
-        ),
+        curve: const Interval(0.0, 0.62, curve: Curves.easeOutBack),
       ),
     );
 
-    _logoOpacity = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(
+    _logoOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(
-          0.0,
-          0.18,
-          curve: Curves.easeIn,
-        ),
+        curve: const Interval(0.0, 0.18, curve: Curves.easeIn),
       ),
     );
 
@@ -103,31 +76,18 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     // ─────────────────────────────────────────
 
     // Le texte arrive du bas
-    _titlePosition = Tween<Offset>(
-      begin: const Offset(0, 1.5),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(
-          0.58,
-          0.88,
-          curve: Curves.easeOutBack,
-        ),
-      ),
-    );
+    _titlePosition =
+        Tween<Offset>(begin: const Offset(0, 1.5), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _controller,
+            curve: const Interval(0.58, 0.88, curve: Curves.easeOutBack),
+          ),
+        );
 
-    _titleOpacity = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(
+    _titleOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(
-          0.60,
-          0.82,
-          curve: Curves.easeIn,
-        ),
+        curve: const Interval(0.60, 0.82, curve: Curves.easeIn),
       ),
     );
 

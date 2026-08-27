@@ -322,7 +322,10 @@ class _HabitFormState extends ConsumerState<HabitForm> {
     // Validation des jours selon le mode
     if (_repeatMode == 'specific' && _selectedDays.isEmpty) {
       if (mounted) {
-        CustomSnackbar.warning(context, 'Veuillez sélectionner au moins un jour');
+        CustomSnackbar.warning(
+          context,
+          'Veuillez sélectionner au moins un jour',
+        );
       }
       return;
     }

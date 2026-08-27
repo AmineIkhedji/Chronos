@@ -44,7 +44,12 @@ class ColorSelector extends StatelessWidget {
                   ? Border.all(color: theme.colorScheme.onSurface, width: 3)
                   : null,
               boxShadow: isSelected
-                  ? [BoxShadow(color: Color(color).withOpacity(0.4), blurRadius: 8)]
+                  ? [
+                      BoxShadow(
+                        color: Color(color).withOpacity(0.4),
+                        blurRadius: 8,
+                      ),
+                    ]
                   : null,
             ),
             child: isSelected

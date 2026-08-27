@@ -24,7 +24,7 @@ final loadThemeProvider = FutureProvider<void>((ref) async {
   await ref.watch(appInitializationProvider.future);
   final repo = SettingsRepository();
   final settings = await repo.getSettings();
-  
+
   if (settings != null) {
     // Déterminer quelle couleur est utilisée
     String selectedColor = 'blue';
@@ -34,7 +34,7 @@ final loadThemeProvider = FutureProvider<void>((ref) async {
         break;
       }
     }
-    
+
     ref.read(userColorProvider.notifier).state = selectedColor;
     ref.read(darkModeProvider.notifier).state = settings.darkMode;
   }
@@ -45,35 +45,37 @@ final loadThemeProvider = FutureProvider<void>((ref) async {
 ThemeData buildTheme(WidgetRef ref) {
   final isDark = ref.watch(darkModeProvider);
   final colorKey = ref.watch(userColorProvider);
-  final primaryColor = Color(ThemeColors.userColors[colorKey] ?? ThemeColors.defaultPrimary);
-  
-  final backgroundColor = isDark 
-      ? const Color(ThemeColors.darkBackground) 
+  final primaryColor = Color(
+    ThemeColors.userColors[colorKey] ?? ThemeColors.defaultPrimary,
+  );
+
+  final backgroundColor = isDark
+      ? const Color(ThemeColors.darkBackground)
       : const Color(ThemeColors.lightBackground);
-  
-  final textColor = isDark 
-      ? const Color(ThemeColors.darkText) 
+
+  final textColor = isDark
+      ? const Color(ThemeColors.darkText)
       : const Color(ThemeColors.lightText);
-  
-  final textColorSecondary = isDark 
-      ? const Color(0xFF94A3B8) 
+
+  final textColorSecondary = isDark
+      ? const Color(0xFF94A3B8)
       : const Color(0xFF64748B);
-  
-  final surfaceColor = isDark 
-      ? const Color(0xFF1E293B) 
+
+  final surfaceColor = isDark
+      ? const Color(0xFF1E293B)
       : const Color(0xFFFFFFFF);
-  
-  final borderColor = isDark 
-      ? const Color(0xFF334155) 
+
+  final borderColor = isDark
+      ? const Color(0xFF334155)
       : const Color(0xFFE2E8F0);
-  
+
   return ThemeData(
     brightness: isDark ? Brightness.dark : Brightness.light,
     primaryColor: primaryColor,
     scaffoldBackgroundColor: backgroundColor,
     cardColor: surfaceColor,
     dividerColor: borderColor,
-    
+
     // ============ COLOR SCHEME ============
     colorScheme: ColorScheme(
       brightness: isDark ? Brightness.dark : Brightness.light,
@@ -89,7 +91,7 @@ ThemeData buildTheme(WidgetRef ref) {
       onError: Colors.white,
       tertiary: primaryColor.withOpacity(0.8),
     ),
-    
+
     // ============ APP BAR ============
     appBarTheme: AppBarTheme(
       backgroundColor: backgroundColor,
@@ -103,26 +105,24 @@ ThemeData buildTheme(WidgetRef ref) {
       ),
       iconTheme: IconThemeData(color: textColor),
     ),
-    
+
     // ============ BOUTONS ============
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: primaryColor,
         foregroundColor: Colors.white,
         minimumSize: const Size(double.infinity, 48),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         elevation: 0,
       ),
     ),
-    
+
     floatingActionButtonTheme: FloatingActionButtonThemeData(
       backgroundColor: primaryColor,
       foregroundColor: Colors.white,
       elevation: 4,
     ),
-    
+
     // ============ INPUT ============
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
@@ -143,7 +143,7 @@ ThemeData buildTheme(WidgetRef ref) {
       floatingLabelStyle: TextStyle(color: primaryColor),
       hintStyle: TextStyle(color: textColorSecondary),
     ),
-    
+
     // ============ CARD ============
     cardTheme: CardThemeData(
       color: surfaceColor,
@@ -153,7 +153,7 @@ ThemeData buildTheme(WidgetRef ref) {
         side: BorderSide(color: borderColor.withOpacity(0.5)),
       ),
     ),
-    
+
     // ============ TEXTES ============
     textTheme: TextTheme(
       displayLarge: TextStyle(
@@ -176,31 +176,25 @@ ThemeData buildTheme(WidgetRef ref) {
         fontSize: 16,
         fontWeight: FontWeight.w500,
       ),
-      bodyLarge: TextStyle(
-        color: textColor,
-        fontSize: 16,
-      ),
-      bodyMedium: TextStyle(
-        color: textColorSecondary,
-        fontSize: 14,
-      ),
+      bodyLarge: TextStyle(color: textColor, fontSize: 16),
+      bodyMedium: TextStyle(color: textColorSecondary, fontSize: 14),
       labelLarge: TextStyle(
         color: textColor,
         fontSize: 14,
         fontWeight: FontWeight.w500,
       ),
     ),
-    
+
     // ============ CHIP ============
     chipTheme: ChipThemeData(
-      backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+      backgroundColor: isDark
+          ? const Color(0xFF1E293B)
+          : const Color(0xFFF1F5F9),
       labelStyle: TextStyle(color: textColor),
       side: BorderSide.none,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
     ),
-    
+
     // ============ SWITCH ============
     switchTheme: SwitchThemeData(
       thumbColor: WidgetStateProperty.resolveWith((states) {
@@ -216,20 +210,13 @@ ThemeData buildTheme(WidgetRef ref) {
         return isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0);
       }),
     ),
-    
+
     // ============ DIVIDER ============
-    dividerTheme: DividerThemeData(
-      color: borderColor,
-      thickness: 1,
-      space: 0,
-    ),
-    
+    dividerTheme: DividerThemeData(color: borderColor, thickness: 1, space: 0),
+
     // ============ ICON ============
-    iconTheme: IconThemeData(
-      color: textColor,
-      size: 24,
-    ),
-    
+    iconTheme: IconThemeData(color: textColor, size: 24),
+
     // ============ BOTTOM NAVIGATION ============
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
       backgroundColor: surfaceColor,

@@ -11,7 +11,7 @@ part 'task.g.dart';
 @collection
 class Task {
   Id idTasks = Isar.autoIncrement;
-  
+
   late String title;
   late String description;
   late DateTime date;
@@ -28,7 +28,8 @@ class Task {
 extension TaskExtension on Task {
   /// Calcule le temps de rappel en fonction des minutes avant la tâche
   DateTime getReminderTime(int minutesBefore) {
-    final taskStartTime = startTime ?? DateTime(date.year, date.month, date.day, 9);
+    final taskStartTime =
+        startTime ?? DateTime(date.year, date.month, date.day, 9);
     return taskStartTime.subtract(Duration(minutes: minutesBefore));
   }
 
@@ -52,12 +53,12 @@ extension TaskExtension on Task {
   }
 
   /// Annule tous les rappels pour cette tâche
- Future<void> cancelAllReminders() async {
+  Future<void> cancelAllReminders() async {
     final notifications = await AppDatabase.isar.notifications
         .filter()
         .idTaskEqualTo(idTasks)
         .findAll();
-    
+
     for (final notif in notifications) {
       // Annuler la notification système
       await NotificationService().cancelNotification(notif.idNotif);
@@ -80,7 +81,7 @@ extension TaskExtension on Task {
       reminderTime.hour,
       reminderTime.minute,
     );
-    
+
     await NotificationService().scheduleTaskReminder(
       idTasks,
       title,
@@ -97,7 +98,7 @@ extension TaskExtension on Task {
       print('⚠️ Le rappel serait dans le passé, ignoré');
       return;
     }
-    
+
     await NotificationService().scheduleTaskReminder(
       idTasks,
       title,
@@ -110,8 +111,8 @@ extension TaskExtension on Task {
   bool get isToday {
     final now = DateTime.now();
     return date.year == now.year &&
-           date.month == now.month &&
-           date.day == now.day;
+        date.month == now.month &&
+        date.day == now.day;
   }
 
   /// Vérifie si la tâche est terminée
@@ -146,8 +147,10 @@ extension TaskExtension on Task {
   /// Formate la plage horaire complète
   String formatTimeRange() {
     if (startTime == null && endTime == null) return 'Toute la journée';
-    if (startTime != null && endTime == null) return 'À partir de ${formatStartTime()}';
-    if (startTime == null && endTime != null) return 'Jusqu\'à ${formatEndTime()}';
+    if (startTime != null && endTime == null)
+      return 'À partir de ${formatStartTime()}';
+    if (startTime == null && endTime != null)
+      return 'Jusqu\'à ${formatEndTime()}';
     return '${formatStartTime()} - ${formatEndTime()}';
   }
 }

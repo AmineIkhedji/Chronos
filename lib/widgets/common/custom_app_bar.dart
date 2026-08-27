@@ -69,7 +69,8 @@ class CustomAppBar extends ConsumerWidget implements PreferredSizeWidget {
           letterSpacing: -0.3,
         ),
       ),
-      leading: leading ??
+      leading:
+          leading ??
           (showBackButton
               ? IconButton(
                   icon: Icon(

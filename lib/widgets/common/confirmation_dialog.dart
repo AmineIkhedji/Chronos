@@ -24,9 +24,7 @@ class ConfirmationDialog {
             onPressed: () => Navigator.pop(context, true),
             child: Text(
               confirmText,
-              style: TextStyle(
-                color: isDestructive ? Colors.red : null,
-              ),
+              style: TextStyle(color: isDestructive ? Colors.red : null),
             ),
           ),
         ],

@@ -16,7 +16,9 @@ final habitRepositoryProvider = Provider((ref) => HabitRepository());
 final categoryRepositoryProvider = Provider((ref) => CategoryRepository());
 final priorityRepositoryProvider = Provider((ref) => PriorityRepository());
 final statusRepositoryProvider = Provider((ref) => StatusRepository());
-final notificationRepositoryProvider = Provider((ref) => NotificationRepository());
+final notificationRepositoryProvider = Provider(
+  (ref) => NotificationRepository(),
+);
 final settingsRepositoryProvider = Provider((ref) => SettingsRepository());
 
 // Providers des contrôleurs

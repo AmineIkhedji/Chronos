@@ -34,10 +34,7 @@ class CalendarView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     switch (viewType) {
       case CalendarViewType.day:
-        return DayView(
-          date: selectedDate,
-          onDateSelected: onDateSelected,
-        );
+        return DayView(date: selectedDate, onDateSelected: onDateSelected);
       case CalendarViewType.threeDays:
         return ThreeDaysView(
           selectedDate: selectedDate,

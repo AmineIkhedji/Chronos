@@ -14,14 +14,21 @@ final firstDayOfWeekProvider = FutureProvider<int>((ref) async {
 });
 
 // Provider pour les tâches sur une période donnée
-final tasksForPeriodProvider = FutureProvider.family<List<Task>, (DateTime, DateTime)>((ref, period) async {
-  final repo = ref.read(taskRepositoryProvider);
-  final (start, end) = period;
-  return await repo.getTasksForPeriod(start, end);
-});
+final tasksForPeriodProvider =
+    FutureProvider.family<List<Task>, (DateTime, DateTime)>((
+      ref,
+      period,
+    ) async {
+      final repo = ref.read(taskRepositoryProvider);
+      final (start, end) = period;
+      return await repo.getTasksForPeriod(start, end);
+    });
 
 // Provider pour les tâches du mois
-final tasksForMonthProvider = FutureProvider.family<List<Task>, DateTime>((ref, month) async {
+final tasksForMonthProvider = FutureProvider.family<List<Task>, DateTime>((
+  ref,
+  month,
+) async {
   final repo = ref.read(taskRepositoryProvider);
   final start = DateTime(month.year, month.month, 1);
   final end = DateTime(month.year, month.month + 1, 0, 23, 59, 59);
@@ -29,7 +36,10 @@ final tasksForMonthProvider = FutureProvider.family<List<Task>, DateTime>((ref, 
 });
 
 // Provider pour les tâches par date
-final tasksByDateProvider = FutureProvider.family<List<Task>, DateTime>((ref, date) async {
+final tasksByDateProvider = FutureProvider.family<List<Task>, DateTime>((
+  ref,
+  date,
+) async {
   final repo = ref.read(taskRepositoryProvider);
   return await repo.getTasksForDate(date);
 });

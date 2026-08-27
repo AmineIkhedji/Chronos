@@ -27,11 +27,31 @@ class OnboardingTutorial extends StatefulWidget {
 
 class _OnboardingTutorialState extends State<OnboardingTutorial> {
   static const _pages = [
-    _TutorialPage('lib/assets/images/tutorial/welcome.svg', 'Bienvenue sur Chronos !', 'Organisez votre temps et gardez une vue claire de vos priorites depuis votre accueil.'),
-    _TutorialPage('lib/assets/images/tutorial/stats.svg', 'Suivez vos statistiques', 'Visualisez votre progression et votre rythme de travail au fil des jours.'),
-    _TutorialPage('lib/assets/images/tutorial/calendar.svg', 'Planifiez votre semaine', 'Retrouvez vos evenements et les jours importants dans le calendrier.'),
-    _TutorialPage('lib/assets/images/tutorial/tasks.svg', 'Gerez vos taches', 'Ajoutez, completez et organisez les actions qui font avancer vos projets.'),
-    _TutorialPage('lib/assets/images/tutorial/habits.svg', 'Construisez vos habitudes', 'Suivez les habitudes que vous voulez maintenir et avancez regulierement.'),
+    _TutorialPage(
+      'lib/assets/images/tutorial/welcome.svg',
+      'Bienvenue sur Chronos !',
+      'Organisez votre temps et gardez une vue claire de vos priorites depuis votre accueil.',
+    ),
+    _TutorialPage(
+      'lib/assets/images/tutorial/stats.svg',
+      'Suivez vos statistiques',
+      'Visualisez votre progression et votre rythme de travail au fil des jours.',
+    ),
+    _TutorialPage(
+      'lib/assets/images/tutorial/calendar.svg',
+      'Planifiez votre semaine',
+      'Retrouvez vos evenements et les jours importants dans le calendrier.',
+    ),
+    _TutorialPage(
+      'lib/assets/images/tutorial/tasks.svg',
+      'Gerez vos taches',
+      'Ajoutez, completez et organisez les actions qui font avancer vos projets.',
+    ),
+    _TutorialPage(
+      'lib/assets/images/tutorial/habits.svg',
+      'Construisez vos habitudes',
+      'Suivez les habitudes que vous voulez maintenir et avancez regulierement.',
+    ),
   ];
 
   int _pageIndex = 0;
@@ -74,7 +94,9 @@ class _OnboardingTutorialState extends State<OnboardingTutorial> {
             page: _pages[_pageIndex],
             pageIndex: _pageIndex,
             pageCount: _pages.length,
-            onPrevious: _pageIndex == 0 ? null : () => setState(() => _pageIndex -= 1),
+            onPrevious: _pageIndex == 0
+                ? null
+                : () => setState(() => _pageIndex -= 1),
             onNext: _next,
             onSkip: _close,
           ),
@@ -132,9 +154,19 @@ class _TutorialPageView extends StatelessWidget {
                       const SizedBox(height: 12),
                       SvgPicture.asset(page.image, height: 220),
                       const SizedBox(height: 28),
-                      Text(page.title, textAlign: TextAlign.center, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700)),
+                      Text(
+                        page.title,
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                       const SizedBox(height: 14),
-                      Text(page.description, textAlign: TextAlign.center, style: theme.textTheme.bodyLarge?.copyWith(height: 1.5)),
+                      Text(
+                        page.description,
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodyLarge?.copyWith(height: 1.5),
+                      ),
                     ],
                   ),
                 ),
@@ -149,7 +181,9 @@ class _TutorialPageView extends StatelessWidget {
                     height: 8,
                     margin: const EdgeInsets.symmetric(horizontal: 4),
                     decoration: BoxDecoration(
-                      color: index == pageIndex ? theme.colorScheme.primary : theme.dividerColor,
+                      color: index == pageIndex
+                          ? theme.colorScheme.primary
+                          : theme.dividerColor,
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
@@ -159,11 +193,19 @@ class _TutorialPageView extends StatelessWidget {
               Row(
                 children: [
                   if (onPrevious != null)
-                    OutlinedButton(onPressed: onPrevious, child: const Text('Precedent'))
+                    OutlinedButton(
+                      onPressed: onPrevious,
+                      child: const Text('Precedent'),
+                    )
                   else
                     const SizedBox(width: 104),
                   const Spacer(),
-                  FilledButton(onPressed: onNext, child: Text(pageIndex == pageCount - 1 ? 'Commencer' : 'Suivant')),
+                  FilledButton(
+                    onPressed: onNext,
+                    child: Text(
+                      pageIndex == pageCount - 1 ? 'Commencer' : 'Suivant',
+                    ),
+                  ),
                 ],
               ),
             ],

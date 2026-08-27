@@ -20,7 +20,9 @@ class SettingsCard extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final cardColor = backgroundColor ?? theme.cardColor;
-    final border = borderColor ?? (isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0));
+    final border =
+        borderColor ??
+        (isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0));
 
     return Container(
       decoration: BoxDecoration(

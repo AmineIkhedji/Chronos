@@ -18,24 +18,18 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('Chronos app starts', (WidgetTester tester) async {
-    await tester.pumpWidget(
-      const ProviderScope(
-        child: ChronosApp(),
-      ),
-    );
+    await tester.pumpWidget(const ProviderScope(child: ChronosApp()));
 
     expect(find.text('CHRONOS'), findsOneWidget);
   });
 
-  testWidgets('tutorial is shown for first-time users only', (WidgetTester tester) async {
+  testWidgets('tutorial is shown for first-time users only', (
+    WidgetTester tester,
+  ) async {
     SharedPreferences.setMockInitialValues({});
 
     await tester.pumpWidget(
-      const ProviderScope(
-        child: MaterialApp(
-          home: HomeScreen(),
-        ),
-      ),
+      const ProviderScope(child: MaterialApp(home: HomeScreen())),
     );
     await tester.pumpAndSettle();
 
@@ -48,9 +42,7 @@ void main() {
   });
 
   test('tutorial preference is false after it has been seen', () async {
-    SharedPreferences.setMockInitialValues({
-      chronosTutorialSeenKey: true,
-    });
+    SharedPreferences.setMockInitialValues({chronosTutorialSeenKey: true});
 
     expect(await TutorialService.shouldShowTutorial(), isFalse);
   });

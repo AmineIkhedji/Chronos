@@ -15,9 +15,7 @@ class CreateOptionsDialog extends ConsumerWidget {
     final theme = Theme.of(context);
 
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -117,9 +115,7 @@ class CreateOptionsDialog extends ConsumerWidget {
         decoration: BoxDecoration(
           color: theme.cardColor,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: theme.dividerColor.withOpacity(0.5),
-          ),
+          border: Border.all(color: theme.dividerColor.withOpacity(0.5)),
         ),
         child: Row(
           children: [

@@ -31,11 +31,11 @@ class PriorityRepository {
           .filter()
           .idPriorityEqualTo(id)
           .count();
-      
+
       if (tasksCount > 0) {
         throw Exception('Cette priorité est utilisée par $tasksCount tâche(s)');
       }
-      
+
       await AppDatabase.isar.prioritys.delete(id);
     });
   }
@@ -43,13 +43,13 @@ class PriorityRepository {
   Future<void> createDefaultPriorities() async {
     final count = await AppDatabase.isar.prioritys.count();
     if (count > 0) return;
-    
+
     final defaultPriorities = [
       {'name': 'Basse', 'color': 0xFF4CAF50},
       {'name': 'Moyenne', 'color': 0xFFFF9800},
       {'name': 'Haute', 'color': 0xFFF44336},
     ];
-    
+
     await AppDatabase.isar.writeTxn(() async {
       for (var data in defaultPriorities) {
         final priority = Priority()
