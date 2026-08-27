@@ -35,6 +35,9 @@ class _AllTasksScreenState extends ConsumerState<AllTasksScreen> {
   _TaskFilterType _filterType = _TaskFilterType.day;
   String _filterValue = 'all';
 
+  // Breakpoint above which the filter row goes side-by-side instead of stacked.
+  static const double _wideBreakpoint = 560;
+
   Future<void> _openTaskForm(
     BuildContext context,
     WidgetRef ref, {
@@ -68,107 +71,155 @@ class _AllTasksScreenState extends ConsumerState<AllTasksScreen> {
     final statuses = ref.watch(allStatusesProvider).value ?? [];
     final toggleCompletion = ref.read(toggleTaskCompletionProvider);
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Scaffold(
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
+        elevation: 0,
+        scrolledUnderElevation: 1,
+        backgroundColor: colorScheme.surface,
+        surfaceTintColor: colorScheme.surfaceTint,
         title: Text(
           widget.date == null ? 'Toutes les tâches' : 'Tâches du jour',
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add_rounded),
-            tooltip: 'Nouvelle tâche',
-            onPressed: () => _openTaskForm(context, ref),
+          style: theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w700,
           ),
-        ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _openTaskForm(context, ref),
+        icon: const Icon(Icons.add_rounded),
+        label: const Text('Nouvelle tâche'),
       ),
       body: tasksAsync.when(
         data: (tasks) {
           final filteredTasks = _filterTasks(tasks);
 
-          return Column(
-            children: [
-              _buildFilterBar(tasks, categories, statuses),
-              Expanded(
-                child: filteredTasks.isEmpty
-                    ? EmptyState(
-                        icon: Icons.task_alt_rounded,
-                        title: tasks.isEmpty
-                            ? 'Aucune tâche'
-                            : 'Aucun résultat',
-                        message: tasks.isEmpty
-                            ? 'Créez votre première tâche pour commencer.'
-                            : 'Aucune tâche ne correspond à ce filtre.',
-                        actionText: tasks.isEmpty ? 'Créer une tâche' : null,
-                        onActionPressed: tasks.isEmpty
-                            ? () => _openTaskForm(context, ref)
-                            : null,
-                      )
-                    : RefreshIndicator(
-                        onRefresh: () async {
-                          if (widget.date == null) {
-                            ref.invalidate(allTasksProvider);
-                            await ref.read(allTasksProvider.future);
-                          } else {
-                            ref.invalidate(tasksByDateProvider(widget.date!));
-                            await ref.read(
-                              tasksByDateProvider(widget.date!).future,
-                            );
-                          }
-                        },
-                        child: ListView.separated(
-                          padding: const EdgeInsets.all(16),
-                          itemCount: filteredTasks.length,
-                          separatorBuilder: (_, _) => const SizedBox(height: 8),
-                          itemBuilder: (context, index) {
-                            final task = filteredTasks[index];
-                            final showDateHeader =
-                                index == 0 ||
-                                !_isSameDay(
-                                  task.date,
-                                  filteredTasks[index - 1].date,
-                                );
+          return SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final isWide = constraints.maxWidth >= _wideBreakpoint;
+                final horizontalPadding = constraints.maxWidth >= 900
+                    ? (constraints.maxWidth - 900) / 2 + 16
+                    : 16.0;
 
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                if (showDateHeader) ...[
-                                  if (index > 0) const SizedBox(height: 8),
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                      bottom: 8,
-                                      left: 4,
-                                    ),
-                                    child: Text(
-                                      _formatDateHeader(task.date),
-                                      style: TextStyle(
-                                        color: theme.colorScheme.onSurface
-                                            .withValues(alpha: 0.6),
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                                Material(
-                                  color: theme.cardColor,
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: TaskListItem(
-                                    task: task,
-                                    onToggle: () => toggleCompletion(task),
-                                    onTap: () =>
-                                        _openTaskDetail(context, ref, task),
-                                    onLongPress: () =>
-                                        _openTaskForm(context, ref, task: task),
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
+                return Column(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        horizontalPadding,
+                        12,
+                        horizontalPadding,
+                        4,
                       ),
-              ),
-            ],
+                      child: _buildFilterBar(
+                        context,
+                        tasks,
+                        categories,
+                        statuses,
+                        isWide,
+                      ),
+                    ),
+                    Expanded(
+                      child: filteredTasks.isEmpty
+                          ? EmptyState(
+                              icon: Icons.task_alt_rounded,
+                              title: tasks.isEmpty
+                                  ? 'Aucune tâche'
+                                  : 'Aucun résultat',
+                              message: tasks.isEmpty
+                                  ? 'Créez votre première tâche pour commencer.'
+                                  : 'Aucune tâche ne correspond à ce filtre.',
+                              actionText:
+                                  tasks.isEmpty ? 'Créer une tâche' : null,
+                              onActionPressed: tasks.isEmpty
+                                  ? () => _openTaskForm(context, ref)
+                                  : null,
+                            )
+                          : RefreshIndicator(
+                              onRefresh: () async {
+                                if (widget.date == null) {
+                                  ref.invalidate(allTasksProvider);
+                                  await ref.read(allTasksProvider.future);
+                                } else {
+                                  ref.invalidate(
+                                    tasksByDateProvider(widget.date!),
+                                  );
+                                  await ref.read(
+                                    tasksByDateProvider(widget.date!).future,
+                                  );
+                                }
+                              },
+                              child: ListView.builder(
+                                padding: EdgeInsets.fromLTRB(
+                                  horizontalPadding,
+                                  8,
+                                  horizontalPadding,
+                                  96,
+                                ),
+                                itemCount: filteredTasks.length,
+                                itemBuilder: (context, index) {
+                                  final task = filteredTasks[index];
+                                  final showDateHeader =
+                                      index == 0 ||
+                                      !_isSameDay(
+                                        task.date,
+                                        filteredTasks[index - 1].date,
+                                      );
+
+                                  return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      if (showDateHeader) ...[
+                                        if (index > 0)
+                                          const SizedBox(height: 20),
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            bottom: 10,
+                                            left: 2,
+                                          ),
+                                          child: _DateHeaderChip(
+                                            label: _formatDateHeader(
+                                              task.date,
+                                            ),
+                                          ),
+                                        ),
+                                      ] else
+                                        const SizedBox(height: 8),
+                                      Material(
+                                        color: colorScheme.surfaceContainer,
+                                        borderRadius: BorderRadius.circular(
+                                          16,
+                                        ),
+                                        clipBehavior: Clip.antiAlias,
+                                        child: TaskListItem(
+                                          task: task,
+                                          onToggle: () =>
+                                              toggleCompletion(task),
+                                          onTap: () => _openTaskDetail(
+                                            context,
+                                            ref,
+                                            task,
+                                          ),
+                                          onLongPress: () => _openTaskForm(
+                                            context,
+                                            ref,
+                                            task: task,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ),
+                            ),
+                    ),
+                  ],
+                );
+              },
+            ),
           );
         },
         loading: () => const LoadingIndicator(),
@@ -199,44 +250,104 @@ class _AllTasksScreenState extends ConsumerState<AllTasksScreen> {
     }).toList();
   }
 
-  Widget _buildFilterBar(List<Task> tasks, List categories, List statuses) {
+  Widget _buildFilterBar(
+    BuildContext context,
+    List<Task> tasks,
+    List categories,
+    List statuses,
+    bool isWide,
+  ) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final options = _filterOptions(tasks, categories, statuses);
     final selectedValue = options.any((option) => option.value == _filterValue)
         ? _filterValue
         : 'all';
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+    final typeField = DropdownButtonFormField<_TaskFilterType>(
+      initialValue: _filterType,
+      icon: const Icon(Icons.expand_more_rounded),
+      decoration: _filterFieldDecoration(colorScheme, 'Filtrer par'),
+      items: _TaskFilterType.values
+          .map(
+            (type) => DropdownMenuItem(value: type, child: Text(type.label)),
+          )
+          .toList(),
+      onChanged: (type) {
+        if (type == null) return;
+        setState(() {
+          _filterType = type;
+          _filterValue = 'all';
+        });
+      },
+    );
+
+    final valueField = DropdownButtonFormField<String>(
+      initialValue: selectedValue,
+      icon: const Icon(Icons.expand_more_rounded),
+      decoration: _filterFieldDecoration(colorScheme, _filterType.label),
+      items: options,
+      onChanged: (value) {
+        if (value != null) setState(() => _filterValue = value);
+      },
+    );
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.4)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          DropdownButtonFormField<_TaskFilterType>(
-            initialValue: _filterType,
-            decoration: const InputDecoration(labelText: 'Filtrer par'),
-            items: _TaskFilterType.values
-                .map(
-                  (type) =>
-                      DropdownMenuItem(value: type, child: Text(type.label)),
-                )
-                .toList(),
-            onChanged: (type) {
-              if (type == null) return;
-              setState(() {
-                _filterType = type;
-                _filterValue = 'all';
-              });
-            },
+          Icon(
+            Icons.filter_list_rounded,
+            color: colorScheme.onSurfaceVariant,
+            size: 20,
           ),
-          const SizedBox(width: 12),
-          DropdownButtonFormField<String>(
-            initialValue: selectedValue,
-            decoration: InputDecoration(labelText: _filterType.label),
-            items: options,
-            onChanged: (value) {
-              if (value != null) setState(() => _filterValue = value);
-            },
+          const SizedBox(width: 10),
+          Expanded(
+            child: isWide
+                ? Row(
+                    children: [
+                      Expanded(child: typeField),
+                      const SizedBox(width: 12),
+                      Expanded(child: valueField),
+                    ],
+                  )
+                : Column(
+                    children: [
+                      typeField,
+                      const SizedBox(height: 10),
+                      valueField,
+                    ],
+                  ),
           ),
         ],
+      ),
+    );
+  }
+
+  InputDecoration _filterFieldDecoration(ColorScheme colorScheme, String label) {
+    return InputDecoration(
+      labelText: label,
+      isDense: true,
+      filled: true,
+      fillColor: colorScheme.surface,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(color: colorScheme.outlineVariant),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(color: colorScheme.outlineVariant),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
       ),
     );
   }
@@ -305,5 +416,33 @@ class _AllTasksScreenState extends ConsumerState<AllTasksScreen> {
     if (taskDay == today.add(const Duration(days: 1))) return 'Demain';
 
     return DateFormatters.formatFullDate(date);
+  }
+}
+
+/// A small pill-shaped chip used as a date section header in the task list.
+class _DateHeaderChip extends StatelessWidget {
+  const _DateHeaderChip({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: colorScheme.primaryContainer.withValues(alpha: 0.6),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: colorScheme.onPrimaryContainer,
+          fontSize: 12.5,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.2,
+        ),
+      ),
+    );
   }
 }
