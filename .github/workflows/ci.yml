@@ -14,6 +14,27 @@ permissions:
   contents: read
 
 jobs:
+  # ------------------------------------------------------------------
+  # JOB : Secret Scanning (Gitleaks)
+  # Remplace le Secret Scanning natif GitHub, réservé à Advanced
+  # Security (payant sur dépôt privé). Gitleaks fait le même travail :
+  # détecter des mots de passe, clés API ou tokens oubliés dans le code.
+  # ------------------------------------------------------------------
+  secret-scan:
+    name: Détection de secrets (Gitleaks)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # nécessaire pour que Gitleaks scanne tout l'historique des commits
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   quality:
     name: Code Quality & Tests
     runs-on: ubuntu-latest
@@ -75,7 +96,7 @@ jobs:
   build:
     name: Build Android APK (debug)
     runs-on: ubuntu-latest
-    needs: [quality, sast-scan]
+    needs: [quality, sast-scan, secret-scan]
 
     steps:
       - name: Checkout repository
@@ -107,7 +128,7 @@ jobs:
   release:
     name: Build & Publish Release APK
     runs-on: ubuntu-latest
-    needs: [quality, sast-scan, build]
+    needs: [quality, sast-scan, secret-scan, build]
     if: startsWith(github.ref, 'refs/tags/v')
     permissions:
       contents: write
