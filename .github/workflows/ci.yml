@@ -66,7 +66,7 @@ jobs:
         run: semgrep scan --config auto --error --output semgrep-report.txt || true
 
       - name: Upload Semgrep report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: semgrep-report
           path: semgrep-report.txt
@@ -95,7 +95,7 @@ jobs:
         run: flutter build apk --debug
 
       - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: chronos-debug-apk
           path: build/app/outputs/flutter-apk/app-debug.apk
