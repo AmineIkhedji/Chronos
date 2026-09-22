@@ -1,10 +1,12 @@
 version: 2
+
 updates:
+
   # SCA : surveille les dépendances Dart/Flutter (pubspec.yaml)
   - package-ecosystem: "pub"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     open-pull-requests-limit: 10
     labels:
       - "dependencies"
@@ -14,4 +16,4 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
