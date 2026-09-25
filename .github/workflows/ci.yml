@@ -16,9 +16,6 @@ permissions:
 jobs:
   # ------------------------------------------------------------------
   # JOB : Secret Scanning (Gitleaks)
-  # Remplace le Secret Scanning natif GitHub, réservé à Advanced
-  # Security (payant sur dépôt privé). Gitleaks fait le même travail :
-  # détecter des mots de passe, clés API ou tokens oubliés dans le code.
   # ------------------------------------------------------------------
   secret-scan:
     name: Détection de secrets (Gitleaks)
@@ -28,12 +25,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # nécessaire pour que Gitleaks scanne tout l'historique des commits
+          fetch-depth: 0
 
       - name: Run Gitleaks
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: false
 
   quality:
     name: Code Quality & Tests
@@ -64,7 +62,6 @@ jobs:
 
   # ------------------------------------------------------------------
   # JOB : SAST (Analyse Statique du code Dart/Flutter)
-  # CodeQL ne supporte pas Dart -> on utilise Semgrep à la place.
   # ------------------------------------------------------------------
   sast-scan:
     name: Analyse Statique Semgrep
@@ -91,7 +88,7 @@ jobs:
         with:
           name: semgrep-report
           path: semgrep-report.txt
-          retention-days: 14
+          retention-days: 1
 
   build:
     name: Build Android APK (debug)
@@ -121,7 +118,7 @@ jobs:
         with:
           name: chronos-debug-apk
           path: build/app/outputs/flutter-apk/app-debug.apk
-          retention-days: 3
+          retention-days: 1
 
   # ------------------------------------------------------------------
   # JOB : Release (uniquement déclenché par un tag "v*", ex: v1.0.0)
