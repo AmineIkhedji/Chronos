@@ -83,12 +83,12 @@ jobs:
       - name: Run Semgrep scan
         run: semgrep scan --config auto --error --output semgrep-report.txt || true
 
-      - name: Upload Semgrep report
-        uses: actions/upload-artifact@v4
-        with:
-          name: semgrep-report
-          path: semgrep-report.txt
-          retention-days: 1
+      # - name: Upload Semgrep report
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: semgrep-report
+      #     path: semgrep-report.txt
+      #     retention-days: 1
 
   build:
     name: Build Android APK (debug)
@@ -112,13 +112,13 @@ jobs:
       - name: Build debug APK
         run: flutter build apk --debug
 
-      - name: Upload APK artifact
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: actions/upload-artifact@v4
-        with:
-          name: chronos-debug-apk
-          path: build/app/outputs/flutter-apk/app-debug.apk
-          retention-days: 1
+      # - name: Upload APK artifact
+      #   if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: chronos-debug-apk
+      #     path: build/app/outputs/flutter-apk/app-debug.apk
+      #     retention-days: 1
 
   # ------------------------------------------------------------------
   # JOB : Release (uniquement déclenché par un tag "v*", ex: v1.0.0)
