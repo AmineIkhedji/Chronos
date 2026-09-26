@@ -1,90 +1,112 @@
-# 🕐 Chronos - Application de Gestion du Temps
+# Chronos
 
-## 📌 Technos utilisées
+Application mobile Flutter de gestion du temps : tâches, habitudes, calendrier et statistiques.
+
+Les données restent sur l’appareil (base locale Isar). Aucun compte ni serveur n’est requis.
+
+## Fonctionnalités
+
+- **Accueil** — aperçu du jour : salutation, mini-calendrier, tâches et habitudes
+- **Tâches** — titre, description, date, horaires, catégorie, priorité, statut, couleur
+- **Habitudes** — répétition sur les jours choisis, suivi quotidien
+- **Calendrier** — vues jour, 3 jours, semaine, mois et kanban
+- **Statistiques** — progression du jour, semaine et vue d’ensemble
+- **Rappels** — notifications locales pour les tâches
+- **Personnalisation** — thème clair/sombre, couleur principale, premier jour de la semaine
+- **Tutoriel** — guidage au premier lancement
+
+Navigation principale : Accueil, Calendrier, Stats, Réglages.
+
+## Stack technique
 
 | Techno | Rôle |
 |--------|------|
-| **Flutter** | Framework pour créer l'app (iOS, Android, Web, Desktop) |
-| **Dart** | Langage de programmation (comme Java/Kotlin mais plus simple) |
-| **Isar** | Base de données locale (plus rapide que SQLite, stocke des objets directement) |
+| Flutter / Dart | Interface et logique de l’application |
+| Riverpod | Gestion d’état |
+| Isar (community) | Base de données locale, hors ligne |
+| flutter_local_notifications | Rappels sur l’appareil |
 
-### 🗄️ Isar en 2 mots :
-- Stocke des **objets Dart** directement (pas besoin de requêtes SQL)
-- Fonctionne **hors ligne** (les données restent sur le téléphone)
-- **Rapide** même avec 1000+ tâches
+Autres dépendances utiles : `intl` et `timezone` (dates), `permission_handler` (autorisations), `shared_preferences` (petits réglages).
 
----
+## Architecture
 
-## 📁 Structure du projet
+Le code suit une séparation simple : **écran → état (Riverpod) → dépôt → base**.
+
+```
 lib/
-├── main.dart # Point d'entrée de l'app
-│
-├── database/
-│ └── app_database.dart # Configuration de la base de données Isar
-│
-├── models/ # Les "tables" de la base de données
-│ ├── task.dart # Tâche (titre, date, description...)
-│ ├── category.dart # Catégorie (Travail, Personnel...)
-│ ├── priority.dart # Priorité (Basse, Moyenne, Haute)
-│ ├── status.dart # Statut (À faire, En cours, Terminé)
-│ ├── habit.dart # Habitude (lien vers une tâche)
-│ ├── days.dart # Jours de répétition d'une habitude
-│ ├── notification.dart # Rappel d'une tâche
-│ ├── settings.dart # Paramètres (mode sombre, couleurs...)
-│ └── *.g.dart # 📢 Fichiers générés automatiquement (NE PAS TOUCHER)
-│
-├── repositories/ # La "logique" pour lire/écrire dans la BDD
-│ ├── task_repository.dart
-│ ├── category_repository.dart
-│ ├── priority_repository.dart
-│ ├── status_repository.dart
-│ ├── habit_repository.dart
-│ ├── notification_repository.dart
-│ └── settings_repository.dart
-│
-├── services/ # Services (fonctionnalités transversales)
-│ └── (à venir : notifications, thème, synchronisation...)
-│
-├── views/ # Pages de l'app
-│ └── (à venir)
-│
-└── widgets/ # Petits composants réutilisables
-└── (à venir)
+├── main.dart                 Point d’entrée
+├── database/                 Ouverture d’Isar
+├── models/                   Entités persistées (tâche, habitude, etc.)
+├── repositories/             Lecture / écriture en base
+├── providers/                État exposé à l’UI (Riverpod)
+├── controllers/              Actions métier (tâches, habitudes)
+├── services/                 Init, notifications, thème, profil
+├── views/                    Écrans
+├── widgets/                  Composants réutilisables
+└── utils/                    Dates, couleurs, validations
+```
 
+Les fichiers `*.g.dart` dans `models/` sont **générés** par Isar. Ne pas les modifier à la main.
 
-> ⚠️ Les fichiers `.g.dart` sont **générés automatiquement** par Isar.  
-> **Ne les modifie jamais manuellement !**
+## Prérequis
 
-### `repositories/`
-Chaque repository contient **toutes les méthodes** pour interagir avec une table :
-// Exemple avec TaskRepository
-taskRepository.getAllTasks()          // Récupère tout
-taskRepository.getTaskById(5)         // Récupère une tâche
-taskRepository.saveTask(task)         // Crée ou met à jour
-taskRepository.deleteTask(5)          // Supprime
-taskRepository.getTodayTasks()        // Tâches du jour
-taskRepository.getTasksByCategory(2)  // Filtre par catégorie
-taskRepository.getLateTasks()         // Tâches en retard
+- [Flutter](https://docs.flutter.dev/get-started/install) 3.44.4 ou une version récente du canal stable
+- SDK Dart compatible (`^3.12.2`, voir `pubspec.yaml`)
 
-dart run build_runner watch --delete-conflicting-outputs   -> Génère automatiquement les fichiers .g.dart à chaque modification (à laisser tourner)
+Vérifier l’installation :
 
-dart run build_runner build --delete-conflicting-outputs -> Alternative pour le faire une fois et a chaque changement
+```bash
+flutter doctor
+```
 
+## Lancer le projet
 
-## Liste package
-| Package                       | Utilisation dans Chronos                                     |
-| ----------------------------- | ------------------------------------------------------------ |
-| `isar_community`              | Base de données locale                                       |
-| `isar_community_flutter_libs` | Bibliothèques natives Isar                                   |
-| `path_provider`               | Accéder aux dossiers de stockage de l'app                    |
-| `shared_preferences`          | Petits paramètres persistants                                |
-| `intl`                        | Dates, heures, formats de calendrier                         |
-| `timezone`                    | Gestion correcte des fuseaux horaires pour les notifications |
-| `flutter_riverpod`            | Gestion de l'état de l'application                           |
-| `flutter_local_notifications` | Notifications locales pour tâches/habitudes/événements       |
-| `permission_handler`          | Gestion des permissions Android/iOS                          |
-| `uuid`                        | Génération d'identifiants uniques                            |
-| `cupertino_icons`             | Icônes style iOS                                             |
-| `build_runner`                | Génération de code                                           |
-| `isar_community_generator`    | Génération du code Isar                                      |
-| `flutter_lints`               | Vérification/qualité du code                                 |
+```bash
+git clone <url-du-depot>
+cd chronos
+flutter pub get
+flutter run
+```
+
+Pour viser une plateforme précise : `flutter run -d android`, `-d ios`, `-d windows`, etc.
+
+## Génération de code (Isar)
+
+Après un changement dans un modèle annoté (`@collection`) :
+
+```bash
+dart run build_runner build --delete-conflicting-outputs
+```
+
+En continu pendant le développement :
+
+```bash
+dart run build_runner watch --delete-conflicting-outputs
+```
+
+## Qualité et CI
+
+En local :
+
+```bash
+dart format .
+flutter analyze
+flutter test
+```
+
+Sur GitHub Actions (branche `main` et tags `v*`) : formatage, analyse, tests, scan de secrets (Gitleaks), analyse statique (Semgrep), compilation APK debug. Un tag `v1.0.0` déclenche aussi une APK de release signée.
+
+## Modèle de données (aperçu)
+
+| Entité | Contenu |
+|--------|---------|
+| Task | Titre, description, date, horaires, couleur, catégorie, priorité, statut |
+| Habit | Titre, description, couleur, catégorie |
+| Days | Jours de répétition d’une habitude |
+| Notification | Rappel lié à une tâche |
+| Category / Priority / Status | Listes de référence (valeurs par défaut au premier lancement) |
+| Settings | Thème, couleurs, notifications, nom, premier jour de la semaine |
+
+## Licence
+
+Projet non publié (`publish_to: 'none'`). Aucun fichier de licence n’est fourni dans le dépôt pour le moment.
