@@ -167,4 +167,4 @@ L’APK se télécharge ensuite depuis la page Releases du dépôt.
 
 ## Licence
 
-Projet non publié (`publish_to: 'none'`). Aucun fichier de licence n’est fourni dans le dépôt pour le moment.
+Ce projet est sous licence [MIT](LICENSE). Vous pouvez l’utiliser, le modifier et le redistribuer, à condition de conserver la mention de copyright.
