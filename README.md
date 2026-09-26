@@ -32,6 +32,28 @@ Autres dépendances utiles : `intl` et `timezone` (dates), `permission_handler` 
 
 Le code suit une séparation simple : **écran → état (Riverpod) → dépôt → base**.
 
+```mermaid
+flowchart LR
+  subgraph UI["Interface"]
+    V[Écrans]
+    W[Widgets]
+  end
+  subgraph State["État"]
+    P[Providers Riverpod]
+    C[Controllers]
+  end
+  subgraph Data["Données"]
+    R[Repositories]
+    I[(Isar local)]
+  end
+  V --> P
+  W --> P
+  P --> C
+  P --> R
+  C --> R
+  R --> I
+```
+
 ```
 lib/
 ├── main.dart                 Point d’entrée
@@ -84,9 +106,7 @@ En continu pendant le développement :
 dart run build_runner watch --delete-conflicting-outputs
 ```
 
-## Qualité et CI
-
-En local :
+## Qualité en local
 
 ```bash
 dart format .
@@ -94,7 +114,45 @@ flutter analyze
 flutter test
 ```
 
-Sur GitHub Actions (branche `main` et tags `v*`) : formatage, analyse, tests, scan de secrets (Gitleaks), analyse statique (Semgrep), compilation APK debug. Un tag `v1.0.0` déclenche aussi une APK de release signée.
+## CI / CD
+
+Le pipeline GitHub Actions (`.github/workflows/ci.yml`) tourne sur chaque **push** et **pull request** vers `main`, et sur chaque **tag** `v*` (ex. `v1.0.0`).
+
+Dependabot met aussi à jour chaque mois les dépendances Dart (`pubspec.yaml`) et les GitHub Actions.
+
+```mermaid
+flowchart TD
+  A[Push / PR sur main<br/>ou tag v*] --> Q[Quality<br/>format · analyze · tests]
+  A --> S[Secret scan<br/>Gitleaks]
+  Q --> SG[SAST<br/>Semgrep]
+  Q --> B[Build APK debug]
+  SG --> B
+  S --> B
+  B --> R{Tag v* ?}
+  R -->|Non| D[Fin du pipeline]
+  R -->|Oui| REL[Release<br/>APK signée + GitHub Release]
+```
+
+| Étape | Rôle |
+|-------|------|
+| **Quality** | `dart format`, `flutter analyze`, `flutter test` |
+| **Secret scan** | Gitleaks — détecte les secrets dans l’historique Git |
+| **SAST** | Semgrep — analyse statique du code |
+| **Build** | Compile une APK Android **debug** (après les contrôles ci-dessus) |
+| **Release** | Uniquement si le commit est un tag `v*` : APK **release** signée, puis publication |
+
+## Releases
+
+Les versions publiques sont des [GitHub Releases](https://github.com/AmineIkhedji/Chronos/releases).
+
+Pour publier une version :
+
+1. Pousser un tag du type `v1.0.0` (le `v` est obligatoire).
+2. Le job **Release** attend que qualité, scans et build debug passent.
+3. L’APK Android est signée avec le keystore stocké dans les secrets GitHub (`KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`).
+4. Une GitHub Release est créée avec l’APK jointe et des notes générées automatiquement.
+
+L’APK se télécharge ensuite depuis la page Releases du dépôt.
 
 ## Modèle de données (aperçu)
 
