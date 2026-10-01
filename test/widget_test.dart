@@ -11,8 +11,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:chronos/main.dart';
+import 'package:chronos/models/task.dart';
 import 'package:chronos/services/tutorial_service.dart';
 import 'package:chronos/views/home_screen.dart';
+import 'package:chronos/widgets/home/task_list_item.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -21,6 +23,32 @@ void main() {
     await tester.pumpWidget(const ProviderScope(child: ChronosApp()));
 
     expect(find.text('CHRONOS'), findsOneWidget);
+  });
+
+  testWidgets('task item fits narrow widths without overflow', (
+    WidgetTester tester,
+  ) async {
+    final task = Task()
+      ..title = 'Une tâche avec un titre suffisamment long'
+      ..date = DateTime(2026, 10, 1)
+      ..startTime = DateTime(2026, 10, 1, 9)
+      ..color = Colors.blue.toARGB32()
+      ..idCategory = 1
+      ..idPriority = 1
+      ..idStatus = 1;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Align(
+            alignment: Alignment.topLeft,
+            child: SizedBox(width: 220, child: TaskListItem(task: task)),
+          ),
+        ),
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('tutorial is shown for first-time users only', (

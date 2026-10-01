@@ -98,7 +98,7 @@ class TaskList extends ConsumerWidget {
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 20),
                     child: Text(
-                      'Aucune tâche pour aujourd\'hui 🎉',
+                      'Aucune tâche pour aujourd\'hui',
                       style: TextStyle(color: textColorSecondary),
                     ),
                   );

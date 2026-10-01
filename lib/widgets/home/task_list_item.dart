@@ -179,9 +179,7 @@ class TaskListItem extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
-        Wrap(
-          spacing: 8,
-          crossAxisAlignment: WrapCrossAlignment.center,
+        Row(
           children: [
             Container(
               width: 8,
@@ -191,13 +189,18 @@ class TaskListItem extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
             ),
-            Text(
-              timeRange,
-              style: TextStyle(
-                color: textColorSecondary.withValues(
-                  alpha: isCompleted ? 0.5 : 1.0,
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                timeRange,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: textColorSecondary.withValues(
+                    alpha: isCompleted ? 0.5 : 1.0,
+                  ),
+                  fontSize: 12,
                 ),
-                fontSize: 12,
               ),
             ),
           ],
