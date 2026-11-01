@@ -45,7 +45,7 @@ dev_dependencies:
     sdk: flutter
 
   # Code generation
-  build_runner: ^2.4.13
+  build_runner: ^2.16.2
   isar_community_generator: ^3.3.2
 
   # Linting
