@@ -36,7 +36,7 @@ dependencies:
   uuid: ^4.5.1
 
   # iOS-style icons
-  cupertino_icons: ^1.0.8
+  cupertino_icons: ^2.0.0
   flutter_lucide: ^1.31.0
   flutter_native_splash: ^2.4.0
   flutter_svg: ^2.0.17
