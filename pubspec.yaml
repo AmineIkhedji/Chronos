@@ -15,7 +15,7 @@ dependencies:
 
   # Database
   isar_community: ^3.3.2
-  isar_community_flutter_libs: ^3.3.2
+  isar_community_flutter_libs: ^3.4.1
 
   # Storage & paths
   path_provider: ^2.1.5
